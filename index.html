@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcanum AI | Mythical Lore Engine</title>
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel para títulos épicos e Inter para lectura -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Firebase SDK (Version Compat para mayor estabilidad en archivos únicos) -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --gold: #eab308;
+            --dark-bg: #050507;
+            --card-bg: #0f0f12;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--dark-bg); 
+            color: #d1d5db;
+            margin: 0;
+            overflow: hidden;
+        }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* Estilos de scroll personalizados */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+        /* Efectos visuales */
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .golden-glow { box-shadow: 0 0 20px rgba(234, 179, 8, 0.15); }
+        .transition-slow { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Animaciones */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.6s ease-out forwards; }
+        
+        /* Layout fix for mobile */
+        @media (max-width: 768px) {
+            #sidebar { display: none; }
+            #mobile-nav { display: flex; }
+        }
+    </style>
+</head>
+<body class="h-screen flex">
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <aside id="sidebar" class="w-80 bg-[#0a0a0c] border-r border-white/5 flex flex-col p-8 z-50">
+        <div class="flex items-center gap-4 mb-14 group cursor-pointer" onclick="showView('home')">
+            <div class="bg-yellow-500/10 p-2.5 rounded-2xl border border-yellow-500/20 group-hover:bg-yellow-500 transition-colors duration-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-yellow-500 group-hover:text-black transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>
+            </div>
+            <h1 class="font-cinzel font-black text-2xl tracking-widest text-white italic">ARCANUM</h1>
+        </div>
+
+        <nav class="flex-1 space-y-2">
+            <button onclick="showView('home')" class="nav-item w-full flex items-center justify-between px-5 py-4 rounded-2xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all">
+                <div class="flex items-center gap-4 font-bold text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                    Biblioteca
+                </div>
+            </button>
+            <button onclick="showView('forge')" class="nav-item w-full flex items-center justify-between px-5 py-4 rounded-2xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all">
+                <div class="flex items-center gap-4 font-bold text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Forja Arcana
+                </div>
+            </button>
+
+            <div class="pt-10 pb-4 px-5 text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em]">Categorías</div>
+            
+            <button onclick="filterBy('persona')" class="w-full flex items-center gap-4 px-5 py-4 text-zinc-500 hover:text-orange-400 transition-all text-sm font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Personas
+            </button>
+            <button onclick="filterBy('objeto')" class="w-full flex items-center gap-4 px-5 py-4 text-zinc-500 hover:text-blue-400 transition-all text-sm font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Objetos
+            </button>
+            <button onclick="filterBy('lugar')" class="w-full flex items-center gap-4 px-5 py-4 text-zinc-500 hover:text-emerald-400 transition-all text-sm font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Lugares
+            </button>
+        </nav>
+
+        <div class="mt-auto p-6 glass rounded-3xl border border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-600 to-yellow-400 p-0.5">
+                    <div class="w-full h-full rounded-full bg-black flex items-center justify-center text-[10px] font-bold text-yellow-500">DEV</div>
+                </div>
+                <div>
+                    <p class="text-xs font-black text-white">GitHub Project</p>
+                    <p class="text-[10px] text-zinc-500">v1.0.0-Stable</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE TRABAJO -->
+    <main class="flex-1 relative overflow-hidden flex flex-col">
+        
+        <!-- Header Superior -->
+        <header class="h-24 border-b border-white/5 flex items-center justify-between px-12 z-40 bg-[#050507]/80 backdrop-blur-xl">
+            <div class="relative w-96 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input type="text" id="search-bar" oninput="handleSearch()" placeholder="Buscar en los anales del tiempo..." class="w-full bg-white/5 border border-white/5 rounded-full py-2.5 pl-12 pr-6 text-sm outline-none focus:ring-1 focus:ring-yellow-500/30 transition-all">
+            </div>
+            <div class="flex items-center gap-6">
+                <button onclick="showView('forge')" class="bg-yellow-500 hover:bg-yellow-400 text-black px-7 py-2.5 rounded-full font-black text-xs tracking-widest uppercase transition-all shadow-lg shadow-yellow-500/10">NUEVA FORJA</button>
+            </div>
+        </header>
+
+        <!-- Contenedor Dinámico -->
+        <div id="content-area" class="flex-1 overflow-y-auto p-12 custom-scrollbar">
+            <!-- El contenido se inyecta aquí con JS -->
+        </div>
+
+        <!-- Pantalla de Carga de IA -->
+        <div id="ai-loader" class="hidden fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center text-center">
+            <div class="relative w-32 h-32 mb-10">
+                <div class="absolute inset-0 border-4 border-yellow-500/10 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center animate-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+            </div>
+            <h2 class="font-cinzel text-4xl font-bold text-white mb-4 tracking-tighter uppercase italic">Transmutando Realidad</h2>
+            <p class="text-zinc-500 text-lg max-w-md italic leading-relaxed">Gemini está analizando tu mitología... Imagen 4 está pintando tus sueños...</p>
+        </div>
+    </main>
+
+    <!-- Modal de Detalle de Carta -->
+    <div id="card-modal" class="hidden fixed inset-0 z-[200] bg-black/98 backdrop-blur-3xl flex items-center justify-center p-6" onclick="closeModal(event)">
+        <div id="modal-container" class="max-w-6xl w-full" onclick="event.stopPropagation()">
+            <!-- Inyectado por JS -->
+        </div>
+    </div>
+
+    <!-- Navegación Móvil -->
+    <nav id="mobile-nav" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 glass rounded-full p-2 gap-1 z-50 shadow-2xl border border-white/10">
+        <button onclick="showView('home')" class="p-4 rounded-full text-zinc-500 hover:text-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg></button>
+        <button onclick="showView('forge')" class="p-4 rounded-full text-zinc-500 hover:text-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></button>
+    </nav>
+
+    <script>
+        // --- INICIALIZACIÓN DE FIREBASE ---
+        const firebaseConfig = JSON.parse(__firebase_config);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'github-arcanum-app';
+        const apiKey = ""; // La API Key se maneja por el entorno
+
+        // --- ESTADO DE LA APLICACIÓN ---
+        let cards = [];
+        let currentCategory = 'all';
+        let isListening = false;
+        let recognition;
+
+        // --- AUTENTICACIÓN ---
+        async function startApp() {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await auth.signInWithCustomToken(__initial_auth_token);
+            } else {
+                await auth.signInAnonymously();
+            }
+            listenToDatabase();
+            showView('home');
+        }
+
+        // --- BASE DE DATOS ---
+        function listenToDatabase() {
+            db.collection('artifacts').doc(appId).collection('public').doc('data').collection('grimorio')
+                .onSnapshot(snapshot => {
+                    cards = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}))
+                        .sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+                    renderGallery();
+                });
+        }
+
+        // --- GESTIÓN DE VISTAS ---
+        function showView(viewName) {
+            const container = document.getElementById('content-area');
+            if (viewName === 'forge') {
+                container.innerHTML = renderForgeView();
+                initMic();
+            } else {
+                currentCategory = 'all';
+                renderGallery();
+            }
+        }
+
+        function filterBy(cat) {
+            currentCategory = cat;
+            renderGallery();
+        }
+
+        function renderGallery(filtered = null) {
+            const data = filtered || (currentCategory === 'all' ? cards : cards.filter(c => c.category === currentCategory));
+            const container = document.getElementById('content-area');
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center opacity-30 animate-fade">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                        <p class="text-2xl font-cinzel uppercase tracking-widest">Registros Vacíos</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="mb-12 animate-fade">
+                    <h2 class="font-cinzel text-5xl font-black text-white uppercase tracking-tighter italic">Biblioteca de Leyendas</h2>
+                    <p class="text-zinc-600 mt-2 font-medium">Visualizando ${data.length} registros del universo creado.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 animate-fade">
+                    ${data.map(card => `
+                        <div onclick="openCard('${card.id}')" class="group glass rounded-[40px] overflow-hidden cursor-pointer hover:border-yellow-500/40 transition-slow flex flex-col h-full hover:-translate-y-2 shadow-2xl">
+                            <div class="aspect-[4/5] relative overflow-hidden">
+                                <img src="${card.image}" class="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+                                <div class="absolute top-6 right-6 bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 text-[10px] font-black text-yellow-500 uppercase tracking-widest">
+                                    ${card.rarity}
+                                </div>
+                            </div>
+                            <div class="p-8 flex-1 flex flex-col">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">${card.category}</span>
+                                </div>
+                                <h3 class="font-cinzel text-2xl font-bold text-white mb-2 leading-none">${card.name}</h3>
+                                <p class="text-xs text-zinc-500 line-clamp-3 italic leading-relaxed">"${card.story}"</p>
+                                <div class="mt-auto pt-6 flex justify-between border-t border-white/5 text-[9px] font-black text-zinc-600 tracking-tighter">
+                                    <span>ATK ${card.stats?.atk || 0}</span>
+                                    <span>MAG ${card.stats?.mag || 0}</span>
+                                    <span>ESN ${card.stats?.esn || 0}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>`;
+        }
+
+        function renderForgeView() {
+            return `
+                <div class="max-w-4xl mx-auto py-10 animate-fade">
+                    <div class="text-center mb-16">
+                        <h2 class="font-cinzel text-6xl font-black text-white italic tracking-tighter">Altar de Creación</h2>
+                        <p class="text-zinc-500 mt-4 text-lg">Tu voz es el pincel. La Inteligencia Artificial es el lienzo.</p>
+                    </div>
+
+                    <div class="glass p-12 rounded-[60px] space-y-10 shadow-3xl">
+                        <!-- Selector de Categoría -->
+                        <div class="flex gap-4 p-2 bg-black/50 rounded-3xl border border-white/5">
+                            ${['persona', 'objeto', 'lugar'].map(cat => `
+                                <button onclick="setForgeCat('${cat}')" id="btn-${cat}" class="forge-cat-btn flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${cat === 'persona' ? 'bg-yellow-500 text-black shadow-lg shadow-yellow-500/20' : 'text-zinc-500 hover:text-zinc-300'}">
+                                    ${cat}s
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <!-- Área de Texto / Mic -->
+                        <div class="relative group">
+                            <textarea id="lore-input" class="w-full bg-black/40 border-2 border-white/5 rounded-[45px] p-12 text-2xl min-h-[400px] outline-none focus:border-yellow-500/30 transition-all text-white placeholder:text-zinc-800 leading-relaxed" placeholder="Describe un héroe, un artefacto o un reino olvidado..."></textarea>
+                            <button id="mic-trigger" onclick="toggleMic()" class="absolute bottom-10 right-10 w-20 h-20 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center hover:bg-zinc-800 transition-all text-zinc-500 hover:text-white shadow-2xl">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-20a3 3 0 013 3v10a3 3 0 01-6 0V5a3 3 0 013-3z" /></svg>
+                            </button>
+                        </div>
+
+                        <button onclick="invokeMagic()" class="w-full py-8 bg-yellow-500 text-black font-black text-2xl rounded-[35px] hover:bg-yellow-400 hover:scale-[1.01] active:scale-95 transition-all shadow-2xl shadow-yellow-500/20 uppercase tracking-[0.3em] font-cinzel">
+                            INVOCAR LEYENDA
+                        </button>
+                    </div>
+                </div>`;
+        }
+
+        // --- LÓGICA DE FORJA ---
+        let forgeCat = 'persona';
+        function setForgeCat(cat) {
+            forgeCat = cat;
+            document.querySelectorAll('.forge-cat-btn').forEach(b => {
+                b.classList.remove('bg-yellow-500', 'text-black');
+                b.classList.add('text-zinc-500');
+            });
+            document.getElementById(`btn-${cat}`).classList.add('bg-yellow-500', 'text-black');
+            document.getElementById(`btn-${cat}`).classList.remove('text-zinc-500');
+        }
+
+        function initMic() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRec) {
+                recognition = new SpeechRec();
+                recognition.lang = 'es-ES';
+                recognition.continuous = true;
+                recognition.onresult = (e) => {
+                    const text = e.results[e.results.length - 1][0].transcript;
+                    document.getElementById('lore-input').value += " " + text;
+                };
+            }
+        }
+
+        function toggleMic() {
+            const btn = document.getElementById('mic-trigger');
+            if (!isListening) {
+                recognition.start();
+                btn.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+            } else {
+                recognition.stop();
+                btn.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+            }
+            isListening = !isListening;
+        }
+
+        async function invokeMagic() {
+            const story = document.getElementById('lore-input').value;
+            if (!story.trim()) return;
+
+            document.getElementById('ai-loader').classList.remove('hidden');
+
+            try {
+                // 1. ANÁLISIS GEMINI
+                const geminiPrompt = `Analyze this fantasy lore for a card game. Category: ${forgeCat}. Story: "${story}". 
+                Generate JSON: {"name": "Epic Name", "desc": "Short poetic description", "rarity": "Legendaria/Epica/Comun", "stats": {"atk": 1-99, "mag": 1-99, "esn": 1-99}, "imgPrompt": "Visual cinematic description for AI art"}`;
+
+                const gResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        contents: [{parts: [{text: geminiPrompt}]}],
+                        generationConfig: {responseMimeType: "application/json"}
+                    })
+                });
+                const gData = await gResp.json();
+                const aiData = JSON.parse(gData.candidates[0].content.parts[0].text);
+
+                // 2. GENERACIÓN IMAGEN 4
+                const iResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        instances: {prompt: `High-end fantasy digital illustration, cinematic lighting, ultra-detailed, ${aiData.imgPrompt}`},
+                        parameters: {sampleCount: 1}
+                    })
+                });
+                const iData = await iResp.json();
+                const imageBase64 = `data:image/png;base64,${iData.predictions[0].bytesBase64Encoded}`;
+
+                // 3. GUARDADO FIRESTORE
+                await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('grimorio').add({
+                    ...aiData,
+                    image: imageBase64,
+                    story: story,
+                    category: forgeCat,
+                    createdAt: Date.now()
+                });
+
+                document.getElementById('ai-loader').classList.add('hidden');
+                showView('home');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('ai-loader').classList.add('hidden');
+                alert("La conexión con el plano astral falló.");
+            }
+        }
+
+        // --- DETALLE Y BUSCADOR ---
+        function openCard(id) {
+            const card = cards.find(c => c.id === id);
+            const modal = document.getElementById('card-modal');
+            const container = document.getElementById('modal-container');
+
+            container.innerHTML = `
+                <div class="glass rounded-[60px] overflow-hidden grid grid-cols-1 md:grid-cols-2 shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/10 group">
+                    <div class="h-[500px] md:h-full relative overflow-hidden">
+                        <img src="${card.image}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0c] via-transparent"></div>
+                    </div>
+                    <div class="p-16 flex flex-col justify-center">
+                        <div class="flex justify-between items-start mb-10">
+                            <div>
+                                <p class="text-yellow-500 font-black text-xs uppercase tracking-[0.4em] mb-2">${card.rarity}</p>
+                                <h2 class="font-cinzel text-6xl font-black text-white leading-none tracking-tighter">${card.name}</h2>
+                            </div>
+                            <button onclick="document.getElementById('card-modal').classList.add('hidden')" class="p-5 bg-white/5 rounded-full hover:bg-white/10 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <div class="bg-black/50 p-12 rounded-[50px] border border-white/5 mb-10 relative">
+                            <p class="text-2xl text-zinc-300 italic font-medium leading-relaxed">"${card.story}"</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-6">
+                            ${Object.entries(card.stats || {}).map(([name, val]) => `
+                                <div class="bg-white/5 p-6 rounded-[30px] border border-white/5 text-center">
+                                    <p class="text-[10px] font-black text-zinc-600 uppercase mb-1 tracking-widest">${name}</p>
+                                    <p class="text-4xl font-black text-white font-cinzel">${val}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(e) {
+            document.getElementById('card-modal').classList.add('hidden');
+        }
+
+        function handleSearch() {
+            const term = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = cards.filter(c => 
+                c.name.toLowerCase().includes(term) || 
+                c.story.toLowerCase().includes(term)
+            );
+            renderGallery(filtered);
+        }
+
+        // --- INICIO ---
+        startApp();
+    </script>
+</body>
+</html>
