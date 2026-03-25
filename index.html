@@ -29,7 +29,7 @@
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; }
+    html, body { margin: 0; min-height: 100%; height: 100%; overflow: hidden; }
 
     body {
       font-family: "Nunito", Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -42,21 +42,21 @@
       line-height: 1.5;
     }
 
-    .app {
-      width: min(1240px, calc(100% - 32px));
-      margin: 24px auto 40px;
-    }
+    .app { width: 100%; height: 100vh; padding: 12px; }
 
     .layout {
       display: grid;
-      grid-template-columns: 280px minmax(0, 1fr);
+      grid-template-columns: 300px minmax(0, 1fr);
       gap: 18px;
       align-items: start;
+      height: 100%;
     }
 
     .sidebar {
       position: sticky;
-      top: 20px;
+      top: 0;
+      height: calc(100vh - 24px);
+      overflow: auto;
       background: linear-gradient(140deg, rgba(31,42,79,.9), rgba(20,27,51,.95));
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -84,6 +84,9 @@
     .sidebar-item {
       width: 100%;
       text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .sidebar-item[disabled] {
@@ -96,7 +99,17 @@
       min-width: 0;
       display: grid;
       gap: 16px;
+      height: calc(100vh - 24px);
+      overflow: auto;
     }
+    .sidebar-toggle { margin-top: 4px; }
+    .sidebar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-emoji { width: 22px; text-align: center; flex: none; }
+    .layout.sidebar-collapsed { grid-template-columns: 86px minmax(0, 1fr); }
+    .layout.sidebar-collapsed .sidebar { padding: 14px 10px; }
+    .layout.sidebar-collapsed .sidebar-copy,
+    .layout.sidebar-collapsed .sidebar-label { display: none; }
+    .layout.sidebar-collapsed .sidebar-item { justify-content: center; padding-inline: 6px; }
 
     button, select {
       border: 1px solid var(--line);
@@ -180,8 +193,8 @@
       position: relative;
       overflow: auto;
       width: 100%;
-      height: min(72vh, 760px);
-      min-height: 520px;
+      height: calc(100vh - 280px);
+      min-height: 460px;
       border-radius: 14px;
       border: 1px solid rgba(89, 208, 255, .22);
       background:
@@ -195,7 +208,24 @@
       position: relative;
       min-width: 1400px;
       min-height: 900px;
+      transform-origin: 0 0;
     }
+
+    .map-controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      color: #d8e8ff;
+      font-size: .92rem;
+    }
+
+    .map-controls label { display: flex; gap: 8px; align-items: center; }
+    .map-controls input[type="range"] { width: 170px; }
+    .map-controls button { padding: 8px 12px; }
+    .map-sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; color: #d8e8ff; }
+    .map-sliders label { display: grid; gap: 4px; }
 
     .map-links {
       position: absolute;
@@ -417,27 +447,40 @@
       .layout { grid-template-columns: 1fr; }
       .sidebar {
         position: static;
+        height: auto;
       }
       .sidebar-nav {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
       .universe-layout { grid-template-columns: 1fr; }
       .toolbar { grid-template-columns: 1fr; }
+      .content { height: auto; }
+      html, body { overflow: auto; }
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <div class="layout">
+    <div class="layout" id="appLayout">
       <aside class="sidebar" aria-label="Menú principal">
-        <div>
+        <div class="sidebar-copy">
           <h1 class="title">🎙️ Colección de Saludos de Doblaje</h1>
           <p class="subtitle">Explora universos, personajes, rarezas y desbloquea logros.</p>
         </div>
+        <button id="toggleSidebar" class="sidebar-toggle">↔️ Colapsar menú</button>
         <nav class="sidebar-nav">
-          <button id="navUniverses" class="sidebar-item active">UNIVERSOS</button>
-          <button id="navAchievements" class="sidebar-item">LOGROS</button>
-          <button class="sidebar-item" disabled>PRÓXIMAMENTE</button>
+          <button id="navInicio" class="sidebar-item"><span class="sidebar-emoji">🏠</span><span class="sidebar-label">1. Inicio</span></button>
+          <button id="navUniverses" class="sidebar-item active"><span class="sidebar-emoji">🪐</span><span class="sidebar-label">2. Universos</span></button>
+          <button id="navIndice" class="sidebar-item"><span class="sidebar-emoji">📚</span><span class="sidebar-label">3. Índice</span></button>
+          <button id="navMaraton" class="sidebar-item"><span class="sidebar-emoji">🎬</span><span class="sidebar-label">4. Maratón</span></button>
+          <button id="navRarezas" class="sidebar-item"><span class="sidebar-emoji">💎</span><span class="sidebar-label">5. Rarezas</span></button>
+          <button id="navActores" class="sidebar-item"><span class="sidebar-emoji">🎙️</span><span class="sidebar-label">6. Actores</span></button>
+          <button id="navVersiones" class="sidebar-item"><span class="sidebar-emoji">🧬</span><span class="sidebar-label">7. Versiones</span></button>
+          <button id="navAchievements" class="sidebar-item"><span class="sidebar-emoji">🏆</span><span class="sidebar-label">8. Logros</span></button>
+          <button id="navFavoritos" class="sidebar-item"><span class="sidebar-emoji">⭐</span><span class="sidebar-label">9. Favoritos</span></button>
+          <button id="navBuscar" class="sidebar-item"><span class="sidebar-emoji">🔎</span><span class="sidebar-label">10. Buscar</span></button>
+          <button id="navStats" class="sidebar-item"><span class="sidebar-emoji">📈</span><span class="sidebar-label">11. Estadísticas</span></button>
+          <button id="navConfig" class="sidebar-item"><span class="sidebar-emoji">⚙️</span><span class="sidebar-label">12. Configuración</span></button>
         </nav>
       </aside>
 
@@ -450,18 +493,7 @@
   </main>
 
   <script>
-    const VIDEOS = [
-      { id: 'dbz_goku_1', universo: 'Dragon Ball', personaje: 'Goku', actor_de_doblaje: 'Mario Castañeda', url_video: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', rareza: 'Legendario', version: 'Versión clásica' },
-      { id: 'dbz_goku_2', universo: 'Dragon Ball', personaje: 'Goku', actor_de_doblaje: 'Mario Castañeda', url_video: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ', rareza: 'Épico', version: 'Versión energética' },
-      { id: 'dbz_vegeta_1', universo: 'Dragon Ball', personaje: 'Vegeta', actor_de_doblaje: 'René García', url_video: 'https://www.youtube.com/watch?v=l482T0yNkeo', rareza: 'Raro', version: 'Versión orgullosa' },
-      { id: 'dbz_gohan_1', universo: 'Dragon Ball', personaje: 'Gohan', actor_de_doblaje: 'Luis Alfonso Mendoza', url_video: 'https://www.youtube.com/watch?v=9bZkp7q19f0', rareza: 'Común', version: 'Versión amable' },
-      { id: 'dis_mickey_1', universo: 'Disney', personaje: 'Mickey Mouse', actor_de_doblaje: 'Arturo Mercado Jr.', url_video: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk', rareza: 'Raro', version: 'Saludo clásico' },
-      { id: 'dis_elsa_1', universo: 'Disney', personaje: 'Elsa', actor_de_doblaje: 'Carmen Sarahí', url_video: 'https://www.youtube.com/watch?v=RgKAFK5djSk', rareza: 'Épico', version: 'Versión invierno' },
-      { id: 'dis_buzz_1', universo: 'Disney', personaje: 'Buzz Lightyear', actor_de_doblaje: 'José Luis Orozco', url_video: 'https://www.youtube.com/watch?v=OPf0YbXqDm0', rareza: 'Común', version: 'Versión espacial' },
-      { id: 'nar_naruto_1', universo: 'Naruto', personaje: 'Naruto Uzumaki', actor_de_doblaje: 'Isabel Martiñón', url_video: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ', rareza: 'Legendario', version: 'Dattebayo' },
-      { id: 'nar_sasuke_1', universo: 'Naruto', personaje: 'Sasuke Uchiha', actor_de_doblaje: 'Javier Olguín', url_video: 'https://www.youtube.com/watch?v=eY52Zsg-KVI', rareza: 'Raro', version: 'Versión seria' },
-      { id: 'nar_sakura_1', universo: 'Naruto', personaje: 'Sakura Haruno', actor_de_doblaje: 'Leyla Rangel', url_video: 'https://www.youtube.com/watch?v=60ItHLz5WEA', rareza: 'Común', version: 'Versión alegre' }
-    ];
+    const VIDEOS = [];
 
     const state = {
       view: 'map',
@@ -470,11 +502,14 @@
       selectedVideoId: null,
       marathon: { active: false, queue: [], position: 0 },
       universeNodes: [],
-      mapCanvas: { width: 1400, height: 900 }
+      mapCanvas: { width: 1400, height: 900 },
+      mapZoom: 100
     };
     const UNIVERSES_STORAGE_KEY = 'universes_map_v1';
     const MAX_LOCAL_IMAGE_BYTES = 2 * 1024 * 1024;
 
+    const appLayout = document.getElementById('appLayout');
+    const toggleSidebar = document.getElementById('toggleSidebar');
     const navUniverses = document.getElementById('navUniverses');
     const navAchievements = document.getElementById('navAchievements');
     const viewMap = document.getElementById('viewMap');
@@ -750,8 +785,24 @@
             </form>
             <div id="formFeedback" class="form-feedback" aria-live="polite"></div>
           </section>
+          <div class="map-controls">
+            <label>🔍 Zoom
+              <input type="range" id="mapZoom" min="60" max="180" value="${state.mapZoom}" step="5">
+              <span id="mapZoomValue">${state.mapZoom}%</span>
+            </label>
+            <button type="button" id="mapCenter">Centrar mapa</button>
+            <button type="button" id="mapResetZoom">Reset zoom</button>
+          </div>
+          <div class="map-sliders">
+            <label>↔️ Desplazamiento horizontal
+              <input type="range" id="mapPanX" min="0" max="100" value="50">
+            </label>
+            <label>↕️ Desplazamiento vertical
+              <input type="range" id="mapPanY" min="0" max="100" value="50">
+            </label>
+          </div>
           <div id="universeMapCanvas">
-            <div class="map-world" style="width:${state.mapCanvas.width}px; height:${state.mapCanvas.height}px;">
+            <div class="map-world" id="mapWorld" style="width:${state.mapCanvas.width}px; height:${state.mapCanvas.height}px; transform:scale(${state.mapZoom / 100});">
               <svg class="map-links" viewBox="0 0 ${state.mapCanvas.width} ${state.mapCanvas.height}" preserveAspectRatio="none">
                 ${linkMarkup}
               </svg>
@@ -871,11 +922,79 @@
         feedback.textContent = `Universo "${name}" agregado correctamente.`;
         renderMapView();
       });
+
+      initMapControls();
+    }
+
+    function initMapControls() {
+      const mapCanvas = document.getElementById('universeMapCanvas');
+      const mapWorld = document.getElementById('mapWorld');
+      const panX = document.getElementById('mapPanX');
+      const panY = document.getElementById('mapPanY');
+      const zoom = document.getElementById('mapZoom');
+      const zoomValue = document.getElementById('mapZoomValue');
+      const centerBtn = document.getElementById('mapCenter');
+      const resetBtn = document.getElementById('mapResetZoom');
+      if (!mapCanvas || !mapWorld || !panX || !panY || !zoom || !zoomValue || !centerBtn || !resetBtn) return;
+
+      const setPanFromScroll = () => {
+        const maxX = Math.max(1, mapCanvas.scrollWidth - mapCanvas.clientWidth);
+        const maxY = Math.max(1, mapCanvas.scrollHeight - mapCanvas.clientHeight);
+        panX.value = String(Math.round((mapCanvas.scrollLeft / maxX) * 100));
+        panY.value = String(Math.round((mapCanvas.scrollTop / maxY) * 100));
+      };
+
+      const moveByRange = () => {
+        const maxX = Math.max(0, mapCanvas.scrollWidth - mapCanvas.clientWidth);
+        const maxY = Math.max(0, mapCanvas.scrollHeight - mapCanvas.clientHeight);
+        mapCanvas.scrollLeft = (Number(panX.value) / 100) * maxX;
+        mapCanvas.scrollTop = (Number(panY.value) / 100) * maxY;
+      };
+
+      zoom.addEventListener('input', () => {
+        state.mapZoom = Number(zoom.value);
+        mapWorld.style.transform = `scale(${state.mapZoom / 100})`;
+        zoomValue.textContent = `${state.mapZoom}%`;
+        moveByRange();
+      });
+      panX.addEventListener('input', moveByRange);
+      panY.addEventListener('input', moveByRange);
+      mapCanvas.addEventListener('scroll', setPanFromScroll);
+      centerBtn.addEventListener('click', () => {
+        panX.value = '50';
+        panY.value = '50';
+        moveByRange();
+      });
+      resetBtn.addEventListener('click', () => {
+        state.mapZoom = 100;
+        zoom.value = '100';
+        mapWorld.style.transform = 'scale(1)';
+        zoomValue.textContent = '100%';
+        panX.value = '50';
+        panY.value = '50';
+        moveByRange();
+      });
+
+      requestAnimationFrame(() => {
+        panX.value = '50';
+        panY.value = '50';
+        moveByRange();
+      });
     }
 
     function renderUniverseView() {
       const videos = getUniverseVideos();
-      if (!videos.length) return;
+      if (!videos.length) {
+        viewUniverse.innerHTML = `
+          <div class="panel">
+            <h2>${state.universe || 'Universo'}</h2>
+            <p class="muted">Todavía no hay videos cargados en este universo.</p>
+            <button id="backMap">← Volver al mapa</button>
+          </div>
+        `;
+        document.getElementById('backMap').onclick = () => changeView('map');
+        return;
+      }
 
       const personajes = [...new Set(videos.map(v => v.personaje))];
       const actores = [...new Set(videos.map(v => v.actor_de_doblaje))];
@@ -1093,18 +1212,37 @@
       viewMap.classList.toggle('active', next === 'map');
       viewUniverse.classList.toggle('active', next === 'universe');
       viewAchievements.classList.toggle('active', next === 'achievements');
-      navUniverses.classList.toggle('active', next !== 'achievements');
-      navAchievements.classList.toggle('active', next === 'achievements');
+      document.querySelectorAll('.sidebar-nav .sidebar-item').forEach(btn => btn.classList.remove('active'));
+      if (next === 'achievements') {
+        navAchievements.classList.add('active');
+      } else {
+        navUniverses.classList.add('active');
+      }
 
       if (next === 'map') renderMapView();
       if (next === 'universe') renderUniverseView();
       if (next === 'achievements') renderAchievementsView();
     }
 
+    toggleSidebar.onclick = () => {
+      appLayout.classList.toggle('sidebar-collapsed');
+      toggleSidebar.textContent = appLayout.classList.contains('sidebar-collapsed') ? '➡️ Expandir menú' : '↔️ Colapsar menú';
+    };
+
+    const upcomingNavs = ['navInicio', 'navIndice', 'navMaraton', 'navRarezas', 'navActores', 'navVersiones', 'navFavoritos', 'navBuscar', 'navStats', 'navConfig'];
+    upcomingNavs.forEach(id => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.onclick = () => {
+        alert('Esta sección está preparada en el menú y la activaremos en la siguiente etapa.');
+      };
+    });
+
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
     navAchievements.onclick = () => changeView('achievements');
 
-    state.universeNodes = loadUniverseNodesFromStorage();
+    localStorage.removeItem(UNIVERSES_STORAGE_KEY);
+    state.universeNodes = [];
     changeView('map');
   </script>
 </body>
