@@ -40,21 +40,25 @@
     .app {
       width: min(1240px, calc(100% - 32px));
       margin: 24px auto 40px;
-      display: grid;
-      gap: 18px;
     }
 
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      justify-content: space-between;
-      align-items: center;
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
       background: linear-gradient(140deg, rgba(31,42,79,.9), rgba(20,27,51,.95));
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 16px;
       box-shadow: var(--shadow);
+      display: grid;
+      gap: 14px;
     }
 
     .title {
@@ -65,7 +69,27 @@
 
     .subtitle { margin: 4px 0 0; color: var(--muted); }
 
-    .tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+    .sidebar-nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .sidebar-item {
+      width: 100%;
+      text-align: left;
+    }
+
+    .sidebar-item[disabled] {
+      cursor: not-allowed;
+      opacity: .55;
+      transform: none;
+    }
+
+    .content {
+      min-width: 0;
+      display: grid;
+      gap: 16px;
+    }
 
     button, select {
       border: 1px solid var(--line);
@@ -202,6 +226,13 @@
     .achievement.done { border-color: rgba(126,231,135,.55); background: rgba(126,231,135,.12); }
 
     @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+      }
+      .sidebar-nav {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
       .universe-layout { grid-template-columns: 1fr; }
       .toolbar { grid-template-columns: 1fr; }
     }
@@ -209,20 +240,25 @@
 </head>
 <body>
   <main class="app">
-    <header class="header">
-      <div>
-        <h1 class="title">🎙️ Colección de Saludos de Doblaje</h1>
-        <p class="subtitle">Explora universos, personajes, rarezas y desbloquea logros.</p>
-      </div>
-      <nav class="tabs">
-        <button id="tabMap" class="active">Mapa de Universos</button>
-        <button id="tabAchievements">Logros</button>
-      </nav>
-    </header>
+    <div class="layout">
+      <aside class="sidebar" aria-label="Menú principal">
+        <div>
+          <h1 class="title">🎙️ Colección de Saludos de Doblaje</h1>
+          <p class="subtitle">Explora universos, personajes, rarezas y desbloquea logros.</p>
+        </div>
+        <nav class="sidebar-nav">
+          <button id="navUniverses" class="sidebar-item active">UNIVERSOS</button>
+          <button id="navAchievements" class="sidebar-item">LOGROS</button>
+          <button class="sidebar-item" disabled>PRÓXIMAMENTE</button>
+        </nav>
+      </aside>
 
-    <section id="viewMap" class="view active"></section>
-    <section id="viewUniverse" class="view"></section>
-    <section id="viewAchievements" class="view"></section>
+      <section class="content">
+        <section id="viewMap" class="view active"></section>
+        <section id="viewUniverse" class="view"></section>
+        <section id="viewAchievements" class="view"></section>
+      </section>
+    </div>
   </main>
 
   <script>
@@ -247,8 +283,8 @@
       marathon: { active: false, queue: [], position: 0 }
     };
 
-    const tabMap = document.getElementById('tabMap');
-    const tabAchievements = document.getElementById('tabAchievements');
+    const navUniverses = document.getElementById('navUniverses');
+    const navAchievements = document.getElementById('navAchievements');
     const viewMap = document.getElementById('viewMap');
     const viewUniverse = document.getElementById('viewUniverse');
     const viewAchievements = document.getElementById('viewAchievements');
@@ -537,16 +573,16 @@
       viewMap.classList.toggle('active', next === 'map');
       viewUniverse.classList.toggle('active', next === 'universe');
       viewAchievements.classList.toggle('active', next === 'achievements');
-      tabMap.classList.toggle('active', next !== 'achievements');
-      tabAchievements.classList.toggle('active', next === 'achievements');
+      navUniverses.classList.toggle('active', next !== 'achievements');
+      navAchievements.classList.toggle('active', next === 'achievements');
 
       if (next === 'map') renderMapView();
       if (next === 'universe') renderUniverseView();
       if (next === 'achievements') renderAchievementsView();
     }
 
-    tabMap.onclick = () => changeView(state.universe ? 'universe' : 'map');
-    tabAchievements.onclick = () => changeView('achievements');
+    navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
+    navAchievements.onclick = () => changeView('achievements');
 
     changeView('map');
   </script>
