@@ -13,7 +13,6 @@ Aplicación web estática construida desde cero para gestionar una colección de
 - Modo Maratón con reproducción encadenada y contador “X de Y”.
 - Índice de personajes por universo con cantidad de versiones.
 - Pantalla de logros con desbloqueados y pendientes.
-- Importación de videos desde un canal de YouTube usando su URL.
 
 ## Estructura de datos usada
 
@@ -30,10 +29,3 @@ Cada elemento de la colección usa:
 ## Uso
 
 Abrir `index.html` en cualquier navegador moderno.
-
-### Importar videos de un canal
-
-1. En la vista **UNIVERSOS**, ir al bloque **Importar videos de YouTube**.
-2. Pegar la URL del canal (ejemplo: `https://www.youtube.com/@fmz2502`).
-3. Opcionalmente, indicar un nombre para el universo destino.
-4. Presionar **Importar videos del canal**.

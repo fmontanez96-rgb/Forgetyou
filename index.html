@@ -432,7 +432,7 @@
       <aside class="sidebar" aria-label="Menú principal">
         <div>
           <h1 class="title">🎙️ Colección de Saludos de Doblaje</h1>
-          <p class="subtitle">Explora universos, personajes, rarezas y desbloquea logros con tus propios videos.</p>
+          <p class="subtitle">Explora universos, personajes, rarezas y desbloquea logros.</p>
         </div>
         <nav class="sidebar-nav">
           <button id="navUniverses" class="sidebar-item active">UNIVERSOS</button>
@@ -450,8 +450,18 @@
   </main>
 
   <script>
-    const VIDEOS = [];
-    const DEFAULT_CHANNEL_URL = 'https://www.youtube.com/@fmz2502';
+    const VIDEOS = [
+      { id: 'dbz_goku_1', universo: 'Dragon Ball', personaje: 'Goku', actor_de_doblaje: 'Mario Castañeda', url_video: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', rareza: 'Legendario', version: 'Versión clásica' },
+      { id: 'dbz_goku_2', universo: 'Dragon Ball', personaje: 'Goku', actor_de_doblaje: 'Mario Castañeda', url_video: 'https://www.youtube.com/watch?v=3JZ_D3ELwOQ', rareza: 'Épico', version: 'Versión energética' },
+      { id: 'dbz_vegeta_1', universo: 'Dragon Ball', personaje: 'Vegeta', actor_de_doblaje: 'René García', url_video: 'https://www.youtube.com/watch?v=l482T0yNkeo', rareza: 'Raro', version: 'Versión orgullosa' },
+      { id: 'dbz_gohan_1', universo: 'Dragon Ball', personaje: 'Gohan', actor_de_doblaje: 'Luis Alfonso Mendoza', url_video: 'https://www.youtube.com/watch?v=9bZkp7q19f0', rareza: 'Común', version: 'Versión amable' },
+      { id: 'dis_mickey_1', universo: 'Disney', personaje: 'Mickey Mouse', actor_de_doblaje: 'Arturo Mercado Jr.', url_video: 'https://www.youtube.com/watch?v=kJQP7kiw5Fk', rareza: 'Raro', version: 'Saludo clásico' },
+      { id: 'dis_elsa_1', universo: 'Disney', personaje: 'Elsa', actor_de_doblaje: 'Carmen Sarahí', url_video: 'https://www.youtube.com/watch?v=RgKAFK5djSk', rareza: 'Épico', version: 'Versión invierno' },
+      { id: 'dis_buzz_1', universo: 'Disney', personaje: 'Buzz Lightyear', actor_de_doblaje: 'José Luis Orozco', url_video: 'https://www.youtube.com/watch?v=OPf0YbXqDm0', rareza: 'Común', version: 'Versión espacial' },
+      { id: 'nar_naruto_1', universo: 'Naruto', personaje: 'Naruto Uzumaki', actor_de_doblaje: 'Isabel Martiñón', url_video: 'https://www.youtube.com/watch?v=fJ9rUzIMcZQ', rareza: 'Legendario', version: 'Dattebayo' },
+      { id: 'nar_sasuke_1', universo: 'Naruto', personaje: 'Sasuke Uchiha', actor_de_doblaje: 'Javier Olguín', url_video: 'https://www.youtube.com/watch?v=eY52Zsg-KVI', rareza: 'Raro', version: 'Versión seria' },
+      { id: 'nar_sakura_1', universo: 'Naruto', personaje: 'Sakura Haruno', actor_de_doblaje: 'Leyla Rangel', url_video: 'https://www.youtube.com/watch?v=60ItHLz5WEA', rareza: 'Común', version: 'Versión alegre' }
+    ];
 
     const state = {
       view: 'map',
@@ -513,59 +523,6 @@
       } catch (_) {
         throw new Error('La URL de portada no es válida');
       }
-    }
-
-    async function resolveChannelId(channelUrl) {
-      const direct = channelUrl.match(/\/channel\/(UC[A-Za-z0-9_-]+)/);
-      if (direct) return direct[1];
-
-      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(channelUrl)}&format=json`;
-      const response = await fetch(oembedUrl);
-      if (!response.ok) throw new Error('No se pudo resolver el canal.');
-      const data = await response.json();
-      const authorUrl = data?.author_url || '';
-      const authorChannel = authorUrl.match(/\/channel\/(UC[A-Za-z0-9_-]+)/);
-      if (!authorChannel) throw new Error('No se encontró el channel_id del canal.');
-      return authorChannel[1];
-    }
-
-    async function fetchChannelFeedXml(channelId) {
-      const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-      try {
-        const response = await fetch(feedUrl);
-        if (response.ok) return await response.text();
-      } catch (_) {}
-      const proxyResponse = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`);
-      if (!proxyResponse.ok) throw new Error('No fue posible descargar el feed del canal.');
-      return proxyResponse.text();
-    }
-
-    function importVideosFromFeed(feedXmlText, universeName) {
-      const xml = new DOMParser().parseFromString(feedXmlText, 'application/xml');
-      const entries = [...xml.querySelectorAll('entry')];
-      let imported = 0;
-
-      entries.forEach(entry => {
-        const videoId = entry.querySelector('video\\:videoId')?.textContent?.trim();
-        const title = entry.querySelector('title')?.textContent?.trim() || 'Sin título';
-        const author = entry.querySelector('author > name')?.textContent?.trim() || 'Canal';
-        const link = entry.querySelector('link[rel="alternate"]')?.getAttribute('href') || '';
-        if (!videoId || !link) return;
-        const id = `yt_${videoId}`;
-        if (VIDEOS.some(v => v.id === id)) return;
-        VIDEOS.push({
-          id,
-          universo: universeName,
-          personaje: title,
-          actor_de_doblaje: author,
-          url_video: link,
-          rareza: 'Común',
-          version: 'Importado del canal'
-        });
-        imported += 1;
-      });
-
-      return imported;
     }
 
     function fileToDataUrl(file) {
@@ -792,18 +749,6 @@
               <button type="submit">Agregar universo</button>
             </form>
             <div id="formFeedback" class="form-feedback" aria-live="polite"></div>
-            <hr>
-            <h3>Importar videos de YouTube</h3>
-            <form id="channelImportForm" class="universe-form">
-              <label>canalUrl (requerido)
-                <input type="url" id="canalUrl" name="canalUrl" required value="${DEFAULT_CHANNEL_URL}" placeholder="https://www.youtube.com/@tu-canal">
-              </label>
-              <label>universoDestino (opcional)
-                <input type="text" id="universoDestino" name="universoDestino" maxlength="80" placeholder="Ej. Mi Canal">
-              </label>
-              <button type="submit">Importar videos del canal</button>
-            </form>
-            <div id="channelFeedback" class="form-feedback" aria-live="polite"></div>
           </section>
           <div id="universeMapCanvas">
             <div class="map-world" style="width:${state.mapCanvas.width}px; height:${state.mapCanvas.height}px;">
@@ -926,52 +871,11 @@
         feedback.textContent = `Universo "${name}" agregado correctamente.`;
         renderMapView();
       });
-
-      const channelImportForm = document.getElementById('channelImportForm');
-      const channelFeedback = document.getElementById('channelFeedback');
-      channelImportForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        channelFeedback.style.color = '#ffd2d2';
-        channelFeedback.textContent = '';
-
-        const formData = new FormData(channelImportForm);
-        const channelUrl = String(formData.get('canalUrl') || '').trim();
-        const universeName = String(formData.get('universoDestino') || '').trim() || 'Canal de YouTube';
-        if (!channelUrl) {
-          channelFeedback.textContent = 'La URL del canal es obligatoria.';
-          return;
-        }
-
-        try {
-          const channelId = await resolveChannelId(channelUrl);
-          const xmlText = await fetchChannelFeedXml(channelId);
-          const imported = importVideosFromFeed(xmlText, universeName);
-          if (!imported) {
-            channelFeedback.textContent = 'No se importaron videos nuevos (puede que ya estén cargados).';
-            return;
-          }
-          channelFeedback.style.color = '#baf6c7';
-          channelFeedback.textContent = `Se importaron ${imported} videos al universo "${universeName}".`;
-          renderMapView();
-        } catch (error) {
-          channelFeedback.textContent = error?.message || 'No fue posible importar videos del canal.';
-        }
-      });
     }
 
     function renderUniverseView() {
       const videos = getUniverseVideos();
-      if (!videos.length) {
-        viewUniverse.innerHTML = `
-          <div class="panel">
-            <button id="backMap">← Volver al mapa</button>
-            <h2>${state.universe}</h2>
-            <p class="muted">Este universo aún no tiene videos cargados.</p>
-          </div>
-        `;
-        document.getElementById('backMap').onclick = () => changeView('map');
-        return;
-      }
+      if (!videos.length) return;
 
       const personajes = [...new Set(videos.map(v => v.personaje))];
       const actores = [...new Set(videos.map(v => v.actor_de_doblaje))];
