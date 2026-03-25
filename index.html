@@ -116,6 +116,121 @@
       gap: 14px;
     }
 
+    .universe-map-shell {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: rgba(20, 27, 51, 0.86);
+      box-shadow: var(--shadow);
+    }
+
+    #universeMapCanvas {
+      position: relative;
+      overflow: auto;
+      width: 100%;
+      height: min(72vh, 760px);
+      min-height: 520px;
+      border-radius: 14px;
+      border: 1px solid rgba(89, 208, 255, .22);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(89, 208, 255, .16), transparent 32%),
+        radial-gradient(circle at 85% 10%, rgba(167, 139, 250, .16), transparent 30%),
+        radial-gradient(circle at 20% 80%, rgba(126, 231, 135, .08), transparent 28%),
+        linear-gradient(165deg, rgba(11,16,32,.9), rgba(20,27,51,.95));
+    }
+
+    .map-world {
+      position: relative;
+      min-width: 1400px;
+      min-height: 900px;
+    }
+
+    .map-links {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .map-links line {
+      stroke: rgba(120, 162, 255, 0.35);
+      stroke-width: 3;
+      stroke-linecap: round;
+      transition: stroke .2s ease, opacity .2s ease;
+    }
+
+    .map-links line.active {
+      stroke: rgba(89, 208, 255, .95);
+      opacity: 1;
+    }
+
+    .universe-node {
+      --w: 180px;
+      --h: 130px;
+      position: absolute;
+      width: var(--w);
+      height: var(--h);
+      border: 1px solid rgba(160, 182, 255, .45);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      background: linear-gradient(155deg, rgba(31,42,79,.96), rgba(20,27,51,.98));
+      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, filter .2s ease;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    .universe-node::before {
+      content: '';
+      position: absolute;
+      inset: -20% 0 auto;
+      height: 58%;
+      background: radial-gradient(circle at center, rgba(255,255,255,.26), transparent 70%);
+      pointer-events: none;
+      opacity: .6;
+    }
+
+    .universe-node:hover,
+    .universe-node.active {
+      transform: translateY(-4px) scale(1.03);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(89, 208, 255, .18), var(--shadow);
+      z-index: 3;
+    }
+
+    .universe-node.dimmed {
+      filter: grayscale(.35) brightness(.8);
+      opacity: .55;
+    }
+
+    .universe-node .node-cover {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.15) contrast(1.05) brightness(.85);
+      opacity: .64;
+    }
+
+    .universe-node .node-info {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      z-index: 2;
+    }
+
+    .universe-node h3 {
+      margin: 0;
+      font-size: .97rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, .8);
+    }
+
+    .universe-node p {
+      margin: 4px 0 0;
+      font-size: .8rem;
+      color: #d8e8ff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, .8);
+    }
+
     .card {
       background: linear-gradient(160deg, var(--panel), var(--panel-2));
       border: 1px solid var(--line);
@@ -280,7 +395,9 @@
       universe: null,
       filters: { personaje: 'todos', actor: 'todos', rareza: 'todos' },
       selectedVideoId: null,
-      marathon: { active: false, queue: [], position: 0 }
+      marathon: { active: false, queue: [], position: 0 },
+      universeNodes: [],
+      mapCanvas: { width: 1400, height: 900 }
     };
 
     const navUniverses = document.getElementById('navUniverses');
@@ -329,25 +446,187 @@
       return Object.entries(grouped).map(([personaje, versions]) => ({ personaje, versions }));
     }
 
+    function hashCode(text) {
+      return [...text].reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 7);
+    }
+
+    function getUniverseCover(videos) {
+      const first = videos?.[0];
+      if (!first) return '';
+      const embed = toEmbedUrl(first.url_video);
+      const videoId = embed.split('/embed/')[1]?.split('?')[0];
+      return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
+    }
+
+    function createNodeShape(seed) {
+      const pick = (min, max, shift) => min + ((seed >> shift) % (max - min + 1));
+      return `${pick(42, 58, 2)}% ${pick(35, 62, 5)}% ${pick(44, 60, 8)}% ${pick(36, 62, 11)}% / ${pick(42, 64, 14)}% ${pick(36, 60, 17)}% ${pick(38, 62, 20)}% ${pick(36, 62, 23)}%`;
+    }
+
+    function findPlacementForNode(existingNodes, canvas, seed) {
+      const minDistance = 230;
+      const margin = 140;
+      const candidateAngles = 12;
+      const radii = [220, 310, 400, 490];
+      const sortedAnchors = [...existingNodes].sort((a, b) => a.neighbors.length - b.neighbors.length);
+
+      const isValidPoint = (x, y) => {
+        if (x < margin || y < margin || x > canvas.width - margin || y > canvas.height - margin) return false;
+        return existingNodes.every(node => Math.hypot(node.x - x, node.y - y) >= minDistance);
+      };
+
+      for (const anchor of sortedAnchors) {
+        for (const radius of radii) {
+          for (let i = 0; i < candidateAngles; i += 1) {
+            const baseAngle = (Math.PI * 2 * i) / candidateAngles;
+            const jitter = (((seed + i * 13 + radius) % 27) - 13) * (Math.PI / 180);
+            const angle = baseAngle + jitter;
+            const x = Math.round(anchor.x + Math.cos(angle) * radius);
+            const y = Math.round(anchor.y + Math.sin(angle) * radius);
+            if (isValidPoint(x, y)) {
+              return { x, y, anchorId: anchor.id };
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    function ensureUniverseNodes() {
+      const universeMap = groupByUniverse();
+      const names = Object.keys(universeMap);
+      if (!names.length) return;
+
+      const existingByName = new Map(state.universeNodes.map(node => [node.name, node]));
+      state.universeNodes = state.universeNodes.filter(node => names.includes(node.name));
+
+      if (!state.universeNodes.length && names.length) {
+        const firstName = names[0];
+        const firstSeed = hashCode(firstName);
+        state.universeNodes.push({
+          id: cssSafe(firstName),
+          name: firstName,
+          cover: getUniverseCover(universeMap[firstName]),
+          x: Math.round(state.mapCanvas.width / 2),
+          y: Math.round(state.mapCanvas.height / 2),
+          neighbors: [],
+          shape: createNodeShape(firstSeed)
+        });
+      }
+
+      names.forEach((name) => {
+        if (existingByName.has(name) || state.universeNodes.some(node => node.name === name)) return;
+        const seed = hashCode(name);
+        let placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed);
+        let safety = 0;
+        while (!placement && safety < 5) {
+          state.mapCanvas.width += 360;
+          state.mapCanvas.height += 240;
+          placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed + safety);
+          safety += 1;
+        }
+        const fallbackX = state.mapCanvas.width - 180 - (seed % 120);
+        const fallbackY = state.mapCanvas.height - 180 - ((seed >> 3) % 120);
+        const point = placement || {
+          x: Math.max(160, fallbackX),
+          y: Math.max(160, fallbackY),
+          anchorId: state.universeNodes[0]?.id
+        };
+
+        state.universeNodes.push({
+          id: cssSafe(name),
+          name,
+          cover: getUniverseCover(universeMap[name]),
+          x: point.x,
+          y: point.y,
+          neighbors: point.anchorId ? [point.anchorId] : [],
+          shape: createNodeShape(seed)
+        });
+
+        if (point.anchorId) {
+          const anchor = state.universeNodes.find(node => node.id === point.anchorId);
+          if (anchor && !anchor.neighbors.includes(cssSafe(name))) {
+            anchor.neighbors.push(cssSafe(name));
+          }
+        }
+      });
+    }
+
     function renderMapView() {
       const universes = groupByUniverse();
-      const cards = Object.entries(universes).map(([name, videos]) => `
-        <article class="card">
-          <h2 class="universe-name">${name}</h2>
-          <p class="muted">${videos.length} videos en colección</p>
-          <div class="actions">
-            <button data-open="${name}">Abrir universo</button>
-          </div>
-        </article>
-      `).join('');
+      ensureUniverseNodes();
+      const nodeById = new Map(state.universeNodes.map(node => [node.id, node]));
+      const seen = new Set();
+      const links = [];
+      state.universeNodes.forEach(node => {
+        node.neighbors.forEach(neighborId => {
+          const key = [node.id, neighborId].sort().join('|');
+          if (!seen.has(key) && nodeById.has(neighborId)) {
+            links.push({ from: node.id, to: neighborId });
+            seen.add(key);
+          }
+        });
+      });
 
-      viewMap.innerHTML = `<div class="grid">${cards}</div>`;
-      viewMap.querySelectorAll('button[data-open]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.universe = btn.dataset.open;
+      const linkMarkup = links.map(link => {
+        const from = nodeById.get(link.from);
+        const to = nodeById.get(link.to);
+        return `<line data-link="${link.from}|${link.to}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" />`;
+      }).join('');
+
+      const nodesMarkup = state.universeNodes.map(node => {
+        const videos = universes[node.name] || [];
+        return `
+          <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - 90}px; top:${node.y - 65}px; border-radius:${node.shape};">
+            <span class="node-cover" style="background-image:url('${node.cover}');"></span>
+            <span class="node-info">
+              <h3>${node.name}</h3>
+              <p>${videos.length} videos</p>
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      viewMap.innerHTML = `
+        <div class="universe-map-shell">
+          <div id="universeMapCanvas">
+            <div class="map-world" style="width:${state.mapCanvas.width}px; height:${state.mapCanvas.height}px;">
+              <svg class="map-links" viewBox="0 0 ${state.mapCanvas.width} ${state.mapCanvas.height}" preserveAspectRatio="none">
+                ${linkMarkup}
+              </svg>
+              ${nodesMarkup}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const clearHighlights = () => {
+        viewMap.querySelectorAll('.universe-node').forEach(el => el.classList.remove('active', 'dimmed'));
+        viewMap.querySelectorAll('.map-links line').forEach(el => el.classList.remove('active'));
+      };
+
+      viewMap.querySelectorAll('.universe-node').forEach(nodeEl => {
+        nodeEl.addEventListener('mouseenter', () => {
+          const nodeId = nodeEl.dataset.nodeId;
+          const node = nodeById.get(nodeId);
+          const neighbors = new Set([nodeId, ...(node?.neighbors || [])]);
+          viewMap.querySelectorAll('.universe-node').forEach(el => {
+            const on = neighbors.has(el.dataset.nodeId);
+            el.classList.toggle('active', on);
+            el.classList.toggle('dimmed', !on);
+          });
+          viewMap.querySelectorAll('.map-links line').forEach(line => {
+            const [from, to] = line.dataset.link.split('|');
+            line.classList.toggle('active', neighbors.has(from) && neighbors.has(to));
+          });
+        });
+        nodeEl.addEventListener('mouseleave', clearHighlights);
+        nodeEl.addEventListener('click', () => {
+          state.universe = nodeEl.dataset.open;
           state.selectedVideoId = null;
           state.marathon = { active: false, queue: [], position: 0 };
           state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
+          clearHighlights();
           changeView('universe');
         });
       });
