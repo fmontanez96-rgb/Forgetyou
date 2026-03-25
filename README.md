@@ -1,16 +1,31 @@
-# Forgetyou
+# Colección de Saludos de Doblaje
 
-Mini experiencia web estática para convertir historias en cartas fantásticas medievales.
+Aplicación web estática construida desde cero para gestionar una colección de videos de saludos de actores de doblaje.
 
-## Nuevo: generación de imagen con IA
+## Funcionalidades
 
-La página ahora ofrece dos modos de ilustración:
+- Mapa principal de universos con cantidad de videos.
+- Vista por universo con tarjetas por personaje.
+- Reproducción embebida de videos de YouTube.
+- Filtros por personaje, actor de doblaje y rareza.
+- Sistema de rarezas: Común, Raro, Épico y Legendario.
+- Versiones alternativas por personaje con botón “Ver versiones”.
+- Modo Maratón con reproducción encadenada y contador “X de Y”.
+- Índice de personajes por universo con cantidad de versiones.
+- Pantalla de logros con desbloqueados y pendientes.
 
-- **Ilustración local (SVG):** todo sucede en el navegador y no requiere servicios externos.
-- **IA real con OpenAI:** usa el endpoint oficial de generación de imágenes para producir una ilustración más cercana a lo que describe la historia.
+## Estructura de datos usada
 
-### Importante para GitHub Pages
+Cada elemento de la colección usa:
 
-Como este proyecto es estático, **no debes incrustar una API key dentro del código**. La implementación actual pide la key al usuario en pantalla y la guarda solo en `sessionStorage` mientras esa pestaña siga abierta.
+- `id`
+- `universo`
+- `personaje`
+- `actor_de_doblaje`
+- `url_video`
+- `rareza`
+- `version` (opcional)
 
-Si quieres una integración realmente segura para producción, lo ideal es mover la llamada a OpenAI a un backend o serverless function.
+## Uso
+
+Abrir `index.html` en cualquier navegador moderno.
