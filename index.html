@@ -124,6 +124,44 @@
       box-shadow: var(--shadow);
     }
 
+    .universe-form-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(26,35,66,.65);
+      margin-bottom: 12px;
+    }
+
+    .universe-form {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      align-items: end;
+    }
+
+    .universe-form label {
+      display: grid;
+      gap: 6px;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    .universe-form input {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .form-feedback {
+      margin-top: 8px;
+      font-size: .88rem;
+      color: #ffd2d2;
+      min-height: 20px;
+    }
+
     #universeMapCanvas {
       position: relative;
       overflow: auto;
@@ -201,13 +239,29 @@
       opacity: .55;
     }
 
-    .universe-node .node-cover {
+    .universe-node .universe-cover {
       position: absolute;
       inset: 0;
-      background-size: cover;
-      background-position: center;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       filter: saturate(1.15) contrast(1.05) brightness(.85);
       opacity: .64;
+    }
+
+    .universe-node .cover-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      background: linear-gradient(145deg, rgba(89,208,255,.3), rgba(167,139,250,.3));
+      color: #eef5ff;
+      padding: 10px;
+      font-size: .86rem;
+      align-items: end;
+    }
+
+    .universe-node .universe-cover.is-broken + .cover-fallback {
+      display: flex;
     }
 
     .universe-node .node-info {
@@ -399,6 +453,8 @@
       universeNodes: [],
       mapCanvas: { width: 1400, height: 900 }
     };
+    const UNIVERSES_STORAGE_KEY = 'universes_map_v1';
+    const MAX_LOCAL_IMAGE_BYTES = 2 * 1024 * 1024;
 
     const navUniverses = document.getElementById('navUniverses');
     const navAchievements = document.getElementById('navAchievements');
@@ -422,6 +478,67 @@
         acc[item.universo].push(item);
         return acc;
       }, {});
+    }
+
+    function normalizeUniverseName(name) {
+      return name.trim().toLowerCase();
+    }
+
+    function createPlaceholderCover(name) {
+      const label = encodeURIComponent((name || 'UNIVERSO').slice(0, 18).toUpperCase());
+      return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%2359d0ff'/><stop offset='100%' stop-color='%23a78bfa'/></linearGradient></defs><rect width='400' height='280' fill='%23111a34'/><rect x='14' y='14' width='372' height='252' rx='18' fill='url(%23g)' opacity='.4'/><text x='200' y='150' font-size='30' font-family='Arial, sans-serif' text-anchor='middle' fill='white'>${label}</text></svg>`;
+    }
+
+    function getSafeUniverseCover(name, cover) {
+      return cover || createPlaceholderCover(name);
+    }
+
+    function validateCoverUrl(urlText) {
+      if (!urlText?.trim()) return '';
+      try {
+        const parsed = new URL(urlText.trim());
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          throw new Error('Protocolo no permitido');
+        }
+        return parsed.toString();
+      } catch (_) {
+        throw new Error('La URL de portada no es válida');
+      }
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('No fue posible leer la imagen local.'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function saveUniverseNodes() {
+      localStorage.setItem(UNIVERSES_STORAGE_KEY, JSON.stringify(state.universeNodes));
+    }
+
+    function loadUniverseNodesFromStorage() {
+      try {
+        const raw = localStorage.getItem(UNIVERSES_STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .filter(node => node && typeof node.name === 'string')
+          .map((node, idx) => ({
+            id: node.id || cssSafe(node.name) || `universo-${idx}`,
+            name: node.name.trim(),
+            cover: typeof node.cover === 'string' ? node.cover : '',
+            x: Number(node.x) || 220 + (idx * 80),
+            y: Number(node.y) || 220 + (idx * 60),
+            neighbors: Array.isArray(node.neighbors) ? node.neighbors.filter(Boolean) : [],
+            shape: node.shape || createNodeShape(hashCode(node.name))
+          }));
+      } catch (_) {
+        return [];
+      }
     }
 
     function getUniverseVideos() {
@@ -494,11 +611,10 @@
 
     function ensureUniverseNodes() {
       const universeMap = groupByUniverse();
-      const names = Object.keys(universeMap);
+      const names = Array.from(new Set([...Object.keys(universeMap), ...state.universeNodes.map(node => node.name)]));
       if (!names.length) return;
 
-      const existingByName = new Map(state.universeNodes.map(node => [node.name, node]));
-      state.universeNodes = state.universeNodes.filter(node => names.includes(node.name));
+      const existingByName = new Map(state.universeNodes.map(node => [normalizeUniverseName(node.name), node]));
 
       if (!state.universeNodes.length && names.length) {
         const firstName = names[0];
@@ -506,7 +622,7 @@
         state.universeNodes.push({
           id: cssSafe(firstName),
           name: firstName,
-          cover: getUniverseCover(universeMap[firstName]),
+          cover: getSafeUniverseCover(firstName, getUniverseCover(universeMap[firstName])),
           x: Math.round(state.mapCanvas.width / 2),
           y: Math.round(state.mapCanvas.height / 2),
           neighbors: [],
@@ -515,7 +631,8 @@
       }
 
       names.forEach((name) => {
-        if (existingByName.has(name) || state.universeNodes.some(node => node.name === name)) return;
+        const normalized = normalizeUniverseName(name);
+        if (existingByName.has(normalized) || state.universeNodes.some(node => normalizeUniverseName(node.name) === normalized)) return;
         const seed = hashCode(name);
         let placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed);
         let safety = 0;
@@ -536,7 +653,7 @@
         state.universeNodes.push({
           id: cssSafe(name),
           name,
-          cover: getUniverseCover(universeMap[name]),
+          cover: getSafeUniverseCover(name, getUniverseCover(universeMap[name])),
           x: point.x,
           y: point.y,
           neighbors: point.anchorId ? [point.anchorId] : [],
@@ -550,6 +667,14 @@
           }
         }
       });
+      state.universeNodes.forEach(node => {
+        if (!node.cover && universeMap[node.name]) {
+          node.cover = getSafeUniverseCover(node.name, getUniverseCover(universeMap[node.name]));
+        } else if (!node.cover) {
+          node.cover = createPlaceholderCover(node.name);
+        }
+      });
+      saveUniverseNodes();
     }
 
     function renderMapView() {
@@ -578,7 +703,8 @@
         const videos = universes[node.name] || [];
         return `
           <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - 90}px; top:${node.y - 65}px; border-radius:${node.shape};">
-            <span class="node-cover" style="background-image:url('${node.cover}');"></span>
+            <img class="universe-cover" src="${getSafeUniverseCover(node.name, node.cover)}" alt="Portada de ${node.name}" loading="lazy">
+            <span class="cover-fallback">Portada no disponible</span>
             <span class="node-info">
               <h3>${node.name}</h3>
               <p>${videos.length} videos</p>
@@ -589,6 +715,22 @@
 
       viewMap.innerHTML = `
         <div class="universe-map-shell">
+          <section class="universe-form-panel">
+            <h3>Alta de universo</h3>
+            <form id="universeCreateForm" class="universe-form">
+              <label>nombreUniverso (requerido)
+                <input type="text" id="nombreUniverso" name="nombreUniverso" required maxlength="80" placeholder="Ej. One Piece">
+              </label>
+              <label>portadaUrl (opcional)
+                <input type="url" id="portadaUrl" name="portadaUrl" placeholder="https://...">
+              </label>
+              <label>portadaArchivo (opcional)
+                <input type="file" id="portadaArchivo" name="portadaArchivo" accept="image/*">
+              </label>
+              <button type="submit">Agregar universo</button>
+            </form>
+            <div id="formFeedback" class="form-feedback" aria-live="polite"></div>
+          </section>
           <div id="universeMapCanvas">
             <div class="map-world" style="width:${state.mapCanvas.width}px; height:${state.mapCanvas.height}px;">
               <svg class="map-links" viewBox="0 0 ${state.mapCanvas.width} ${state.mapCanvas.height}" preserveAspectRatio="none">
@@ -606,6 +748,11 @@
       };
 
       viewMap.querySelectorAll('.universe-node').forEach(nodeEl => {
+        const coverEl = nodeEl.querySelector('.universe-cover');
+        coverEl?.addEventListener('error', () => {
+          coverEl.classList.add('is-broken');
+          coverEl.src = createPlaceholderCover(nodeEl.dataset.open);
+        });
         nodeEl.addEventListener('mouseenter', () => {
           const nodeId = nodeEl.dataset.nodeId;
           const node = nodeById.get(nodeId);
@@ -629,6 +776,81 @@
           clearHighlights();
           changeView('universe');
         });
+      });
+
+      const universeCreateForm = document.getElementById('universeCreateForm');
+      const feedback = document.getElementById('formFeedback');
+      universeCreateForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        feedback.style.color = '#ffd2d2';
+        feedback.textContent = '';
+
+        const formData = new FormData(universeCreateForm);
+        const rawName = String(formData.get('nombreUniverso') || '');
+        const name = rawName.trim();
+        if (!name) {
+          feedback.textContent = 'El nombre del universo es obligatorio.';
+          return;
+        }
+
+        const normalized = normalizeUniverseName(name);
+        const duplicate = state.universeNodes.some(node => normalizeUniverseName(node.name) === normalized);
+        if (duplicate) {
+          feedback.textContent = 'Ya existe un universo con ese nombre.';
+          return;
+        }
+
+        const file = formData.get('portadaArchivo');
+        const urlInput = String(formData.get('portadaUrl') || '');
+        let cover = createPlaceholderCover(name);
+        try {
+          if (file instanceof File && file.size > 0) {
+            if (!file.type.startsWith('image/')) {
+              throw new Error('El archivo seleccionado no es una imagen.');
+            }
+            if (file.size > MAX_LOCAL_IMAGE_BYTES) {
+              throw new Error('La imagen supera el límite de 2MB.');
+            }
+            cover = await fileToDataUrl(file);
+          } else if (urlInput.trim()) {
+            cover = validateCoverUrl(urlInput);
+          }
+        } catch (err) {
+          feedback.textContent = err.message || 'No se pudo procesar la portada.';
+          return;
+        }
+
+        const seed = hashCode(name);
+        let placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed);
+        let safety = 0;
+        while (!placement && safety < 5) {
+          state.mapCanvas.width += 360;
+          state.mapCanvas.height += 240;
+          placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed + safety);
+          safety += 1;
+        }
+        const anchorId = placement?.anchorId || state.universeNodes[0]?.id;
+        const newNode = {
+          id: cssSafe(`${name}-${Date.now()}`),
+          name,
+          cover,
+          x: placement?.x || Math.max(160, state.mapCanvas.width - 240),
+          y: placement?.y || Math.max(160, state.mapCanvas.height - 220),
+          neighbors: anchorId ? [anchorId] : [],
+          shape: createNodeShape(seed)
+        };
+        state.universeNodes.push(newNode);
+        if (anchorId) {
+          const anchor = state.universeNodes.find(node => node.id === anchorId);
+          if (anchor && !anchor.neighbors.includes(newNode.id)) {
+            anchor.neighbors.push(newNode.id);
+          }
+        }
+        saveUniverseNodes();
+        universeCreateForm.reset();
+        feedback.style.color = '#baf6c7';
+        feedback.textContent = `Universo "${name}" agregado correctamente.`;
+        renderMapView();
       });
     }
 
@@ -863,6 +1085,7 @@
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
     navAchievements.onclick = () => changeView('achievements');
 
+    state.universeNodes = loadUniverseNodesFromStorage();
     changeView('map');
   </script>
 </body>
