@@ -149,16 +149,16 @@
       height: calc(100vh - 24px);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: rgba(20, 27, 51, 0.86);
       box-shadow: var(--shadow);
-      overflow: hidden;
+      overflow: auto;
+      background: rgba(10, 16, 34, 0.94);
+      scroll-behavior: smooth;
     }
 
     #universeMapCanvas {
       position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+      min-width: 100%;
+      min-height: 100%;
       background:
         radial-gradient(circle at 15% 20%, rgba(89, 208, 255, .16), transparent 32%),
         radial-gradient(circle at 85% 10%, rgba(167, 139, 250, .16), transparent 30%),
@@ -168,60 +168,110 @@
 
     .map-world {
       position: relative;
-      width: 100%;
-      height: 100%;
+      min-width: 100%;
+      min-height: 100%;
     }
 
     .universe-node {
       --w: 220px;
-      --h: 150px;
+      --h: 186px;
       position: absolute;
       width: var(--w);
       height: var(--h);
-      border: 1px solid rgba(160, 182, 255, .4);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      background: linear-gradient(155deg, rgba(31,42,79,.96), rgba(20,27,51,.98));
-      transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+      border: 0;
+      box-shadow: none;
+      overflow: visible;
+      background: transparent;
+      transition: transform .25s ease, filter .25s ease;
       z-index: 2;
       cursor: pointer;
+      padding: 0;
     }
 
-    .universe-node::before {
+    .universe-node::after {
       content: '';
       position: absolute;
-      inset: -20% 0 auto;
-      height: 58%;
-      background: radial-gradient(circle at center, rgba(255,255,255,.26), transparent 70%);
+      left: 12%;
+      right: 12%;
+      bottom: 10px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .45);
+      filter: blur(8px);
       pointer-events: none;
-      opacity: .6;
+      transition: transform .25s ease, opacity .25s ease;
+      opacity: .7;
     }
 
     .universe-node:hover {
-      transform: translateY(-4px) scale(1.02);
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(89, 208, 255, .22), var(--shadow);
+      transform: translateY(-6px) scale(1.04);
+      filter: brightness(1.08);
+    }
+
+    .universe-node:hover::after {
+      transform: scale(1.1);
+      opacity: .86;
+    }
+
+    .island-base {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 20px;
+      height: 92px;
+      border-radius: inherit;
+      border: 1px solid rgba(154, 207, 255, .3);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(190, 234, 255, .35), transparent 55%),
+        linear-gradient(165deg, rgba(26, 44, 77, .98), rgba(10, 19, 37, .98));
+      box-shadow:
+        inset 0 1px 0 rgba(232, 248, 255, .35),
+        0 16px 24px rgba(4, 8, 18, .56);
+      overflow: hidden;
+    }
+
+    .island-base::after {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border-radius: inherit;
+      border: 1px dashed rgba(255,255,255,.14);
+      pointer-events: none;
     }
 
     .universe-node .universe-cover {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 116px;
+      height: 116px;
       object-fit: cover;
-      filter: saturate(1.15) contrast(1.05) brightness(.85);
-      opacity: .64;
+      filter: saturate(1.1) contrast(1.04);
+      border-radius: 14px;
+      border: 1px solid rgba(210, 230, 255, .55);
+      box-shadow: 0 10px 22px rgba(2, 8, 24, .55);
+      z-index: 3;
+      background: rgba(17, 22, 42, .95);
     }
 
     .universe-node .cover-fallback {
       position: absolute;
-      inset: 0;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 116px;
+      height: 116px;
       display: none;
+      border-radius: 14px;
+      border: 1px solid rgba(154, 205, 255, .55);
       background: linear-gradient(145deg, rgba(89,208,255,.3), rgba(167,139,250,.3));
       color: #eef5ff;
       padding: 10px;
-      font-size: .86rem;
-      align-items: end;
+      font-size: .76rem;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 4;
     }
 
     .universe-node .universe-cover.is-broken + .cover-fallback {
@@ -230,31 +280,33 @@
 
     .universe-node .node-info {
       position: absolute;
-      left: 12px;
-      right: 12px;
-      bottom: 10px;
-      z-index: 2;
+      left: 16px;
+      right: 16px;
+      bottom: 32px;
+      z-index: 3;
+      text-align: center;
     }
 
     .universe-node h3 {
       margin: 0;
-      font-size: .97rem;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, .8);
+      font-size: .92rem;
+      color: #f2f7ff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, .82);
     }
 
     .map-popup {
       position: absolute;
-      width: min(290px, 88vw);
-      border-radius: 14px;
-      border: 1px solid rgba(134, 168, 255, .45);
-      background: rgba(22, 30, 56, .97);
+      width: min(300px, 88vw);
+      border-radius: 16px;
+      border: 1px solid rgba(140, 186, 255, .45);
+      background: rgba(16, 26, 50, .98);
       box-shadow: var(--shadow);
-      padding: 12px;
+      padding: 14px;
       z-index: 8;
       animation: popupIn .18s ease;
     }
 
-    .map-popup form { display: grid; gap: 8px; }
+    .map-popup form { display: grid; gap: 10px; }
     .map-popup label { display: grid; gap: 4px; color: #d8e8ff; font-size: .85rem; }
     .map-popup input {
       border: 1px solid rgba(147, 175, 255, .45);
@@ -264,6 +316,30 @@
       padding: 9px 10px;
       font: inherit;
     }
+    .cover-mode {
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(147, 175, 255, .35);
+      background: rgba(255,255,255,.06);
+    }
+    .cover-mode button {
+      padding: 8px 10px;
+      border-radius: 9px;
+      border-color: transparent;
+      background: rgba(255,255,255,.08);
+      color: #e5eeff;
+      font-weight: 700;
+    }
+    .cover-mode button.active {
+      color: #111f40;
+      background: #d7e8ff;
+      box-shadow: none;
+      border-color: transparent;
+    }
+    .cover-input-group[hidden] { display: none; }
     .map-popup .popup-feedback { min-height: 16px; font-size: .8rem; color: #ffd2d2; margin: 0; }
     .map-popup button[type="submit"] {
       background: var(--accent);
@@ -461,6 +537,8 @@
     };
     const UNIVERSES_STORAGE_KEY = 'universes_map_v1';
     const MAX_LOCAL_IMAGE_BYTES = 2 * 1024 * 1024;
+    const NODE_HALF_WIDTH = 110;
+    const NODE_HALF_HEIGHT = 93;
 
     const appLayout = document.getElementById('appLayout');
     const toggleSidebar = document.getElementById('toggleSidebar');
@@ -589,7 +667,7 @@
     }
 
     function findPlacementForNode(existingNodes, canvas, seed) {
-      const minDistance = 230;
+      const minDistance = 235;
       const margin = 140;
       const candidateAngles = 12;
       const radii = [220, 310, 400, 490];
@@ -615,6 +693,37 @@
         }
       }
       return null;
+    }
+
+    function resolveNodeCollision(x, y, existingNodes) {
+      const minDistance = 225;
+      const collides = (px, py) => existingNodes.some(node => Math.hypot(node.x - px, node.y - py) < minDistance);
+      if (!collides(x, y)) return { x, y };
+      for (let i = 1; i <= 32; i += 1) {
+        const angle = i * 0.9;
+        const radius = 24 + (i * 16);
+        const candidateX = Math.round(x + Math.cos(angle) * radius);
+        const candidateY = Math.round(y + Math.sin(angle) * radius);
+        if (!collides(candidateX, candidateY)) return { x: candidateX, y: candidateY };
+      }
+      return { x: x + 48, y: y + 48 };
+    }
+
+    function recalculateMapCanvasSize(viewportWidth = 0, viewportHeight = 0) {
+      const padding = 180;
+      const minWidth = Math.max(1200, viewportWidth + 180);
+      const minHeight = Math.max(760, viewportHeight + 180);
+      if (!state.universeNodes.length) {
+        state.mapCanvas.width = minWidth;
+        state.mapCanvas.height = minHeight;
+        return;
+      }
+      const xs = state.universeNodes.map(node => node.x);
+      const ys = state.universeNodes.map(node => node.y);
+      const maxX = Math.max(...xs) + NODE_HALF_WIDTH + padding;
+      const maxY = Math.max(...ys) + NODE_HALF_HEIGHT + padding;
+      state.mapCanvas.width = Math.max(minWidth, maxX);
+      state.mapCanvas.height = Math.max(minHeight, maxY);
     }
 
     function ensureUniverseNodes() {
@@ -688,13 +797,11 @@
     function renderMapView() {
       const universes = groupByUniverse();
       ensureUniverseNodes();
-      const nodeHalfWidth = 110;
-      const nodeHalfHeight = 75;
-
       const nodesMarkup = state.universeNodes.map(node => {
         const videos = universes[node.name] || [];
         return `
-          <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - nodeHalfWidth}px; top:${node.y - nodeHalfHeight}px; border-radius:${node.shape};">
+          <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - NODE_HALF_WIDTH}px; top:${node.y - NODE_HALF_HEIGHT}px; border-radius:${node.shape};">
+            <span class="island-base" style="border-radius:${node.shape};"></span>
             <img class="universe-cover" src="${getSafeUniverseCover(node.name, node.cover)}" alt="Portada de ${node.name}" loading="lazy">
             <span class="cover-fallback">Portada no disponible</span>
             <span class="node-info">
@@ -707,7 +814,7 @@
 
       viewMap.innerHTML = `
         <div class="universe-map-shell">
-          <div id="universeMapCanvas">
+          <div id="universeMapCanvas" aria-label="Mapa de universos explorable">
             <div class="map-world" id="mapWorld">
               ${nodesMarkup}
             </div>
@@ -719,10 +826,15 @@
       const mapWorld = document.getElementById('mapWorld');
       if (!mapCanvas || !mapWorld) return;
 
+      const mapShell = viewMap.querySelector('.universe-map-shell');
+
       const syncMapCanvasSize = () => {
-        const rect = mapCanvas.getBoundingClientRect();
-        state.mapCanvas.width = Math.max(320, Math.floor(rect.width));
-        state.mapCanvas.height = Math.max(320, Math.floor(rect.height));
+        if (!mapShell) return;
+        recalculateMapCanvasSize(mapShell.clientWidth, mapShell.clientHeight);
+        mapCanvas.style.width = `${state.mapCanvas.width}px`;
+        mapCanvas.style.height = `${state.mapCanvas.height}px`;
+        mapWorld.style.width = `${state.mapCanvas.width}px`;
+        mapWorld.style.height = `${state.mapCanvas.height}px`;
       };
       syncMapCanvasSize();
 
@@ -743,12 +855,17 @@
             <label>Nombre del universo
               <input type="text" name="nombreUniverso" maxlength="80" required placeholder="Ej. One Piece">
             </label>
-            <label>Subir imagen desde PC
-              <input type="file" name="portadaArchivo" accept="image/*">
-            </label>
-            <label>O ingresar URL de portada
+            <label>Portada</label>
+            <div class="cover-mode" role="group" aria-label="Selector de portada">
+              <button type="button" data-cover-mode="url" class="active">URL</button>
+              <button type="button" data-cover-mode="file">+</button>
+            </div>
+            <div class="cover-input-group" data-cover-input="url">
               <input type="url" name="portadaUrl" placeholder="https://...">
-            </label>
+            </div>
+            <div class="cover-input-group" data-cover-input="file" hidden>
+              <input type="file" name="portadaArchivo" accept="image/*">
+            </div>
             <button type="submit">Crear Universo</button>
             <p class="popup-feedback" id="popupFeedback" aria-live="polite"></p>
           </form>
@@ -759,6 +876,17 @@
 
         const form = popup.querySelector('#mapCreateForm');
         const feedback = popup.querySelector('#popupFeedback');
+        let coverMode = 'url';
+        popup.querySelectorAll('[data-cover-mode]').forEach((modeBtn) => {
+          modeBtn.addEventListener('click', () => {
+            coverMode = modeBtn.dataset.coverMode || 'url';
+            popup.querySelectorAll('[data-cover-mode]').forEach(btn => btn.classList.toggle('active', btn === modeBtn));
+            popup.querySelectorAll('[data-cover-input]').forEach(group => {
+              group.hidden = group.dataset.coverInput !== coverMode;
+            });
+          });
+        });
+
         form?.addEventListener('submit', async (event) => {
           event.preventDefault();
           if (!feedback) return;
@@ -783,11 +911,11 @@
           const urlInput = String(formData.get('portadaUrl') || '');
           let cover = createPlaceholderCover(name);
           try {
-            if (file instanceof File && file.size > 0) {
+            if (coverMode === 'file' && file instanceof File && file.size > 0) {
               if (!file.type.startsWith('image/')) throw new Error('El archivo seleccionado no es una imagen.');
               if (file.size > MAX_LOCAL_IMAGE_BYTES) throw new Error('La imagen supera el límite de 2MB.');
               cover = await fileToDataUrl(file);
-            } else if (urlInput.trim()) {
+            } else if (coverMode === 'url' && urlInput.trim()) {
               cover = validateCoverUrl(urlInput);
             }
           } catch (err) {
@@ -795,17 +923,19 @@
             return;
           }
 
-          const boundedX = Math.max(nodeHalfWidth, Math.min(Math.round(x), state.mapCanvas.width - nodeHalfWidth));
-          const boundedY = Math.max(nodeHalfHeight, Math.min(Math.round(y), state.mapCanvas.height - nodeHalfHeight));
+          const boundedX = Math.max(NODE_HALF_WIDTH, Math.min(Math.round(x), state.mapCanvas.width - NODE_HALF_WIDTH));
+          const boundedY = Math.max(NODE_HALF_HEIGHT, Math.min(Math.round(y), state.mapCanvas.height - NODE_HALF_HEIGHT));
+          const adjusted = resolveNodeCollision(boundedX, boundedY, state.universeNodes);
           state.universeNodes.push({
             id: cssSafe(`${name}-${Date.now()}`),
             name,
             cover,
-            x: boundedX,
-            y: boundedY,
+            x: adjusted.x,
+            y: adjusted.y,
             neighbors: [],
             shape: createNodeShape(hashCode(name))
           });
+          syncMapCanvasSize();
           saveUniverseNodes();
           closePopup();
           renderMapView();
