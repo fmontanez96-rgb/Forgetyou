@@ -909,8 +909,7 @@
     }
 
     function toEmbedUrl(url, autoplay = 0) {
-      const match = url.match(/(?:v=|\.be\/)([A-Za-z0-9_-]{11})/);
-      const id = match ? match[1] : '';
+      const id = getYoutubeId(url);
       return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1&autoplay=${autoplay}&enablejsapi=1`;
     }
 
@@ -1026,13 +1025,35 @@
     }
 
     function getYoutubeId(url) {
-      const match = String(url || '').match(/(?:v=|\/embed\/|\.be\/)([A-Za-z0-9_-]{11})/);
-      return match?.[1] || '';
+      const normalizeId = (candidate) => {
+        const clean = String(candidate || '').trim();
+        return /^[A-Za-z0-9_-]{11}$/.test(clean) ? clean : '';
+      };
+      const raw = String(url || '').trim();
+      if (!raw) return '';
+      try {
+        const parsed = new URL(raw);
+        const host = parsed.hostname.replace(/^www\./, '');
+        if (host === 'youtu.be') {
+          return normalizeId(parsed.pathname.split('/').filter(Boolean)[0]);
+        }
+        if (host === 'youtube.com' || host.endsWith('.youtube.com')) {
+          const watchId = parsed.searchParams.get('v');
+          if (watchId) return normalizeId(watchId);
+          const pathParts = parsed.pathname.split('/').filter(Boolean);
+          if (pathParts[0] === 'shorts' && pathParts[1]) return normalizeId(pathParts[1]);
+          if (pathParts[0] === 'embed' && pathParts[1]) return normalizeId(pathParts[1]);
+        }
+      } catch (_) {
+        // Fallback para entradas no parseables como URL.
+      }
+      const match = raw.match(/(?:v=|\/shorts\/|\/embed\/|\.be\/)([A-Za-z0-9_-]{11})/);
+      return normalizeId(match?.[1]);
     }
 
     function normalizeYoutubeUrl(url) {
       const id = getYoutubeId(url);
-      return id ? `https://www.youtube.com/watch?v=${id}` : '';
+      return id ? `https://www.youtube.com/embed/${id}` : '';
     }
 
     async function fetchYoutubeMetadata(url) {
@@ -1041,7 +1062,8 @@
       if (!id) return { title: 'Video sin título', thumbnail: '' };
       const fallbackThumb = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
       try {
-        const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(normalized)}&format=json`;
+        const oembedUrl = `https://www.youtube.com/watch?v=${id}`;
+        const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(oembedUrl)}&format=json`;
         const response = await fetch(endpoint);
         if (!response.ok) throw new Error('No disponible');
         const data = await response.json();
