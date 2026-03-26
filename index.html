@@ -535,10 +535,11 @@
     .universe-name { margin: 0 0 8px; font-size: 1.05rem; }
     .muted { color: var(--muted); font-size: .95rem; }
 
-    .universe-layout {
+    .universe-gallery-layout {
       display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+      grid-template-columns: minmax(0, 1fr) 260px;
       gap: 16px;
+      align-items: start;
     }
 
     .panel, .sidebar {
@@ -548,16 +549,6 @@
       padding: 18px;
       box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(193, 236, 255, .08), 0 0 0 1px rgba(43, 247, 255, .14);
     }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-      gap: 10px;
-      align-items: end;
-      margin-bottom: 14px;
-    }
-
-    .toolbar label { display: grid; gap: 6px; font-size: .9rem; color: var(--muted); }
 
     .video-grid {
       display: grid;
@@ -575,14 +566,14 @@
 
     .universe-hero {
       display: grid;
-      grid-template-columns: 220px minmax(0, 1fr);
+      grid-template-columns: 320px minmax(0, 1fr);
       gap: 14px;
       align-items: center;
     }
 
     .universe-hero img {
       width: 100%;
-      height: 140px;
+      height: 210px;
       object-fit: cover;
       border-radius: 14px;
       border: 1px solid var(--line);
@@ -595,6 +586,75 @@
       gap: 8px;
       align-content: start;
       justify-items: end;
+    }
+
+    .filter-sidebar {
+      position: sticky;
+      top: 8px;
+      display: grid;
+      gap: 10px;
+    }
+    .filter-sidebar label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .collection-card {
+      padding: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid rgba(93, 176, 255, .35);
+      background: linear-gradient(170deg, rgba(18, 30, 56, .95), rgba(10, 18, 37, .95));
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .collection-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-soft), var(--accent-glow);
+    }
+    .collection-card .card-media {
+      position: relative;
+    }
+    .collection-card .video-thumb {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border: 0;
+      margin: 0;
+      display: block;
+    }
+    .collection-card .card-title {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 10px;
+      margin: 0;
+      font-size: .86rem;
+      font-weight: 700;
+      background: rgba(4, 11, 22, .76);
+      border: 1px solid rgba(109, 172, 255, .4);
+      border-radius: 10px;
+      padding: 4px 8px;
+      backdrop-filter: blur(2px);
+    }
+    .collection-card .card-footer {
+      border-top: 1px solid rgba(98, 168, 255, .3);
+      padding: 10px 12px;
+      background: rgba(8, 17, 33, .92);
+      display: grid;
+      gap: 4px;
+    }
+    .collection-card .meta {
+      margin: 0;
+      font-size: .88rem;
+      color: var(--text);
+    }
+    .collection-card .meta small {
+      color: var(--muted);
+      display: inline-block;
+      min-width: 54px;
     }
 
     .primary-btn {
@@ -731,6 +791,15 @@
       grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr);
       gap: 14px;
     }
+    .detail-actor-link {
+      background: none;
+      border: 0;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+      font-weight: 700;
+      text-decoration: underline;
+    }
     .detail-list {
       margin: 0;
       padding-left: 18px;
@@ -805,11 +874,10 @@
       .sidebar-nav {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
-      .universe-layout { grid-template-columns: 1fr; }
+      .universe-gallery-layout { grid-template-columns: 1fr; }
       .universe-header { grid-template-columns: 1fr; }
       .universe-hero { grid-template-columns: 1fr; }
       .detail-grid { grid-template-columns: 1fr; }
-      .toolbar { grid-template-columns: 1fr; }
       .content { height: auto; }
       html, body { overflow: auto; }
     }
@@ -865,7 +933,9 @@
       view: 'map',
       universe: null,
       filters: { personaje: 'todos', actor: 'todos', rareza: 'todos' },
+      search: { personaje: '', actor: '' },
       selectedVideoId: null,
+      actorFocus: null,
       showAddForm: false,
       marathon: { active: false, queue: [], position: 0 },
       universeNodes: [],
@@ -1373,6 +1443,7 @@
           state.showAddForm = false;
           state.marathon = { active: false, queue: [], position: 0 };
           state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
+          state.search = { personaje: '', actor: '' };
           changeView('universe');
         });
       });
@@ -1439,11 +1510,12 @@
 
     function renderUniverseView() {
       const videos = getUniverseVideos();
-      const personajes = [...new Set(videos.map(v => v.personaje || 'Sin personaje'))];
-      const actores = [...new Set(videos.map(v => v.actor_de_doblaje || 'Sin actor'))];
       const rarezas = ['Común', 'Raro', 'Épico', 'Legendario'];
-      const filtered = getFilteredUniverseVideos();
-      const selected = filtered.find(v => v.id === state.selectedVideoId) || filtered[0] || null;
+      const filtered = getFilteredUniverseVideos().filter((video) => {
+        const personaje = (video.personaje || '').toLowerCase();
+        const actor = (video.actor_de_doblaje || '').toLowerCase();
+        return personaje.includes(state.search.personaje.toLowerCase()) && actor.includes(state.search.actor.toLowerCase());
+      });
       const universeNode = state.universeNodes.find(node => node.name === state.universe);
       const headerCover = getSafeUniverseCover(state.universe, universeNode?.cover || getUniverseCover(videos));
       viewUniverse.innerHTML = `
@@ -1455,10 +1527,12 @@
             <img src="${headerCover}" alt="Portada de ${state.universe}">
             <div>
               <h2 class="section-title">${state.universe || 'Universo'}</h2>
-              <p class="section-subtitle">${videos.length} videos en total.</p>
+              <p class="section-subtitle">${videos.length} videos en total · ${new Set(videos.map(v => v.personaje)).size} personajes.</p>
             </div>
           </div>
           <div class="universe-controls">
+            <button id="editUniverse" class="neon-btn">Editar universo</button>
+            <button id="deleteUniverse" class="neon-btn">Eliminar universo</button>
             <button id="toggleAddVideo" class="neon-btn neon-btn--primary">AGREGAR VIDEO</button>
           </div>
         </section>
@@ -1484,49 +1558,40 @@
           </div>
         </form>
 
-        <div class="universe-layout">
+        <div class="universe-gallery-layout">
           <section class="hud-panel">
-            <div class="toolbar">
-              <label>Personaje
-                <select id="filterCharacter">
-                  <option value="todos">Todos</option>
-                  ${personajes.map(p => `<option value="${p}" ${state.filters.personaje === p ? 'selected' : ''}>${p}</option>`).join('')}
-                </select>
-              </label>
-              <label>Actor de doblaje
-                <select id="filterActor">
-                  <option value="todos">Todos</option>
-                  ${actores.map(a => `<option value="${a}" ${state.filters.actor === a ? 'selected' : ''}>${a}</option>`).join('')}
-                </select>
-              </label>
-              <label>Rareza
-                <select id="filterRarity">
-                  <option value="todos">Todas</option>
-                  ${rarezas.map(r => `<option value="${r}" ${state.filters.rareza === r ? 'selected' : ''}>${r}</option>`).join('')}
-                </select>
-              </label>
-              <button id="clearFilters" class="neon-btn">Limpiar filtros</button>
-            </div>
-
             <div class="video-grid">
               ${filtered.map(v => `
-                <article class="stat-card video-card" data-open-detail="${v.id}">
-                  <img class="video-thumb" src="${v.thumbnail || getUniverseCover([v])}" alt="${v.titulo || 'Miniatura del video'}" loading="lazy">
-                  <h3>${v.personaje || 'Personaje pendiente'}</h3>
-                  <p>${v.actor_de_doblaje || 'Actor pendiente'}</p>
-                  <p class="video-title">${v.titulo || 'Título no disponible'}</p>
-                  <span class="badge ${rarityClass(v.rareza || 'Común')}">${v.rareza || 'Común'}</span>
+                <article class="collection-card" data-open-detail="${v.id}">
+                  <div class="card-media">
+                    <img class="video-thumb" src="${v.thumbnail || getUniverseCover([v])}" alt="${v.titulo || 'Miniatura del video'}" loading="lazy">
+                    <p class="card-title">${v.titulo || 'Título no disponible'}</p>
+                  </div>
+                  <div class="card-footer">
+                    <p class="meta"><small>Personaje:</small>${v.personaje || 'Pendiente'}</p>
+                    <p class="meta"><small>Actor:</small>${v.actor_de_doblaje || 'Pendiente'}</p>
+                    <span class="badge ${rarityClass(v.rareza || 'Común')}">${v.rareza || 'Común'}</span>
+                  </div>
                 </article>
               `).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
             </div>
           </section>
 
-          <aside class="hud-panel">
-            <h3 class="section-title">Reproducción rápida</h3>
-            <p class="section-subtitle">Selecciona una carta para abrir su vista detallada.</p>
-            <div class="player-box">
-              ${selected ? `<iframe id="videoPlayer" src="${toEmbedUrl(selected.url_youtube || selected.url_video, 1)}" title="Reproductor" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : '<p class="muted">Sin video seleccionado</p>'}
-            </div>
+          <aside class="hud-panel filter-sidebar">
+            <h3 class="section-title">Filtro</h3>
+            <label>Buscar personaje
+              <input id="searchCharacter" type="search" value="${state.search.personaje}" placeholder="Ej. Goku">
+            </label>
+            <label>Buscar actor
+              <input id="searchActor" type="search" value="${state.search.actor}" placeholder="Ej. Mario Castañeda">
+            </label>
+            <label>Rareza
+              <select id="filterRarity">
+                <option value="todos">Todas</option>
+                ${rarezas.map(r => `<option value="${r}" ${state.filters.rareza === r ? 'selected' : ''}>${r}</option>`).join('')}
+              </select>
+            </label>
+            <button id="clearFilters" class="neon-btn">Limpiar filtros</button>
           </aside>
         </div>
       `;
@@ -1535,6 +1600,34 @@
       document.getElementById('toggleAddVideo').onclick = () => {
         state.showAddForm = !state.showAddForm;
         renderUniverseView();
+      };
+      document.getElementById('editUniverse').onclick = () => {
+        const newName = prompt('Nuevo nombre del universo:', state.universe || '');
+        if (!newName?.trim()) return;
+        const cleanName = newName.trim();
+        VIDEOS.forEach(video => {
+          const list = getVideoUniverses(video).map(u => u === state.universe ? cleanName : u);
+          video.universo = [...new Set(list)];
+        });
+        if (universeNode) universeNode.name = cleanName;
+        state.universe = cleanName;
+        saveUniverseNodes();
+        renderMapView();
+        renderUniverseView();
+      };
+      document.getElementById('deleteUniverse').onclick = () => {
+        const ok = confirm(`¿Eliminar universo "${state.universe}"? Se quitará de los videos relacionados.`);
+        if (!ok) return;
+        state.universeNodes = state.universeNodes.filter(node => node.name !== state.universe);
+        VIDEOS.forEach(video => {
+          video.universo = getVideoUniverses(video).filter(name => name !== state.universe);
+        });
+        for (let i = VIDEOS.length - 1; i >= 0; i -= 1) {
+          if (!getVideoUniverses(VIDEOS[i]).length) VIDEOS.splice(i, 1);
+        }
+        saveUniverseNodes();
+        state.universe = null;
+        changeView('map');
       };
 
       const addVideoForm = document.getElementById('addVideoForm');
@@ -1569,11 +1662,12 @@
 
       document.getElementById('clearFilters').onclick = () => {
         state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
+        state.search = { personaje: '', actor: '' };
         renderUniverseView();
       };
 
-      document.getElementById('filterCharacter').onchange = (e) => { state.filters.personaje = e.target.value; renderUniverseView(); };
-      document.getElementById('filterActor').onchange = (e) => { state.filters.actor = e.target.value; renderUniverseView(); };
+      document.getElementById('searchCharacter').oninput = (e) => { state.search.personaje = e.target.value; renderUniverseView(); };
+      document.getElementById('searchActor').oninput = (e) => { state.search.actor = e.target.value; renderUniverseView(); };
       document.getElementById('filterRarity').onchange = (e) => { state.filters.rareza = e.target.value; renderUniverseView(); };
 
       viewUniverse.querySelectorAll('[data-open-detail]').forEach(card => {
@@ -1584,7 +1678,6 @@
         });
       });
 
-      attachPlayerEndedHandler();
     }
 
     function openVideoDetail(videoId) {
@@ -1597,14 +1690,7 @@
         VIDEOS.filter(v => (v.personaje || 'Sin personaje') === personaje)
           .flatMap(v => getVideoUniverses(v))
       )];
-      const actoresDelPersonaje = [...new Set(
-        VIDEOS.filter(v => (v.personaje || 'Sin personaje') === personaje)
-          .map(v => v.actor_de_doblaje || 'Sin actor')
-      )];
-      const personajesDelActor = [...new Set(
-        VIDEOS.filter(v => (v.actor_de_doblaje || 'Sin actor') === actor)
-          .map(v => v.personaje || 'Sin personaje')
-      )];
+      const saludosActor = VIDEOS.filter(v => (v.actor_de_doblaje || 'Sin actor') === actor);
 
       const modal = document.createElement('section');
       modal.className = 'detail-modal';
@@ -1614,19 +1700,21 @@
           <div class="detail-grid">
             <section class="hud-panel">
               <h3 class="section-title">${personaje}</h3>
-              <p><strong>Actor de doblaje:</strong> ${actor}</p>
+              <p><strong>Actor de doblaje:</strong> <button class="detail-actor-link" data-open-actor="${actor}">${actor}</button></p>
               <span class="badge ${rarityClass(video.rareza || 'Común')}">${video.rareza || 'Común'}</span>
               <div class="player-box" style="margin-top:10px;">
                 <iframe src="${toEmbedUrl(video.url_youtube || video.url_video, 1)}" title="Video detallado" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              </div>
+              <div class="actions">
+                <button id="editVideo" class="neon-btn">Editar personaje/video</button>
+                <button id="deleteVideo" class="neon-btn">Eliminar personaje/video</button>
               </div>
             </section>
             <aside class="hud-panel">
               <h4 class="section-title">Universos relacionados</h4>
               <ul class="detail-list terminal-list">${universosRelacionados.map(u => `<li>${u}</li>`).join('') || '<li>Sin datos</li>'}</ul>
-              <h4 class="section-title">Actores del personaje</h4>
-              <ul class="detail-list terminal-list">${actoresDelPersonaje.map(a => `<li>${a}</li>`).join('') || '<li>Sin datos</li>'}</ul>
-              <h4 class="section-title">Personajes del actor</h4>
-              <ul class="detail-list terminal-list">${personajesDelActor.map(p => `<li>${p}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+              <h4 class="section-title">Saludos del actor</h4>
+              <ul class="detail-list terminal-list">${saludosActor.map(item => `<li>${item.personaje || 'Sin personaje'} · ${item.titulo || 'Sin título'}</li>`).join('') || '<li>Sin datos</li>'}</ul>
             </aside>
           </div>
         </article>
@@ -1636,6 +1724,44 @@
       });
       document.body.appendChild(modal);
       modal.querySelector('#closeDetail')?.addEventListener('click', () => modal.remove());
+      modal.querySelector('[data-open-actor]')?.addEventListener('click', (event) => {
+        const actorName = event.currentTarget.dataset.openActor;
+        if (!actorName) return;
+        modal.remove();
+        state.actorFocus = actorName;
+        changeView('actores');
+      });
+      modal.querySelector('#editVideo')?.addEventListener('click', () => {
+        const personajeNuevo = prompt('Nombre del personaje:', video.personaje || '');
+        if (personajeNuevo === null) return;
+        const actorNuevo = prompt('Actor de doblaje:', video.actor_de_doblaje || '');
+        if (actorNuevo === null) return;
+        const rarezaNueva = prompt('Rareza (Común, Raro, Épico, Legendario):', video.rareza || 'Común');
+        if (rarezaNueva === null) return;
+        const universosNuevos = prompt('Universos asociados (separados por coma):', getVideoUniverses(video).join(', '));
+        if (universosNuevos === null) return;
+        video.personaje = personajeNuevo.trim() || 'Sin personaje';
+        video.actor_de_doblaje = actorNuevo.trim() || 'Sin actor';
+        video.rareza = rarezasPermitidas(rarezaNueva);
+        video.universo = universosNuevos.split(',').map(u => u.trim()).filter(Boolean);
+        ensureUniverseNodes();
+        renderMapView();
+        renderUniverseView();
+        modal.remove();
+      });
+      modal.querySelector('#deleteVideo')?.addEventListener('click', () => {
+        if (!confirm('¿Eliminar este personaje/video de la colección?')) return;
+        const index = VIDEOS.findIndex(item => item.id === video.id);
+        if (index >= 0) VIDEOS.splice(index, 1);
+        renderMapView();
+        renderUniverseView();
+        modal.remove();
+      });
+    }
+
+    function rarezasPermitidas(value) {
+      const allowed = ['Común', 'Raro', 'Épico', 'Legendario'];
+      return allowed.includes(value) ? value : 'Común';
     }
 
     function renderAchievementsView() {
@@ -1728,16 +1854,40 @@
     }
 
     function renderActoresView() {
-      const actors = [...new Set(VIDEOS.map(v => v.actor_de_doblaje).filter(Boolean))].slice(0, 6);
+      const actors = [...new Set(VIDEOS.map(v => v.actor_de_doblaje).filter(Boolean))].sort();
+      const actor = state.actorFocus || actors[0] || null;
+      const actorVideos = VIDEOS.filter(v => (v.actor_de_doblaje || 'Sin actor') === actor);
+      const actorCharacters = [...new Set(actorVideos.map(v => v.personaje || 'Sin personaje'))];
       viewActores.innerHTML = `
         <section class="mock-shell">
-          <h2>Actores de doblaje</h2>
-          <p class="muted">Contador mock de personajes: 128</p>
-          <div class="mock-row">
-            ${actors.map(actor => `<article class="mock-box"><h3>${actor}</h3><p class="muted">Tarjeta de actor</p></article>`).join('') || '<p class="muted">Sin actores registrados.</p>'}
-          </div>
+          <h2>Colección del actor</h2>
+          <label>Seleccionar actor
+            <select id="actorPicker">
+              ${actors.map(name => `<option value="${name}" ${name === actor ? 'selected' : ''}>${name}</option>`).join('') || '<option>Sin actores</option>'}
+            </select>
+          </label>
+          ${actor ? `
+            <article class="mock-box">
+              <h3>${actor}</h3>
+              <p class="muted">Personajes: ${actorCharacters.length} · Videos: ${actorVideos.length}</p>
+            </article>
+            <div class="mock-row">
+              <article class="mock-box">
+                <h3>Personajes</h3>
+                <ul>${actorCharacters.map(name => `<li>${name}</li>`).join('') || '<li>Sin personajes.</li>'}</ul>
+              </article>
+              <article class="mock-box">
+                <h3>Videos</h3>
+                <ul>${actorVideos.map(item => `<li>${item.personaje || 'Sin personaje'} · ${item.titulo || 'Sin título'}</li>`).join('') || '<li>Sin videos.</li>'}</ul>
+              </article>
+            </div>
+          ` : '<p class="muted">Sin actores registrados.</p>'}
         </section>
       `;
+      document.getElementById('actorPicker')?.addEventListener('change', (event) => {
+        state.actorFocus = event.target.value;
+        renderActoresView();
+      });
     }
 
     function renderVersionesView() {
