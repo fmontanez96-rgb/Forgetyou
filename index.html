@@ -6,29 +6,31 @@
   <title>Colección de Saludos de Doblaje</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f6f7ff;
-      --bg-soft: #ffffff;
-      --panel: #ffffff;
-      --panel-2: #f3f7ff;
-      --text: #1f2a44;
-      --muted: #556487;
-      --line: #c8d3ea;
-      --accent: #6a66f6;
-      --accent-hover: #5448e8;
-      --focus: #11b8cb;
+      color-scheme: dark;
+      --bg: #050b17;
+      --bg-soft: #0b1326;
+      --panel: #101c35;
+      --panel-2: #162543;
+      --text: #dff3ff;
+      --muted: #8fa7bf;
+      --line: rgba(111, 180, 255, .28);
+      --accent: #2bf7ff;
+      --accent-hover: #6cfbff;
+      --focus: #29f2ff;
+      --accent-glow: 0 0 0 1px rgba(43, 247, 255, .45), 0 0 16px rgba(43, 247, 255, .35), 0 0 34px rgba(43, 247, 255, .2);
+      --focus-glow: 0 0 0 3px rgba(41, 242, 255, .22), 0 0 26px rgba(41, 242, 255, .25);
       --ok: #179d6c;
-      --ok-soft: #dff9ef;
-      --rare-comun: #52617d;
-      --rare-raro: #0f8d9e;
-      --rare-epico: #7046df;
-      --rare-legendario: #8a4b00;
-      --shadow: 0 10px 24px rgba(53, 64, 114, .12);
-      --shadow-soft: 0 6px 14px rgba(53, 64, 114, .1);
+      --ok-soft: rgba(23, 157, 108, .18);
+      --rare-comun: #9db2cb;
+      --rare-raro: #66eef7;
+      --rare-epico: #c58fff;
+      --rare-legendario: #ffbb66;
+      --shadow: 0 18px 40px rgba(2, 8, 20, .62);
+      --shadow-soft: 0 10px 24px rgba(3, 11, 29, .52);
       --radius: 18px;
-      --anim-fade: .28s ease;
-      --anim-soft: .25s ease;
-      --glow-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, white);
+      --control-bg: linear-gradient(165deg, rgba(12, 20, 39, .96), rgba(22, 38, 68, .95));
+      --control-border: rgba(111, 180, 255, .38);
+      --control-shadow: inset 0 1px 0 rgba(189, 232, 255, .08), 0 0 0 1px rgba(31, 78, 131, .3);
     }
 
     * { box-sizing: border-box; }
@@ -36,13 +38,17 @@
 
     body {
       font-family: "Nunito", Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      font-size: 15px;
+      letter-spacing: .01em;
       background:
-        radial-gradient(circle at 12% 10%, rgba(163, 128, 255, .23), transparent 34%),
-        radial-gradient(circle at 92% 18%, rgba(71, 212, 196, .2), transparent 34%),
-        radial-gradient(circle at 54% 108%, rgba(255, 147, 133, .22), transparent 40%),
+        radial-gradient(circle at 14% 12%, rgba(62, 122, 255, .22), transparent 34%),
+        radial-gradient(circle at 84% 6%, rgba(43, 247, 255, .18), transparent 36%),
+        radial-gradient(circle at 76% 74%, rgba(111, 62, 255, .16), transparent 40%),
+        radial-gradient(circle at 18% 92%, rgba(59, 197, 255, .14), transparent 34%),
+        linear-gradient(180deg, rgba(6, 12, 27, .82), rgba(5, 11, 24, .92)),
         var(--bg);
       color: var(--text);
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     .app { width: 100%; height: 100vh; padding: 12px; }
@@ -60,11 +66,11 @@
       top: 0;
       height: calc(100vh - 24px);
       overflow: auto;
-      background: linear-gradient(140deg, rgba(31,42,79,.9), rgba(20,27,51,.95));
+      background: linear-gradient(155deg, rgba(11, 23, 45, .96), rgba(18, 36, 67, .94));
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 18px;
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow), var(--accent-glow);
       display: grid;
       gap: 14px;
     }
@@ -74,7 +80,8 @@
       font-size: clamp(1.3rem, 1rem + 1.4vw, 2rem);
       letter-spacing: .2px;
       font-weight: 800;
-      color: #26245f;
+      color: #d9f8ff;
+      text-shadow: 0 0 18px rgba(43, 247, 255, .25);
     }
 
     .subtitle { margin: 4px 0 0; color: var(--muted); }
@@ -114,26 +121,38 @@
     .layout.sidebar-collapsed .sidebar-label { display: none; }
     .layout.sidebar-collapsed .sidebar-item { justify-content: center; padding-inline: 6px; }
 
-    button, select {
-      border: 1px solid var(--line);
-      background: var(--panel);
+    button, input, select, textarea {
+      border: 1px solid var(--control-border);
+      background: var(--control-bg);
       color: var(--text);
       border-radius: 12px;
-      padding: 10px 14px;
+      padding: 10px 12px;
       font: inherit;
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background-color .22s ease, color .22s ease;
+      box-shadow: var(--control-shadow);
+    }
+    button, select {
       cursor: pointer;
-      transition: transform var(--anim-soft), border-color var(--anim-soft), box-shadow var(--anim-soft), background-color var(--anim-soft);
+      min-height: 40px;
     }
 
-    button:hover, select:hover {
+    button:hover, input:hover, select:hover, textarea:hover {
       transform: translateY(-1px);
       border-color: var(--accent);
-      box-shadow: var(--shadow-soft);
-      background: #f8f8ff;
+      box-shadow: var(--shadow-soft), var(--accent-glow);
+      background: linear-gradient(165deg, rgba(16, 29, 56, .96), rgba(31, 52, 90, .94));
     }
-    button:active, select:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(53, 64, 114, .18) inset; }
-    button:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 38%, white); outline-offset: 2px; }
-    button.active { border-color: var(--accent); box-shadow: var(--glow-ring); background: #f5f3ff; }
+    button:active, select:active { transform: translateY(0); box-shadow: inset 0 2px 10px rgba(0, 10, 30, .45); }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: none;
+      border-color: var(--focus);
+      box-shadow: var(--focus-glow), var(--control-shadow);
+    }
+    button.active {
+      border-color: var(--accent);
+      box-shadow: var(--accent-glow), var(--control-shadow);
+      background: linear-gradient(165deg, rgba(19, 39, 73, .98), rgba(14, 61, 102, .95));
+    }
 
     .view { display: none; }
     .view.active { display: block; animation: fade var(--anim-fade); }
@@ -150,11 +169,16 @@
       position: relative;
       width: 100%;
       height: calc(100vh - 24px);
-      border: 1px solid var(--line);
+      border: 1px solid rgba(120, 178, 255, .38);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow:
+        0 18px 34px rgba(4, 8, 22, .45),
+        inset 0 0 0 1px rgba(176, 220, 255, .14);
       overflow: auto;
-      background: rgba(10, 16, 34, 0.94);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(81, 194, 255, .12), transparent 34%),
+        radial-gradient(circle at 88% 16%, rgba(176, 110, 255, .12), transparent 32%),
+        rgba(6, 11, 24, 0.95);
       scroll-behavior: smooth;
     }
 
@@ -163,16 +187,52 @@
       min-width: 100%;
       min-height: 100%;
       background:
-        radial-gradient(circle at 15% 20%, rgba(89, 208, 255, .16), transparent 32%),
-        radial-gradient(circle at 85% 10%, rgba(167, 139, 250, .16), transparent 30%),
-        radial-gradient(circle at 20% 80%, rgba(126, 231, 135, .08), transparent 28%),
-        linear-gradient(165deg, rgba(11,16,32,.9), rgba(20,27,51,.95));
+        linear-gradient(170deg, rgba(7, 12, 28, .98), rgba(15, 24, 48, .96));
+      isolation: isolate;
+    }
+
+    .map-nebula-layer,
+    .map-stars-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .map-nebula-layer {
+      z-index: 0;
+      background:
+        radial-gradient(circle at 14% 24%, rgba(50, 173, 255, .22), transparent 35%),
+        radial-gradient(circle at 84% 16%, rgba(163, 112, 255, .2), transparent 34%),
+        radial-gradient(circle at 64% 74%, rgba(75, 217, 255, .14), transparent 38%),
+        radial-gradient(circle at 20% 84%, rgba(139, 117, 255, .15), transparent 38%);
+      filter: blur(1px) saturate(1.08);
+    }
+
+    .map-stars-layer {
+      z-index: 1;
+      opacity: .36;
+      background-image:
+        radial-gradient(1.5px 1.5px at 8% 18%, rgba(242, 251, 255, .86), transparent 70%),
+        radial-gradient(1.6px 1.6px at 26% 72%, rgba(228, 238, 255, .78), transparent 72%),
+        radial-gradient(1.2px 1.2px at 38% 32%, rgba(225, 248, 255, .8), transparent 74%),
+        radial-gradient(1.4px 1.4px at 57% 82%, rgba(214, 233, 255, .74), transparent 72%),
+        radial-gradient(1.8px 1.8px at 72% 24%, rgba(235, 250, 255, .85), transparent 72%),
+        radial-gradient(1.4px 1.4px at 88% 66%, rgba(235, 241, 255, .74), transparent 72%),
+        radial-gradient(1.2px 1.2px at 94% 38%, rgba(212, 231, 255, .74), transparent 72%);
+      animation: starsDrift 24s linear infinite;
+    }
+
+    @keyframes starsDrift {
+      from { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+      to { transform: translateY(0); }
     }
 
     .map-world {
       position: relative;
       min-width: 100%;
       min-height: 100%;
+      z-index: 2;
     }
 
     .universe-node {
@@ -189,6 +249,27 @@
       z-index: 2;
       cursor: pointer;
       padding: 0;
+      animation: nodeFloat 5.8s ease-in-out infinite;
+      animation-delay: var(--float-delay, 0s);
+    }
+
+    .universe-node::before {
+      content: '';
+      position: absolute;
+      inset: 6px 18px 34px;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(76, 220, 255, .26), transparent 62%),
+        radial-gradient(circle at 72% 26%, rgba(164, 109, 255, .22), transparent 58%);
+      filter: blur(12px);
+      opacity: .7;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes nodeFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
     }
 
     .universe-node::after {
@@ -207,7 +288,7 @@
     }
 
     .universe-node:hover {
-      transform: translateY(-6px) scale(1.04);
+      transform: translateY(-8px) scale(1.04);
       filter: brightness(1.08);
     }
 
@@ -288,13 +369,24 @@
       bottom: 32px;
       z-index: 3;
       text-align: center;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(115, 201, 255, .62);
+      background: linear-gradient(145deg, rgba(11, 24, 48, .76), rgba(17, 21, 42, .74));
+      box-shadow:
+        inset 0 0 0 1px rgba(178, 145, 255, .22),
+        0 0 18px rgba(74, 195, 255, .24);
     }
 
     .universe-node h3 {
       margin: 0;
-      font-size: .92rem;
-      color: #f2f7ff;
+      font-size: .88rem;
+      color: #eff7ff;
       text-shadow: 0 2px 10px rgba(0, 0, 0, .82);
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      font-weight: 800;
+      font-family: "Nunito", Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
 
     .map-popup {
@@ -312,9 +404,9 @@
     .map-popup form { display: grid; gap: 10px; }
     .map-popup label { display: grid; gap: 4px; color: #d8e8ff; font-size: .85rem; }
     .map-popup input {
-      border: 1px solid rgba(147, 175, 255, .45);
-      background: rgba(240, 245, 255, .98);
-      color: #1f2a44;
+      border-color: rgba(114, 203, 255, .42);
+      background: linear-gradient(160deg, rgba(9, 20, 42, .96), rgba(20, 39, 71, .95));
+      color: #e5f7ff;
       border-radius: 10px;
       padding: 9px 10px;
       font: inherit;
@@ -337,8 +429,8 @@
       font-weight: 700;
     }
     .cover-mode button.active {
-      color: #111f40;
-      background: #d7e8ff;
+      color: #dcfbff;
+      background: rgba(21, 116, 162, .72);
       box-shadow: none;
       border-color: transparent;
     }
@@ -358,21 +450,24 @@
 
     .universe-node p {
       margin: 4px 0 0;
-      font-size: .8rem;
-      color: #d8e8ff;
+      font-size: .74rem;
+      color: #d4e9ff;
       text-shadow: 0 2px 10px rgba(0, 0, 0, .8);
+      letter-spacing: .06em;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .card {
       background: linear-gradient(158deg, var(--panel), var(--panel-2));
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
+      padding: 18px;
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(193, 236, 255, .09);
       transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
     }
 
-    .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 58%, white); box-shadow: 0 14px 28px rgba(71, 54, 130, .16); }
+    .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 68%, black); box-shadow: var(--shadow), var(--accent-glow); }
 
     .hud-panel {
       background: linear-gradient(160deg, rgba(255,255,255,.95), rgba(244,249,255,.98));
@@ -447,11 +542,11 @@
     }
 
     .panel, .sidebar {
-      background: linear-gradient(160deg, rgba(255,255,255,.95), rgba(244,249,255,.98));
+      background: linear-gradient(160deg, rgba(16, 30, 56, .95), rgba(11, 22, 43, .96));
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow-soft);
+      padding: 18px;
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(193, 236, 255, .08), 0 0 0 1px rgba(43, 247, 255, .14);
     }
 
     .toolbar {
@@ -502,24 +597,26 @@
       justify-items: end;
     }
 
+    .primary-btn {
+      background: linear-gradient(135deg, rgba(23, 103, 153, .9), rgba(43, 247, 255, .52));
+      color: #eaffff;
+      border-color: color-mix(in srgb, var(--accent) 62%, black);
+      font-weight: 700;
+      text-shadow: 0 0 14px rgba(43, 247, 255, .35);
+    }
+    .primary-btn:hover { background: var(--accent-hover); }
+
     .add-video-form {
       display: grid;
       gap: 10px;
       padding: 14px;
       border-radius: 14px;
-      border: 1px dashed color-mix(in srgb, var(--accent) 44%, white);
-      background: rgba(245, 244, 255, .9);
+      border: 1px dashed color-mix(in srgb, var(--accent) 44%, black);
+      background: rgba(8, 20, 43, .7);
       margin-bottom: 14px;
     }
     .add-video-form label { display: grid; gap: 6px; color: var(--muted); font-size: .92rem; }
-    .add-video-form input, .add-video-form select {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font: inherit;
-      width: 100%;
-      background: #fff;
-    }
+    .add-video-form input, .add-video-form select { width: 100%; }
 
     .video-card { cursor: pointer; }
     .video-card .video-thumb {
@@ -537,7 +634,7 @@
     .video-title {
       margin: 0 0 8px;
       font-size: .92rem;
-      color: #334064;
+      color: #acd2ef;
       min-height: 36px;
     }
 
@@ -566,7 +663,7 @@
       border: 1px solid var(--line);
       border-radius: 16px;
       overflow: hidden;
-      background: #eef2fd;
+      background: rgba(8, 19, 38, .82);
     }
 
     iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
@@ -579,8 +676,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255,255,255,.85);
-      transition: border-color var(--anim-soft), transform var(--anim-soft), box-shadow var(--anim-soft);
+      background: rgba(13, 26, 49, .86);
+      transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
     }
     .index-row:hover { border-color: color-mix(in srgb, var(--accent) 40%, white); transform: translateY(-1px); box-shadow: var(--shadow-soft); }
 
@@ -588,14 +685,14 @@
       margin-top: 10px;
       padding: 10px 12px;
       border-radius: 12px;
-      background: color-mix(in srgb, var(--focus) 14%, white);
-      color: #0e5460;
-      border: 1px solid color-mix(in srgb, var(--focus) 42%, white);
+      background: color-mix(in srgb, var(--focus) 20%, #081329);
+      color: #8ceeff;
+      border: 1px solid color-mix(in srgb, var(--focus) 44%, #07101e);
       font-size: .9rem;
     }
 
     details { margin-top: 10px; }
-    details summary { cursor: pointer; color: #364164; }
+    details summary { cursor: pointer; color: #9dc6e8; }
     .version-list { display: grid; gap: 8px; margin-top: 8px; }
 
     .achievements { display: grid; gap: 10px; }
@@ -603,7 +700,7 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       padding: 12px;
-      background: rgba(255,255,255,.9);
+      background: rgba(13, 27, 52, .9);
       box-shadow: var(--shadow-soft);
     }
     .achievement.done { border-color: color-mix(in srgb, var(--ok) 48%, white); background: var(--ok-soft); }
@@ -623,7 +720,7 @@
       overflow: auto;
       border-radius: 18px;
       border: 1px solid var(--line);
-      background: linear-gradient(165deg, #fff, #f5f8ff);
+      background: linear-gradient(165deg, rgba(13, 26, 49, .97), rgba(8, 18, 36, .97));
       box-shadow: var(--shadow);
       padding: 16px;
       display: grid;
@@ -635,10 +732,68 @@
       gap: 14px;
     }
     .detail-list {
-      list-style: none;
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 4px;
+      color: #a9c9e3;
     }
     .detail-close {
       justify-self: end;
+    }
+    .mock-shell {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 14px;
+    }
+    .mock-row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .mock-box {
+      background: var(--panel-2);
+      border: 1px dashed color-mix(in srgb, var(--accent) 32%, var(--line));
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .terminal-list {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      background: #0d1228;
+      color: #8fffc4;
+      border-radius: 14px;
+      border: 1px solid #233159;
+      padding: 14px;
+      list-style: none;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+    }
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 12px;
+      box-shadow: var(--shadow-soft);
+    }
+    .theme-toggle {
+      width: 52px;
+      height: 28px;
+      border-radius: 999px;
+      background: #dadff1;
+      position: relative;
+      border: 1px solid var(--line);
+    }
+    .theme-toggle::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,.18);
     }
 
     @media (max-width: 960px) {
@@ -686,9 +841,19 @@
       </aside>
 
       <section class="content">
+        <section id="viewInicio" class="view"></section>
         <section id="viewMap" class="view active"></section>
         <section id="viewUniverse" class="view"></section>
+        <section id="viewIndice" class="view"></section>
+        <section id="viewMaraton" class="view"></section>
+        <section id="viewRarezas" class="view"></section>
+        <section id="viewActores" class="view"></section>
+        <section id="viewVersiones" class="view"></section>
         <section id="viewAchievements" class="view"></section>
+        <section id="viewFavoritos" class="view"></section>
+        <section id="viewBuscar" class="view"></section>
+        <section id="viewStats" class="view"></section>
+        <section id="viewConfig" class="view"></section>
       </section>
     </div>
   </main>
@@ -713,11 +878,31 @@
 
     const appLayout = document.getElementById('appLayout');
     const toggleSidebar = document.getElementById('toggleSidebar');
+    const navInicio = document.getElementById('navInicio');
     const navUniverses = document.getElementById('navUniverses');
+    const navIndice = document.getElementById('navIndice');
+    const navMaraton = document.getElementById('navMaraton');
+    const navRarezas = document.getElementById('navRarezas');
+    const navActores = document.getElementById('navActores');
+    const navVersiones = document.getElementById('navVersiones');
     const navAchievements = document.getElementById('navAchievements');
+    const navFavoritos = document.getElementById('navFavoritos');
+    const navBuscar = document.getElementById('navBuscar');
+    const navStats = document.getElementById('navStats');
+    const navConfig = document.getElementById('navConfig');
+    const viewInicio = document.getElementById('viewInicio');
     const viewMap = document.getElementById('viewMap');
     const viewUniverse = document.getElementById('viewUniverse');
+    const viewIndice = document.getElementById('viewIndice');
+    const viewMaraton = document.getElementById('viewMaraton');
+    const viewRarezas = document.getElementById('viewRarezas');
+    const viewActores = document.getElementById('viewActores');
+    const viewVersiones = document.getElementById('viewVersiones');
     const viewAchievements = document.getElementById('viewAchievements');
+    const viewFavoritos = document.getElementById('viewFavoritos');
+    const viewBuscar = document.getElementById('viewBuscar');
+    const viewStats = document.getElementById('viewStats');
+    const viewConfig = document.getElementById('viewConfig');
 
     function rarityClass(rareza) {
       return `rare-${rareza.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`;
@@ -1007,8 +1192,9 @@
       ensureUniverseNodes();
       const nodesMarkup = state.universeNodes.map(node => {
         const videos = universes[node.name] || [];
+        const floatDelay = ((Math.abs(hashCode(node.id)) % 24) / 10).toFixed(1);
         return `
-          <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - NODE_HALF_WIDTH}px; top:${node.y - NODE_HALF_HEIGHT}px; border-radius:${node.shape};">
+          <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - NODE_HALF_WIDTH}px; top:${node.y - NODE_HALF_HEIGHT}px; border-radius:${node.shape}; --float-delay:-${floatDelay}s;">
             <span class="island-base" style="border-radius:${node.shape};"></span>
             <img class="universe-cover" src="${getSafeUniverseCover(node.name, node.cover)}" alt="Portada de ${node.name}" loading="lazy">
             <span class="cover-fallback">Portada no disponible</span>
@@ -1021,14 +1207,12 @@
       }).join('');
 
       viewMap.innerHTML = `
-        <section class="hud-panel">
-          <h2 class="section-title">Mapa de universos</h2>
-          <p class="section-subtitle">Haz clic en el mapa para crear universos o selecciona un nodo para abrir su vista.</p>
-          <div class="universe-map-shell">
-            <div id="universeMapCanvas" aria-label="Mapa de universos explorable">
-              <div class="map-world" id="mapWorld">
-                ${nodesMarkup}
-              </div>
+        <div class="universe-map-shell">
+          <div id="universeMapCanvas" aria-label="Mapa de universos explorable">
+            <div class="map-nebula-layer" aria-hidden="true"></div>
+            <div class="map-stars-layer" aria-hidden="true"></div>
+            <div class="map-world" id="mapWorld">
+              ${nodesMarkup}
             </div>
           </div>
         </section>
@@ -1178,6 +1362,57 @@
       });
 
       window.addEventListener('resize', syncMapCanvasSize, { once: true });
+    }
+
+    function renderInicioView() {
+      const universeMap = groupByUniverse();
+      const totalUniverses = Object.keys(universeMap).length;
+      const totalVideos = VIDEOS.length;
+      const totalCharacters = new Set(
+        VIDEOS.map(video => (video.personaje || '').trim()).filter(Boolean)
+      ).size;
+      const latestFromVideos = VIDEOS.slice(-6).reverse();
+      const mockLatest = [
+        { titulo: 'Conexión dimensional iniciada', universo: 'Multiverso base', personaje: 'Narrador central' },
+        { titulo: 'Primer contacto con sector alfa', universo: 'Sector Alfa', personaje: 'Comandante Nova' },
+        { titulo: 'Diagnóstico de señales en progreso', universo: 'Observatorio Éter', personaje: 'Analista Kira' }
+      ];
+      const latestTransmissions = latestFromVideos.length ? latestFromVideos : mockLatest;
+
+      viewInicio.innerHTML = `
+        <section class="panel">
+          <h2>Voces Universales</h2>
+          <p class="muted">Centro de control de exploración.</p>
+        </section>
+
+        <section class="grid">
+          <article class="card">
+            <h3 class="universe-name">🪐 Total universos</h3>
+            <p class="muted">${totalUniverses}</p>
+          </article>
+          <article class="card">
+            <h3 class="universe-name">🎬 Total videos</h3>
+            <p class="muted">${totalVideos}</p>
+          </article>
+          <article class="card">
+            <h3 class="universe-name">🎭 Personajes únicos</h3>
+            <p class="muted">${totalCharacters}</p>
+          </article>
+        </section>
+
+        <section class="panel">
+          <h3>Últimas transmisiones</h3>
+          <div class="video-grid">
+            ${latestTransmissions.slice(0, 6).map((video, index) => `
+              <article class="card">
+                <h4>${video.titulo || `Transmisión #${index + 1}`}</h4>
+                <p class="muted">Universo: ${(Array.isArray(video.universo) ? video.universo[0] : video.universo) || 'Sin universo'}</p>
+                <p class="muted">Personaje: ${video.personaje || 'Sin personaje'}</p>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      `;
     }
 
     function renderUniverseView() {
@@ -1421,6 +1656,134 @@
       `;
     }
 
+    function renderIndiceView() {
+      const indexItems = getCharactersIndex(VIDEOS).slice(0, 8);
+      viewIndice.innerHTML = `
+        <section class="mock-shell">
+          <h2>Índice de Personajes</h2>
+          <input type="search" placeholder="Filtrar personaje en terminal..." aria-label="Buscar personaje en índice">
+          <ul class="terminal-list">
+            ${indexItems.map(item => `<li>> ${item.personaje} · ${item.versions.length} versión(es)</li>`).join('') || '<li>> Sin personajes cargados</li>'}
+          </ul>
+        </section>
+      `;
+    }
+
+    function renderMaratonView() {
+      viewMaraton.innerHTML = `
+        <section class="mock-shell">
+          <h2>Modo Maratón</h2>
+          <div class="mock-row">
+            <select aria-label="Selector de maratón mock">
+              <option>Universo actual (mock)</option>
+              <option>Rareza alta (mock)</option>
+            </select>
+            <button class="primary-btn">Iniciar transmisión</button>
+          </div>
+          <div class="mock-box">
+            <strong>Placeholder de video</strong>
+            <p class="muted">Aquí se mostrará el stream continuo de saludos.</p>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderRarezasView() {
+      const levels = [
+        ['Común', 'Estabilidad base'],
+        ['Raro', 'Carga amplificada'],
+        ['Épico', 'Pulso de energía avanzada'],
+        ['Legendario', 'Núcleo máximo']
+      ];
+      viewRarezas.innerHTML = `
+        <section class="mock-shell">
+          <h2>Rarezas por nivel de energía</h2>
+          <div class="mock-row">
+            ${levels.map(([name, desc]) => `<article class="mock-box"><h3>${name}</h3><p class="muted">${desc}</p></article>`).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderActoresView() {
+      const actors = [...new Set(VIDEOS.map(v => v.actor_de_doblaje).filter(Boolean))].slice(0, 6);
+      viewActores.innerHTML = `
+        <section class="mock-shell">
+          <h2>Actores de doblaje</h2>
+          <p class="muted">Contador mock de personajes: 128</p>
+          <div class="mock-row">
+            ${actors.map(actor => `<article class="mock-box"><h3>${actor}</h3><p class="muted">Tarjeta de actor</p></article>`).join('') || '<p class="muted">Sin actores registrados.</p>'}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderVersionesView() {
+      const multiverse = [...new Set(VIDEOS.map(v => v.personaje).filter(Boolean))].slice(0, 8);
+      viewVersiones.innerHTML = `
+        <section class="mock-shell">
+          <h2>Versiones multiverso</h2>
+          <ul>
+            ${multiverse.map(name => `<li>${name} · Variante Alpha/Beta (mock)</li>`).join('') || '<li>Sin variantes disponibles.</li>'}
+          </ul>
+          <button>Explorar variantes</button>
+        </section>
+      `;
+    }
+
+    function renderFavoritosView() {
+      const favorites = VIDEOS.slice(0, 3);
+      viewFavoritos.innerHTML = `
+        <section class="mock-shell">
+          <h2>Favoritos</h2>
+          ${favorites.length
+            ? `<ul>${favorites.map(item => `<li>${item.personaje || 'Sin personaje'} · ${item.titulo || 'Sin título'}</li>`).join('')}</ul>`
+            : '<p class="muted">No hay elementos prioritarios aún</p>'}
+        </section>
+      `;
+    }
+
+    function renderBuscarView() {
+      viewBuscar.innerHTML = `
+        <section class="mock-shell" style="min-height: 58vh; place-content: center;">
+          <input type="search" style="font-size:1.15rem; padding:16px;" placeholder="placeholder exacto solicitado" aria-label="Búsqueda global">
+        </section>
+      `;
+    }
+
+    function renderStatsView() {
+      viewStats.innerHTML = `
+        <section class="mock-shell">
+          <h2>Estadísticas</h2>
+          <div class="mock-row">
+            <article class="kpi"><strong>KPI 1</strong><p class="muted">Conversión mock: 24%</p></article>
+            <article class="kpi"><strong>KPI 2</strong><p class="muted">Retención mock: 72%</p></article>
+            <article class="kpi"><strong>KPI 3</strong><p class="muted">Rareza alta mock: 19%</p></article>
+          </div>
+          <div class="mock-row">
+            <div class="mock-box">Placeholder gráfico de líneas</div>
+            <div class="mock-box">Placeholder gráfico de barras</div>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderConfigView() {
+      viewConfig.innerHTML = `
+        <section class="mock-shell">
+          <h2>Configuración</h2>
+          <div class="mock-row">
+            <button>Importar JSON</button>
+            <button>Exportar JSON</button>
+            <div class="mock-box">
+              <p>Tema</p>
+              <div class="theme-toggle" aria-hidden="true"></div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
     function cssSafe(text) {
       return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-');
     }
@@ -1480,19 +1843,50 @@
 
     function changeView(next) {
       state.view = next;
+      viewInicio.classList.toggle('active', next === 'inicio');
       viewMap.classList.toggle('active', next === 'map');
       viewUniverse.classList.toggle('active', next === 'universe');
+      viewIndice.classList.toggle('active', next === 'indice');
+      viewMaraton.classList.toggle('active', next === 'maraton');
+      viewRarezas.classList.toggle('active', next === 'rarezas');
+      viewActores.classList.toggle('active', next === 'actores');
+      viewVersiones.classList.toggle('active', next === 'versiones');
       viewAchievements.classList.toggle('active', next === 'achievements');
+      viewFavoritos.classList.toggle('active', next === 'favoritos');
+      viewBuscar.classList.toggle('active', next === 'buscar');
+      viewStats.classList.toggle('active', next === 'stats');
+      viewConfig.classList.toggle('active', next === 'config');
       document.querySelectorAll('.sidebar-nav .sidebar-item').forEach(btn => btn.classList.remove('active'));
-      if (next === 'achievements') {
-        navAchievements.classList.add('active');
-      } else {
-        navUniverses.classList.add('active');
-      }
+      const activeNavByView = {
+        inicio: navInicio,
+        map: navUniverses,
+        universe: navUniverses,
+        indice: navIndice,
+        maraton: navMaraton,
+        rarezas: navRarezas,
+        actores: navActores,
+        versiones: navVersiones,
+        achievements: navAchievements,
+        favoritos: navFavoritos,
+        buscar: navBuscar,
+        stats: navStats,
+        config: navConfig
+      };
+      activeNavByView[next]?.classList.add('active');
 
+      if (next === 'inicio') renderInicioView();
       if (next === 'map') renderMapView();
       if (next === 'universe') renderUniverseView();
       if (next === 'achievements') renderAchievementsView();
+      if (next === 'indice') renderIndiceView();
+      if (next === 'maraton') renderMaratonView();
+      if (next === 'rarezas') renderRarezasView();
+      if (next === 'actores') renderActoresView();
+      if (next === 'versiones') renderVersionesView();
+      if (next === 'favoritos') renderFavoritosView();
+      if (next === 'buscar') renderBuscarView();
+      if (next === 'stats') renderStatsView();
+      if (next === 'config') renderConfigView();
     }
 
     toggleSidebar.onclick = () => {
@@ -1500,17 +1894,18 @@
       toggleSidebar.textContent = appLayout.classList.contains('sidebar-collapsed') ? '➡️ Expandir menú' : '↔️ Colapsar menú';
     };
 
-    const upcomingNavs = ['navInicio', 'navIndice', 'navMaraton', 'navRarezas', 'navActores', 'navVersiones', 'navFavoritos', 'navBuscar', 'navStats', 'navConfig'];
-    upcomingNavs.forEach(id => {
-      const btn = document.getElementById(id);
-      if (!btn) return;
-      btn.onclick = () => {
-        alert('Esta sección está preparada en el menú y la activaremos en la siguiente etapa.');
-      };
-    });
-
+    navInicio.onclick = () => changeView('inicio');
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
+    navIndice.onclick = () => changeView('indice');
+    navMaraton.onclick = () => changeView('maraton');
+    navRarezas.onclick = () => changeView('rarezas');
+    navActores.onclick = () => changeView('actores');
+    navVersiones.onclick = () => changeView('versiones');
     navAchievements.onclick = () => changeView('achievements');
+    navFavoritos.onclick = () => changeView('favoritos');
+    navBuscar.onclick = () => changeView('buscar');
+    navStats.onclick = () => changeView('stats');
+    navConfig.onclick = () => changeView('config');
 
     state.universeNodes = loadUniverseNodesFromStorage();
     changeView('map');
