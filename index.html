@@ -26,6 +26,9 @@
       --shadow: 0 10px 24px rgba(53, 64, 114, .12);
       --shadow-soft: 0 6px 14px rgba(53, 64, 114, .1);
       --radius: 18px;
+      --anim-fade: .28s ease;
+      --anim-soft: .25s ease;
+      --glow-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, white);
     }
 
     * { box-sizing: border-box; }
@@ -119,7 +122,7 @@
       padding: 10px 14px;
       font: inherit;
       cursor: pointer;
-      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
+      transition: transform var(--anim-soft), border-color var(--anim-soft), box-shadow var(--anim-soft), background-color var(--anim-soft);
     }
 
     button:hover, select:hover {
@@ -130,10 +133,10 @@
     }
     button:active, select:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(53, 64, 114, .18) inset; }
     button:focus-visible, select:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus) 38%, white); outline-offset: 2px; }
-    button.active { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, white); background: #f5f3ff; }
+    button.active { border-color: var(--accent); box-shadow: var(--glow-ring); background: #f5f3ff; }
 
     .view { display: none; }
-    .view.active { display: block; animation: fade .25s ease; }
+    .view.active { display: block; animation: fade var(--anim-fade); }
 
     @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -371,6 +374,69 @@
 
     .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 58%, white); box-shadow: 0 14px 28px rgba(71, 54, 130, .16); }
 
+    .hud-panel {
+      background: linear-gradient(160deg, rgba(255,255,255,.95), rgba(244,249,255,.98));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-soft);
+      transition: transform var(--anim-soft), border-color var(--anim-soft), box-shadow var(--anim-soft);
+    }
+
+    .hud-panel:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent) 52%, white);
+      box-shadow: 0 12px 22px rgba(71, 54, 130, .16);
+    }
+
+    .stat-card {
+      background: linear-gradient(158deg, var(--panel), var(--panel-2));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      transition: transform var(--anim-soft), border-color var(--anim-soft), box-shadow var(--anim-soft), filter var(--anim-soft);
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--accent) 58%, white);
+      box-shadow: 0 14px 28px rgba(71, 54, 130, .16);
+      filter: brightness(1.02);
+    }
+
+    .neon-btn {
+      border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+      box-shadow: 0 0 0 0 rgba(106,102,246,.35);
+      transition: transform var(--anim-soft), border-color var(--anim-soft), box-shadow var(--anim-soft), filter var(--anim-soft), background-color var(--anim-soft);
+    }
+    .neon-btn:hover {
+      border-color: var(--accent);
+      box-shadow: var(--glow-ring), 0 8px 22px rgba(106,102,246,.2);
+      filter: brightness(1.02);
+    }
+    .neon-btn--primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: color-mix(in srgb, var(--accent) 68%, white);
+      font-weight: 700;
+    }
+    .neon-btn--primary:hover { background: var(--accent-hover); }
+
+    .terminal-list {
+      margin: 0;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(13, 25, 45, .9);
+      color: #d5e7ff;
+      border: 1px solid rgba(131, 173, 255, .32);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+      display: grid;
+      gap: 6px;
+    }
+
+    .section-title { margin: 0 0 6px; font-size: 1.15rem; letter-spacing: .2px; }
+    .section-subtitle { margin: 0; color: var(--muted); font-size: .92rem; }
+
     .universe-name { margin: 0 0 8px; font-size: 1.05rem; }
     .muted { color: var(--muted); font-size: .95rem; }
 
@@ -435,14 +501,6 @@
       align-content: start;
       justify-items: end;
     }
-
-    .primary-btn {
-      background: var(--accent);
-      color: #fff;
-      border-color: color-mix(in srgb, var(--accent) 68%, white);
-      font-weight: 700;
-    }
-    .primary-btn:hover { background: var(--accent-hover); }
 
     .add-video-form {
       display: grid;
@@ -522,7 +580,7 @@
       justify-content: space-between;
       align-items: center;
       background: rgba(255,255,255,.85);
-      transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+      transition: border-color var(--anim-soft), transform var(--anim-soft), box-shadow var(--anim-soft);
     }
     .index-row:hover { border-color: color-mix(in srgb, var(--accent) 40%, white); transform: translateY(-1px); box-shadow: var(--shadow-soft); }
 
@@ -577,11 +635,7 @@
       gap: 14px;
     }
     .detail-list {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 4px;
-      color: #324365;
+      list-style: none;
     }
     .detail-close {
       justify-self: end;
@@ -967,13 +1021,17 @@
       }).join('');
 
       viewMap.innerHTML = `
-        <div class="universe-map-shell">
-          <div id="universeMapCanvas" aria-label="Mapa de universos explorable">
-            <div class="map-world" id="mapWorld">
-              ${nodesMarkup}
+        <section class="hud-panel">
+          <h2 class="section-title">Mapa de universos</h2>
+          <p class="section-subtitle">Haz clic en el mapa para crear universos o selecciona un nodo para abrir su vista.</p>
+          <div class="universe-map-shell">
+            <div id="universeMapCanvas" aria-label="Mapa de universos explorable">
+              <div class="map-world" id="mapWorld">
+                ${nodesMarkup}
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       `;
 
       const mapCanvas = document.getElementById('universeMapCanvas');
@@ -1020,7 +1078,7 @@
             <div class="cover-input-group" data-cover-input="file" hidden>
               <input type="file" name="portadaArchivo" accept="image/*">
             </div>
-            <button type="submit">Crear Universo</button>
+            <button type="submit" class="neon-btn neon-btn--primary">Crear Universo</button>
             <p class="popup-feedback" id="popupFeedback" aria-live="polite"></p>
           </form>
         `;
@@ -1133,18 +1191,18 @@
       const headerCover = getSafeUniverseCover(state.universe, universeNode?.cover || getUniverseCover(videos));
       viewUniverse.innerHTML = `
         <div class="actions">
-          <button id="backMap">← Volver al mapa</button>
+          <button id="backMap" class="neon-btn">← Volver al mapa</button>
         </div>
-        <section class="panel universe-header">
+        <section class="hud-panel universe-header">
           <div class="universe-hero">
             <img src="${headerCover}" alt="Portada de ${state.universe}">
             <div>
-              <h2>${state.universe || 'Universo'}</h2>
-              <p class="muted">${videos.length} videos en total.</p>
+              <h2 class="section-title">${state.universe || 'Universo'}</h2>
+              <p class="section-subtitle">${videos.length} videos en total.</p>
             </div>
           </div>
           <div class="universe-controls">
-            <button id="toggleAddVideo" class="primary-btn">AGREGAR VIDEO</button>
+            <button id="toggleAddVideo" class="neon-btn neon-btn--primary">AGREGAR VIDEO</button>
           </div>
         </section>
 
@@ -1164,13 +1222,13 @@
             </select>
           </label>
           <div class="actions">
-            <button type="submit" class="primary-btn">Guardar</button>
+            <button type="submit" class="neon-btn neon-btn--primary">Guardar</button>
             <span class="muted" id="videoFormFeedback"></span>
           </div>
         </form>
 
         <div class="universe-layout">
-          <section class="panel">
+          <section class="hud-panel">
             <div class="toolbar">
               <label>Personaje
                 <select id="filterCharacter">
@@ -1190,12 +1248,12 @@
                   ${rarezas.map(r => `<option value="${r}" ${state.filters.rareza === r ? 'selected' : ''}>${r}</option>`).join('')}
                 </select>
               </label>
-              <button id="clearFilters">Limpiar filtros</button>
+              <button id="clearFilters" class="neon-btn">Limpiar filtros</button>
             </div>
 
             <div class="video-grid">
               ${filtered.map(v => `
-                <article class="card video-card" data-open-detail="${v.id}">
+                <article class="stat-card video-card" data-open-detail="${v.id}">
                   <img class="video-thumb" src="${v.thumbnail || getUniverseCover([v])}" alt="${v.titulo || 'Miniatura del video'}" loading="lazy">
                   <h3>${v.personaje || 'Personaje pendiente'}</h3>
                   <p>${v.actor_de_doblaje || 'Actor pendiente'}</p>
@@ -1206,9 +1264,9 @@
             </div>
           </section>
 
-          <aside class="panel">
-            <h3>Reproducción rápida</h3>
-            <p class="muted">Selecciona una carta para abrir su vista detallada.</p>
+          <aside class="hud-panel">
+            <h3 class="section-title">Reproducción rápida</h3>
+            <p class="section-subtitle">Selecciona una carta para abrir su vista detallada.</p>
             <div class="player-box">
               ${selected ? `<iframe id="videoPlayer" src="${toEmbedUrl(selected.url_youtube || selected.url_video, 1)}" title="Reproductor" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : '<p class="muted">Sin video seleccionado</p>'}
             </div>
@@ -1295,23 +1353,23 @@
       modal.className = 'detail-modal';
       modal.innerHTML = `
         <article class="detail-content">
-          <button class="detail-close" id="closeDetail">✕ Cerrar</button>
+          <button class="detail-close neon-btn" id="closeDetail">✕ Cerrar</button>
           <div class="detail-grid">
-            <section class="panel">
-              <h3>${personaje}</h3>
+            <section class="hud-panel">
+              <h3 class="section-title">${personaje}</h3>
               <p><strong>Actor de doblaje:</strong> ${actor}</p>
               <span class="badge ${rarityClass(video.rareza || 'Común')}">${video.rareza || 'Común'}</span>
               <div class="player-box" style="margin-top:10px;">
                 <iframe src="${toEmbedUrl(video.url_youtube || video.url_video, 1)}" title="Video detallado" allow="autoplay; encrypted-media" allowfullscreen></iframe>
               </div>
             </section>
-            <aside class="panel">
-              <h4>Universos relacionados</h4>
-              <ul class="detail-list">${universosRelacionados.map(u => `<li>${u}</li>`).join('') || '<li>Sin datos</li>'}</ul>
-              <h4>Actores del personaje</h4>
-              <ul class="detail-list">${actoresDelPersonaje.map(a => `<li>${a}</li>`).join('') || '<li>Sin datos</li>'}</ul>
-              <h4>Personajes del actor</h4>
-              <ul class="detail-list">${personajesDelActor.map(p => `<li>${p}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+            <aside class="hud-panel">
+              <h4 class="section-title">Universos relacionados</h4>
+              <ul class="detail-list terminal-list">${universosRelacionados.map(u => `<li>${u}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+              <h4 class="section-title">Actores del personaje</h4>
+              <ul class="detail-list terminal-list">${actoresDelPersonaje.map(a => `<li>${a}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+              <h4 class="section-title">Personajes del actor</h4>
+              <ul class="detail-list terminal-list">${personajesDelActor.map(p => `<li>${p}</li>`).join('') || '<li>Sin datos</li>'}</ul>
             </aside>
           </div>
         </article>
@@ -1351,11 +1409,11 @@
       ];
 
       viewAchievements.innerHTML = `
-        <div class="panel achievements">
+        <div class="hud-panel achievements">
           ${achievements.map(a => `
-            <article class="achievement ${a.unlocked ? 'done' : ''}">
-              <h3>${a.unlocked ? '✅' : '🔒'} ${a.title}</h3>
-              <p class="muted">${a.description}</p>
+            <article class="achievement stat-card ${a.unlocked ? 'done' : ''}">
+              <h3 class="section-title">${a.unlocked ? '✅' : '🔒'} ${a.title}</h3>
+              <p class="section-subtitle">${a.description}</p>
               <p>${a.unlocked ? 'Desbloqueado' : 'Pendiente'}</p>
             </article>
           `).join('')}
