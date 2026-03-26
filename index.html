@@ -632,9 +632,19 @@
       </aside>
 
       <section class="content">
+        <section id="viewInicio" class="view"></section>
         <section id="viewMap" class="view active"></section>
         <section id="viewUniverse" class="view"></section>
+        <section id="viewIndice" class="view"></section>
+        <section id="viewMaraton" class="view"></section>
+        <section id="viewRarezas" class="view"></section>
+        <section id="viewActores" class="view"></section>
+        <section id="viewVersiones" class="view"></section>
         <section id="viewAchievements" class="view"></section>
+        <section id="viewFavoritos" class="view"></section>
+        <section id="viewBuscar" class="view"></section>
+        <section id="viewStats" class="view"></section>
+        <section id="viewConfig" class="view"></section>
       </section>
     </div>
   </main>
@@ -659,11 +669,31 @@
 
     const appLayout = document.getElementById('appLayout');
     const toggleSidebar = document.getElementById('toggleSidebar');
+    const navInicio = document.getElementById('navInicio');
     const navUniverses = document.getElementById('navUniverses');
+    const navIndice = document.getElementById('navIndice');
+    const navMaraton = document.getElementById('navMaraton');
+    const navRarezas = document.getElementById('navRarezas');
+    const navActores = document.getElementById('navActores');
+    const navVersiones = document.getElementById('navVersiones');
     const navAchievements = document.getElementById('navAchievements');
+    const navFavoritos = document.getElementById('navFavoritos');
+    const navBuscar = document.getElementById('navBuscar');
+    const navStats = document.getElementById('navStats');
+    const navConfig = document.getElementById('navConfig');
+    const viewInicio = document.getElementById('viewInicio');
     const viewMap = document.getElementById('viewMap');
     const viewUniverse = document.getElementById('viewUniverse');
+    const viewIndice = document.getElementById('viewIndice');
+    const viewMaraton = document.getElementById('viewMaraton');
+    const viewRarezas = document.getElementById('viewRarezas');
+    const viewActores = document.getElementById('viewActores');
+    const viewVersiones = document.getElementById('viewVersiones');
     const viewAchievements = document.getElementById('viewAchievements');
+    const viewFavoritos = document.getElementById('viewFavoritos');
+    const viewBuscar = document.getElementById('viewBuscar');
+    const viewStats = document.getElementById('viewStats');
+    const viewConfig = document.getElementById('viewConfig');
 
     function rarityClass(rareza) {
       return `rare-${rareza.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`;
@@ -1422,15 +1452,36 @@
 
     function changeView(next) {
       state.view = next;
+      viewInicio.classList.toggle('active', next === 'inicio');
       viewMap.classList.toggle('active', next === 'map');
       viewUniverse.classList.toggle('active', next === 'universe');
+      viewIndice.classList.toggle('active', next === 'indice');
+      viewMaraton.classList.toggle('active', next === 'maraton');
+      viewRarezas.classList.toggle('active', next === 'rarezas');
+      viewActores.classList.toggle('active', next === 'actores');
+      viewVersiones.classList.toggle('active', next === 'versiones');
       viewAchievements.classList.toggle('active', next === 'achievements');
+      viewFavoritos.classList.toggle('active', next === 'favoritos');
+      viewBuscar.classList.toggle('active', next === 'buscar');
+      viewStats.classList.toggle('active', next === 'stats');
+      viewConfig.classList.toggle('active', next === 'config');
       document.querySelectorAll('.sidebar-nav .sidebar-item').forEach(btn => btn.classList.remove('active'));
-      if (next === 'achievements') {
-        navAchievements.classList.add('active');
-      } else {
-        navUniverses.classList.add('active');
-      }
+      const activeNavByView = {
+        inicio: navInicio,
+        map: navUniverses,
+        universe: navUniverses,
+        indice: navIndice,
+        maraton: navMaraton,
+        rarezas: navRarezas,
+        actores: navActores,
+        versiones: navVersiones,
+        achievements: navAchievements,
+        favoritos: navFavoritos,
+        buscar: navBuscar,
+        stats: navStats,
+        config: navConfig
+      };
+      activeNavByView[next]?.classList.add('active');
 
       if (next === 'map') renderMapView();
       if (next === 'universe') renderUniverseView();
@@ -1442,17 +1493,18 @@
       toggleSidebar.textContent = appLayout.classList.contains('sidebar-collapsed') ? '➡️ Expandir menú' : '↔️ Colapsar menú';
     };
 
-    const upcomingNavs = ['navInicio', 'navIndice', 'navMaraton', 'navRarezas', 'navActores', 'navVersiones', 'navFavoritos', 'navBuscar', 'navStats', 'navConfig'];
-    upcomingNavs.forEach(id => {
-      const btn = document.getElementById(id);
-      if (!btn) return;
-      btn.onclick = () => {
-        alert('Esta sección está preparada en el menú y la activaremos en la siguiente etapa.');
-      };
-    });
-
+    navInicio.onclick = () => changeView('inicio');
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
+    navIndice.onclick = () => changeView('indice');
+    navMaraton.onclick = () => changeView('maraton');
+    navRarezas.onclick = () => changeView('rarezas');
+    navActores.onclick = () => changeView('actores');
+    navVersiones.onclick = () => changeView('versiones');
     navAchievements.onclick = () => changeView('achievements');
+    navFavoritos.onclick = () => changeView('favoritos');
+    navBuscar.onclick = () => changeView('buscar');
+    navStats.onclick = () => changeView('stats');
+    navConfig.onclick = () => changeView('config');
 
     state.universeNodes = loadUniverseNodesFromStorage();
     changeView('map');
