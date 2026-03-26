@@ -632,6 +632,7 @@
       </aside>
 
       <section class="content">
+        <section id="viewInicio" class="view"></section>
         <section id="viewMap" class="view active"></section>
         <section id="viewUniverse" class="view"></section>
         <section id="viewAchievements" class="view"></section>
@@ -659,8 +660,10 @@
 
     const appLayout = document.getElementById('appLayout');
     const toggleSidebar = document.getElementById('toggleSidebar');
+    const navInicio = document.getElementById('navInicio');
     const navUniverses = document.getElementById('navUniverses');
     const navAchievements = document.getElementById('navAchievements');
+    const viewInicio = document.getElementById('viewInicio');
     const viewMap = document.getElementById('viewMap');
     const viewUniverse = document.getElementById('viewUniverse');
     const viewAchievements = document.getElementById('viewAchievements');
@@ -1122,6 +1125,57 @@
       window.addEventListener('resize', syncMapCanvasSize, { once: true });
     }
 
+    function renderInicioView() {
+      const universeMap = groupByUniverse();
+      const totalUniverses = Object.keys(universeMap).length;
+      const totalVideos = VIDEOS.length;
+      const totalCharacters = new Set(
+        VIDEOS.map(video => (video.personaje || '').trim()).filter(Boolean)
+      ).size;
+      const latestFromVideos = VIDEOS.slice(-6).reverse();
+      const mockLatest = [
+        { titulo: 'Conexión dimensional iniciada', universo: 'Multiverso base', personaje: 'Narrador central' },
+        { titulo: 'Primer contacto con sector alfa', universo: 'Sector Alfa', personaje: 'Comandante Nova' },
+        { titulo: 'Diagnóstico de señales en progreso', universo: 'Observatorio Éter', personaje: 'Analista Kira' }
+      ];
+      const latestTransmissions = latestFromVideos.length ? latestFromVideos : mockLatest;
+
+      viewInicio.innerHTML = `
+        <section class="panel">
+          <h2>Voces Universales</h2>
+          <p class="muted">Centro de control de exploración.</p>
+        </section>
+
+        <section class="grid">
+          <article class="card">
+            <h3 class="universe-name">🪐 Total universos</h3>
+            <p class="muted">${totalUniverses}</p>
+          </article>
+          <article class="card">
+            <h3 class="universe-name">🎬 Total videos</h3>
+            <p class="muted">${totalVideos}</p>
+          </article>
+          <article class="card">
+            <h3 class="universe-name">🎭 Personajes únicos</h3>
+            <p class="muted">${totalCharacters}</p>
+          </article>
+        </section>
+
+        <section class="panel">
+          <h3>Últimas transmisiones</h3>
+          <div class="video-grid">
+            ${latestTransmissions.slice(0, 6).map((video, index) => `
+              <article class="card">
+                <h4>${video.titulo || `Transmisión #${index + 1}`}</h4>
+                <p class="muted">Universo: ${(Array.isArray(video.universo) ? video.universo[0] : video.universo) || 'Sin universo'}</p>
+                <p class="muted">Personaje: ${video.personaje || 'Sin personaje'}</p>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
     function renderUniverseView() {
       const videos = getUniverseVideos();
       const personajes = [...new Set(videos.map(v => v.personaje || 'Sin personaje'))];
@@ -1422,16 +1476,20 @@
 
     function changeView(next) {
       state.view = next;
+      viewInicio.classList.toggle('active', next === 'inicio');
       viewMap.classList.toggle('active', next === 'map');
       viewUniverse.classList.toggle('active', next === 'universe');
       viewAchievements.classList.toggle('active', next === 'achievements');
       document.querySelectorAll('.sidebar-nav .sidebar-item').forEach(btn => btn.classList.remove('active'));
-      if (next === 'achievements') {
+      if (next === 'inicio') {
+        navInicio.classList.add('active');
+      } else if (next === 'achievements') {
         navAchievements.classList.add('active');
       } else {
         navUniverses.classList.add('active');
       }
 
+      if (next === 'inicio') renderInicioView();
       if (next === 'map') renderMapView();
       if (next === 'universe') renderUniverseView();
       if (next === 'achievements') renderAchievementsView();
@@ -1442,7 +1500,7 @@
       toggleSidebar.textContent = appLayout.classList.contains('sidebar-collapsed') ? '➡️ Expandir menú' : '↔️ Colapsar menú';
     };
 
-    const upcomingNavs = ['navInicio', 'navIndice', 'navMaraton', 'navRarezas', 'navActores', 'navVersiones', 'navFavoritos', 'navBuscar', 'navStats', 'navConfig'];
+    const upcomingNavs = ['navIndice', 'navMaraton', 'navRarezas', 'navActores', 'navVersiones', 'navFavoritos', 'navBuscar', 'navStats', 'navConfig'];
     upcomingNavs.forEach(id => {
       const btn = document.getElementById(id);
       if (!btn) return;
@@ -1451,6 +1509,7 @@
       };
     });
 
+    navInicio.onclick = () => changeView('inicio');
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
     navAchievements.onclick = () => changeView('achievements');
 
