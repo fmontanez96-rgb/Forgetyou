@@ -404,8 +404,84 @@
       gap: 14px;
     }
 
+    .universe-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 14px;
+    }
+
+    .universe-hero {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .universe-hero img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+      background: rgba(19, 28, 51, .8);
+    }
+
+    .universe-controls {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      justify-items: end;
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: #fff;
+      border-color: color-mix(in srgb, var(--accent) 68%, white);
+      font-weight: 700;
+    }
+    .primary-btn:hover { background: var(--accent-hover); }
+
+    .add-video-form {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px dashed color-mix(in srgb, var(--accent) 44%, white);
+      background: rgba(245, 244, 255, .9);
+      margin-bottom: 14px;
+    }
+    .add-video-form label { display: grid; gap: 6px; color: var(--muted); font-size: .92rem; }
+    .add-video-form input, .add-video-form select {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      width: 100%;
+      background: #fff;
+    }
+
+    .video-card { cursor: pointer; }
+    .video-card .video-thumb {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      margin-bottom: 10px;
+      background: rgba(17, 22, 42, .86);
+    }
     .video-card h3 { margin: 0 0 6px; font-size: 1rem; }
     .video-card p { margin: 0; color: var(--muted); font-size: .92rem; }
+
+    .video-title {
+      margin: 0 0 8px;
+      font-size: .92rem;
+      color: #334064;
+      min-height: 36px;
+    }
 
     .badge {
       display: inline-flex;
@@ -474,6 +550,43 @@
     }
     .achievement.done { border-color: color-mix(in srgb, var(--ok) 48%, white); background: var(--ok-soft); }
 
+    .detail-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 21, .7);
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+    .detail-content {
+      width: min(980px, 100%);
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(165deg, #fff, #f5f8ff);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(240px, 1fr);
+      gap: 14px;
+    }
+    .detail-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 4px;
+      color: #324365;
+    }
+    .detail-close {
+      justify-self: end;
+    }
+
     @media (max-width: 960px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar {
@@ -484,6 +597,9 @@
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
       .universe-layout { grid-template-columns: 1fr; }
+      .universe-header { grid-template-columns: 1fr; }
+      .universe-hero { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
       .toolbar { grid-template-columns: 1fr; }
       .content { height: auto; }
       html, body { overflow: auto; }
@@ -531,6 +647,7 @@
       universe: null,
       filters: { personaje: 'todos', actor: 'todos', rareza: 'todos' },
       selectedVideoId: null,
+      showAddForm: false,
       marathon: { active: false, queue: [], position: 0 },
       universeNodes: [],
       mapCanvas: { width: 1400, height: 900 }
@@ -560,8 +677,11 @@
 
     function groupByUniverse() {
       return VIDEOS.reduce((acc, item) => {
-        acc[item.universo] = acc[item.universo] || [];
-        acc[item.universo].push(item);
+        const universes = Array.isArray(item.universo) ? item.universo : [item.universo];
+        universes.filter(Boolean).forEach((name) => {
+          acc[name] = acc[name] || [];
+          acc[name].push(item);
+        });
         return acc;
       }, {});
     }
@@ -627,15 +747,20 @@
       }
     }
 
+    function getVideoUniverses(video) {
+      if (Array.isArray(video.universo)) return video.universo;
+      return video.universo ? [video.universo] : [];
+    }
+
     function getUniverseVideos() {
-      return VIDEOS.filter(v => v.universo === state.universe);
+      return VIDEOS.filter(v => getVideoUniverses(v).includes(state.universe));
     }
 
     function getFilteredUniverseVideos() {
       return getUniverseVideos().filter(v => {
-        const m1 = state.filters.personaje === 'todos' || v.personaje === state.filters.personaje;
-        const m2 = state.filters.actor === 'todos' || v.actor_de_doblaje === state.filters.actor;
-        const m3 = state.filters.rareza === 'todos' || v.rareza === state.filters.rareza;
+        const m1 = state.filters.personaje === 'todos' || (v.personaje || 'Sin personaje') === state.filters.personaje;
+        const m2 = state.filters.actor === 'todos' || (v.actor_de_doblaje || 'Sin actor') === state.filters.actor;
+        const m3 = state.filters.rareza === 'todos' || (v.rareza || 'Común') === state.filters.rareza;
         return m1 && m2 && m3;
       });
     }
@@ -656,9 +781,38 @@
     function getUniverseCover(videos) {
       const first = videos?.[0];
       if (!first) return '';
-      const embed = toEmbedUrl(first.url_video);
+      const embed = toEmbedUrl(first.url_youtube || first.url_video || '');
       const videoId = embed.split('/embed/')[1]?.split('?')[0];
       return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : '';
+    }
+
+    function getYoutubeId(url) {
+      const match = String(url || '').match(/(?:v=|\/embed\/|\.be\/)([A-Za-z0-9_-]{11})/);
+      return match?.[1] || '';
+    }
+
+    function normalizeYoutubeUrl(url) {
+      const id = getYoutubeId(url);
+      return id ? `https://www.youtube.com/watch?v=${id}` : '';
+    }
+
+    async function fetchYoutubeMetadata(url) {
+      const normalized = normalizeYoutubeUrl(url);
+      const id = getYoutubeId(normalized);
+      if (!id) return { title: 'Video sin título', thumbnail: '' };
+      const fallbackThumb = `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+      try {
+        const endpoint = `https://www.youtube.com/oembed?url=${encodeURIComponent(normalized)}&format=json`;
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error('No disponible');
+        const data = await response.json();
+        return {
+          title: data.title || 'Video sin título',
+          thumbnail: data.thumbnail_url || fallbackThumb
+        };
+      } catch (_) {
+        return { title: 'Video sin título', thumbnail: fallbackThumb };
+      }
     }
 
     function createNodeShape(seed) {
@@ -952,6 +1106,7 @@
           event.stopPropagation();
           state.universe = nodeEl.dataset.open;
           state.selectedVideoId = null;
+          state.showAddForm = false;
           state.marathon = { active: false, queue: [], position: 0 };
           state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
           changeView('universe');
@@ -969,62 +1124,50 @@
 
     function renderUniverseView() {
       const videos = getUniverseVideos();
-      if (!videos.length) {
-        viewUniverse.innerHTML = `
-          <div class="panel">
-            <h2>${state.universe || 'Universo'}</h2>
-            <p class="muted">Todavía no hay videos cargados en este universo.</p>
-            <button id="backMap">← Volver al mapa</button>
-          </div>
-        `;
-        document.getElementById('backMap').onclick = () => changeView('map');
-        return;
-      }
-
-      const personajes = [...new Set(videos.map(v => v.personaje))];
-      const actores = [...new Set(videos.map(v => v.actor_de_doblaje))];
+      const personajes = [...new Set(videos.map(v => v.personaje || 'Sin personaje'))];
+      const actores = [...new Set(videos.map(v => v.actor_de_doblaje || 'Sin actor'))];
       const rarezas = ['Común', 'Raro', 'Épico', 'Legendario'];
       const filtered = getFilteredUniverseVideos();
-      const groupedCharacters = getCharactersIndex(filtered);
-      const selected = filtered.find(v => v.id === state.selectedVideoId) || filtered[0];
-
-      const videoCards = groupedCharacters.map(group => {
-        const top = group.versions[0];
-        const versionsMarkup = group.versions.map(v => `
-          <button data-play="${v.id}">▶ ${v.version || 'Versión base'} · ${v.actor_de_doblaje}</button>
-        `).join('');
-
-        return `
-          <article class="card video-card" id="char-${cssSafe(group.personaje)}">
-            <h3>${group.personaje}</h3>
-            <p>Actor base: ${top.actor_de_doblaje}</p>
-            <span class="badge ${rarityClass(top.rareza)}">${top.rareza}</span>
-            <details>
-              <summary>Ver versiones (${group.versions.length})</summary>
-              <div class="version-list">${versionsMarkup}</div>
-            </details>
-          </article>
-        `;
-      }).join('');
-
-      const indexRows = getCharactersIndex(videos).map(group => `
-        <div class="index-row">
-          <span>${group.personaje}</span>
-          <button data-jump="${cssSafe(group.personaje)}">${group.versions.length} versiones</button>
-        </div>
-      `).join('');
-
-      const marathonText = state.marathon.active
-        ? `Reproduciendo ${state.marathon.position + 1} de ${state.marathon.queue.length}`
-        : 'Modo Maratón desactivado';
-
+      const selected = filtered.find(v => v.id === state.selectedVideoId) || filtered[0] || null;
+      const universeNode = state.universeNodes.find(node => node.name === state.universe);
+      const headerCover = getSafeUniverseCover(state.universe, universeNode?.cover || getUniverseCover(videos));
       viewUniverse.innerHTML = `
         <div class="actions">
           <button id="backMap">← Volver al mapa</button>
-          <button id="startMarathon">Modo Maratón</button>
         </div>
-        <h2>${state.universe}</h2>
-        <p class="muted">${videos.length} videos cargados en este universo.</p>
+        <section class="panel universe-header">
+          <div class="universe-hero">
+            <img src="${headerCover}" alt="Portada de ${state.universe}">
+            <div>
+              <h2>${state.universe || 'Universo'}</h2>
+              <p class="muted">${videos.length} videos en total.</p>
+            </div>
+          </div>
+          <div class="universe-controls">
+            <button id="toggleAddVideo" class="primary-btn">AGREGAR VIDEO</button>
+          </div>
+        </section>
+
+        <form id="addVideoForm" class="add-video-form" ${state.showAddForm ? '' : 'hidden'}>
+          <label>URL de YouTube
+            <input type="url" name="url_youtube" required placeholder="https://www.youtube.com/watch?v=...">
+          </label>
+          <label>Personaje (opcional)
+            <input type="text" name="personaje" placeholder="Ej. Gokú">
+          </label>
+          <label>Actor de doblaje (opcional)
+            <input type="text" name="actor_de_doblaje" placeholder="Ej. Mario Castañeda">
+          </label>
+          <label>Rareza
+            <select name="rareza">
+              ${rarezas.map(r => `<option value="${r}">${r}</option>`).join('')}
+            </select>
+          </label>
+          <div class="actions">
+            <button type="submit" class="primary-btn">Guardar</button>
+            <span class="muted" id="videoFormFeedback"></span>
+          </div>
+        </form>
 
         <div class="universe-layout">
           <section class="panel">
@@ -1050,49 +1193,134 @@
               <button id="clearFilters">Limpiar filtros</button>
             </div>
 
-            <div class="video-grid">${videoCards || '<p class="muted">No hay resultados con estos filtros.</p>'}</div>
-
-            <div class="player-box">
-              ${selected ? `<iframe id="videoPlayer" src="${toEmbedUrl(selected.url_video, 1)}" title="Reproductor" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : '<p class="muted">Sin video seleccionado</p>'}
+            <div class="video-grid">
+              ${filtered.map(v => `
+                <article class="card video-card" data-open-detail="${v.id}">
+                  <img class="video-thumb" src="${v.thumbnail || getUniverseCover([v])}" alt="${v.titulo || 'Miniatura del video'}" loading="lazy">
+                  <h3>${v.personaje || 'Personaje pendiente'}</h3>
+                  <p>${v.actor_de_doblaje || 'Actor pendiente'}</p>
+                  <p class="video-title">${v.titulo || 'Título no disponible'}</p>
+                  <span class="badge ${rarityClass(v.rareza || 'Común')}">${v.rareza || 'Común'}</span>
+                </article>
+              `).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
             </div>
-            <div class="marathon" id="marathonState">${marathonText}</div>
           </section>
 
           <aside class="panel">
-            <h3>Índice del universo</h3>
-            <p class="muted">Navega rápido por personaje y cantidad de versiones.</p>
-            <div class="index-list">${indexRows}</div>
+            <h3>Reproducción rápida</h3>
+            <p class="muted">Selecciona una carta para abrir su vista detallada.</p>
+            <div class="player-box">
+              ${selected ? `<iframe id="videoPlayer" src="${toEmbedUrl(selected.url_youtube || selected.url_video, 1)}" title="Reproductor" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : '<p class="muted">Sin video seleccionado</p>'}
+            </div>
           </aside>
         </div>
       `;
 
       document.getElementById('backMap').onclick = () => changeView('map');
-      document.getElementById('startMarathon').onclick = startMarathon;
-      document.getElementById('clearFilters').onclick = () => {
-        state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
-        state.marathon = { active: false, queue: [], position: 0 };
+      document.getElementById('toggleAddVideo').onclick = () => {
+        state.showAddForm = !state.showAddForm;
         renderUniverseView();
       };
 
-      document.getElementById('filterCharacter').onchange = (e) => { state.filters.personaje = e.target.value; state.marathon.active = false; renderUniverseView(); };
-      document.getElementById('filterActor').onchange = (e) => { state.filters.actor = e.target.value; state.marathon.active = false; renderUniverseView(); };
-      document.getElementById('filterRarity').onchange = (e) => { state.filters.rareza = e.target.value; state.marathon.active = false; renderUniverseView(); };
-
-      viewUniverse.querySelectorAll('button[data-play]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.selectedVideoId = btn.dataset.play;
-          state.marathon.active = false;
-          renderUniverseView();
-        });
+      const addVideoForm = document.getElementById('addVideoForm');
+      addVideoForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const feedback = document.getElementById('videoFormFeedback');
+        const formData = new FormData(addVideoForm);
+        const urlInput = String(formData.get('url_youtube') || '').trim();
+        const normalizedUrl = normalizeYoutubeUrl(urlInput);
+        if (!normalizedUrl) {
+          if (feedback) feedback.textContent = 'URL de YouTube inválida.';
+          return;
+        }
+        if (feedback) feedback.textContent = 'Guardando...';
+        const metadata = await fetchYoutubeMetadata(normalizedUrl);
+        const newVideo = {
+          id: `video-${Date.now()}`,
+          universo: [state.universe],
+          personaje: String(formData.get('personaje') || '').trim() || 'Sin personaje',
+          actor_de_doblaje: String(formData.get('actor_de_doblaje') || '').trim() || 'Sin actor',
+          url_youtube: normalizedUrl,
+          thumbnail: metadata.thumbnail,
+          titulo: metadata.title,
+          rareza: String(formData.get('rareza') || 'Común')
+        };
+        VIDEOS.push(newVideo);
+        state.showAddForm = false;
+        state.selectedVideoId = newVideo.id;
+        renderMapView();
+        renderUniverseView();
       });
 
-      viewUniverse.querySelectorAll('button[data-jump]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.getElementById(`char-${btn.dataset.jump}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('clearFilters').onclick = () => {
+        state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
+        renderUniverseView();
+      };
+
+      document.getElementById('filterCharacter').onchange = (e) => { state.filters.personaje = e.target.value; renderUniverseView(); };
+      document.getElementById('filterActor').onchange = (e) => { state.filters.actor = e.target.value; renderUniverseView(); };
+      document.getElementById('filterRarity').onchange = (e) => { state.filters.rareza = e.target.value; renderUniverseView(); };
+
+      viewUniverse.querySelectorAll('[data-open-detail]').forEach(card => {
+        card.addEventListener('click', () => {
+          const videoId = card.dataset.openDetail;
+          state.selectedVideoId = videoId;
+          openVideoDetail(videoId);
         });
       });
 
       attachPlayerEndedHandler();
+    }
+
+    function openVideoDetail(videoId) {
+      const video = VIDEOS.find(v => v.id === videoId);
+      if (!video) return;
+      const personaje = video.personaje || 'Sin personaje';
+      const actor = video.actor_de_doblaje || 'Sin actor';
+
+      const universosRelacionados = [...new Set(
+        VIDEOS.filter(v => (v.personaje || 'Sin personaje') === personaje)
+          .flatMap(v => getVideoUniverses(v))
+      )];
+      const actoresDelPersonaje = [...new Set(
+        VIDEOS.filter(v => (v.personaje || 'Sin personaje') === personaje)
+          .map(v => v.actor_de_doblaje || 'Sin actor')
+      )];
+      const personajesDelActor = [...new Set(
+        VIDEOS.filter(v => (v.actor_de_doblaje || 'Sin actor') === actor)
+          .map(v => v.personaje || 'Sin personaje')
+      )];
+
+      const modal = document.createElement('section');
+      modal.className = 'detail-modal';
+      modal.innerHTML = `
+        <article class="detail-content">
+          <button class="detail-close" id="closeDetail">✕ Cerrar</button>
+          <div class="detail-grid">
+            <section class="panel">
+              <h3>${personaje}</h3>
+              <p><strong>Actor de doblaje:</strong> ${actor}</p>
+              <span class="badge ${rarityClass(video.rareza || 'Común')}">${video.rareza || 'Común'}</span>
+              <div class="player-box" style="margin-top:10px;">
+                <iframe src="${toEmbedUrl(video.url_youtube || video.url_video, 1)}" title="Video detallado" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+              </div>
+            </section>
+            <aside class="panel">
+              <h4>Universos relacionados</h4>
+              <ul class="detail-list">${universosRelacionados.map(u => `<li>${u}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+              <h4>Actores del personaje</h4>
+              <ul class="detail-list">${actoresDelPersonaje.map(a => `<li>${a}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+              <h4>Personajes del actor</h4>
+              <ul class="detail-list">${personajesDelActor.map(p => `<li>${p}</li>`).join('') || '<li>Sin datos</li>'}</ul>
+            </aside>
+          </div>
+        </article>
+      `;
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) modal.remove();
+      });
+      document.body.appendChild(modal);
+      modal.querySelector('#closeDetail')?.addEventListener('click', () => modal.remove());
     }
 
     function renderAchievementsView() {
@@ -1226,8 +1454,7 @@
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
     navAchievements.onclick = () => changeView('achievements');
 
-    localStorage.removeItem(UNIVERSES_STORAGE_KEY);
-    state.universeNodes = [];
+    state.universeNodes = loadUniverseNodesFromStorage();
     changeView('map');
   </script>
 </body>
