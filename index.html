@@ -858,12 +858,21 @@
     </div>
   </main>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+    // Mantener la configuración existente de Firebase.
+    const firebaseConfig = window.firebaseConfig;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const VIDEOS = [];
 
     const state = {
       view: 'map',
       universe: null,
+      universeId: null,
       filters: { personaje: 'todos', actor: 'todos', rareza: 'todos' },
       selectedVideoId: null,
       showAddForm: false,
@@ -871,7 +880,6 @@
       universeNodes: [],
       mapCanvas: { width: 1400, height: 900 }
     };
-    const UNIVERSES_STORAGE_KEY = 'universes_map_v1';
     const MAX_LOCAL_IMAGE_BYTES = 2 * 1024 * 1024;
     const NODE_HALF_WIDTH = 110;
     const NODE_HALF_HEIGHT = 93;
@@ -916,11 +924,10 @@
 
     function groupByUniverse() {
       return VIDEOS.reduce((acc, item) => {
-        const universes = Array.isArray(item.universo) ? item.universo : [item.universo];
-        universes.filter(Boolean).forEach((name) => {
-          acc[name] = acc[name] || [];
-          acc[name].push(item);
-        });
+        const universeNode = state.universeNodes.find((node) => node.id === item.universoId);
+        const universeName = universeNode?.name || 'Sin universo';
+        acc[universeName] = acc[universeName] || [];
+        acc[universeName].push(item);
         return acc;
       }, {});
     }
@@ -960,39 +967,111 @@
       });
     }
 
-    function saveUniverseNodes() {
-      localStorage.setItem(UNIVERSES_STORAGE_KEY, JSON.stringify(state.universeNodes));
+    async function addUniverse({ nombre, portada, posicionX, posicionY }) {
+      try {
+        const universesCollection = collection(db, 'universos');
+        const created = await addDoc(universesCollection, { nombre, portada, posicionX, posicionY });
+        return created.id;
+      } catch (error) {
+        console.error('Error al agregar universo:', error);
+        throw error;
+      }
     }
 
-    function loadUniverseNodesFromStorage() {
+    async function getUniverses() {
       try {
-        const raw = localStorage.getItem(UNIVERSES_STORAGE_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return [];
-        return parsed
-          .filter(node => node && typeof node.name === 'string')
-          .map((node, idx) => ({
-            id: node.id || cssSafe(node.name) || `universo-${idx}`,
-            name: node.name.trim(),
-            cover: typeof node.cover === 'string' ? node.cover : '',
-            x: Number(node.x) || 220 + (idx * 80),
-            y: Number(node.y) || 220 + (idx * 60),
-            neighbors: Array.isArray(node.neighbors) ? node.neighbors.filter(Boolean) : [],
-            shape: node.shape || createNodeShape(hashCode(node.name))
-          }));
-      } catch (_) {
+        const snapshot = await getDocs(collection(db, 'universos'));
+        return snapshot.docs.map((docItem, idx) => {
+          const data = docItem.data();
+          return {
+            id: docItem.id,
+            name: (data.nombre || `Universo ${idx + 1}`).trim(),
+            cover: typeof data.portada === 'string' ? data.portada : '',
+            x: Number(data.posicionX) || 220 + (idx * 80),
+            y: Number(data.posicionY) || 220 + (idx * 60),
+            neighbors: [],
+            shape: createNodeShape(hashCode(data.nombre || docItem.id))
+          };
+        });
+      } catch (error) {
+        console.error('Error al obtener universos:', error);
+        return [];
+      }
+    }
+
+    async function addVideo({ universoId, personaje, actor, url, thumbnail, rareza, titulo }) {
+      try {
+        const videosCollection = collection(db, 'videos');
+        const created = await addDoc(videosCollection, {
+          universoId,
+          personaje,
+          actor,
+          url,
+          thumbnail,
+          rareza,
+          titulo: titulo || 'Video sin título'
+        });
+        return created.id;
+      } catch (error) {
+        console.error('Error al agregar video:', error);
+        throw error;
+      }
+    }
+
+    async function getVideosByUniverse(universoId) {
+      try {
+        const videosCollection = collection(db, 'videos');
+        const videosQuery = query(videosCollection, where('universoId', '==', universoId));
+        const snapshot = await getDocs(videosQuery);
+        return snapshot.docs.map((docItem) => {
+          const data = docItem.data();
+          return {
+            id: docItem.id,
+            universoId: data.universoId,
+            personaje: data.personaje || 'Sin personaje',
+            actor_de_doblaje: data.actor || 'Sin actor',
+            url_youtube: data.url || '',
+            thumbnail: data.thumbnail || '',
+            rareza: data.rareza || 'Común',
+            titulo: data.titulo || 'Video sin título'
+          };
+        });
+      } catch (error) {
+        console.error('Error al obtener videos por universo:', error);
+        return [];
+      }
+    }
+
+    async function getAllVideos() {
+      try {
+        const snapshot = await getDocs(collection(db, 'videos'));
+        return snapshot.docs.map((docItem) => {
+          const data = docItem.data();
+          return {
+            id: docItem.id,
+            universoId: data.universoId,
+            personaje: data.personaje || 'Sin personaje',
+            actor_de_doblaje: data.actor || 'Sin actor',
+            url_youtube: data.url || '',
+            thumbnail: data.thumbnail || '',
+            rareza: data.rareza || 'Común',
+            titulo: data.titulo || 'Video sin título'
+          };
+        });
+      } catch (error) {
+        console.error('Error al obtener videos:', error);
         return [];
       }
     }
 
     function getVideoUniverses(video) {
-      if (Array.isArray(video.universo)) return video.universo;
-      return video.universo ? [video.universo] : [];
+      const universeNode = state.universeNodes.find(node => node.id === video.universoId);
+      return universeNode ? [universeNode.name] : [];
     }
 
     function getUniverseVideos() {
-      return VIDEOS.filter(v => getVideoUniverses(v).includes(state.universe));
+      if (!state.universeId) return [];
+      return VIDEOS.filter(v => v.universoId === state.universeId);
     }
 
     function getFilteredUniverseVideos() {
@@ -1120,78 +1199,18 @@
     }
 
     function ensureUniverseNodes() {
-      const universeMap = groupByUniverse();
-      const names = Array.from(new Set([...Object.keys(universeMap), ...state.universeNodes.map(node => node.name)]));
-      if (!names.length) return;
-
-      const existingByName = new Map(state.universeNodes.map(node => [normalizeUniverseName(node.name), node]));
-
-      if (!state.universeNodes.length && names.length) {
-        const firstName = names[0];
-        const firstSeed = hashCode(firstName);
-        state.universeNodes.push({
-          id: cssSafe(firstName),
-          name: firstName,
-          cover: getSafeUniverseCover(firstName, getUniverseCover(universeMap[firstName])),
-          x: Math.round(state.mapCanvas.width / 2),
-          y: Math.round(state.mapCanvas.height / 2),
-          neighbors: [],
-          shape: createNodeShape(firstSeed)
-        });
-      }
-
-      names.forEach((name) => {
-        const normalized = normalizeUniverseName(name);
-        if (existingByName.has(normalized) || state.universeNodes.some(node => normalizeUniverseName(node.name) === normalized)) return;
-        const seed = hashCode(name);
-        let placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed);
-        let safety = 0;
-        while (!placement && safety < 5) {
-          state.mapCanvas.width += 360;
-          state.mapCanvas.height += 240;
-          placement = findPlacementForNode(state.universeNodes, state.mapCanvas, seed + safety);
-          safety += 1;
-        }
-        const fallbackX = state.mapCanvas.width - 180 - (seed % 120);
-        const fallbackY = state.mapCanvas.height - 180 - ((seed >> 3) % 120);
-        const point = placement || {
-          x: Math.max(160, fallbackX),
-          y: Math.max(160, fallbackY),
-          anchorId: state.universeNodes[0]?.id
-        };
-
-        state.universeNodes.push({
-          id: cssSafe(name),
-          name,
-          cover: getSafeUniverseCover(name, getUniverseCover(universeMap[name])),
-          x: point.x,
-          y: point.y,
-          neighbors: point.anchorId ? [point.anchorId] : [],
-          shape: createNodeShape(seed)
-        });
-
-        if (point.anchorId) {
-          const anchor = state.universeNodes.find(node => node.id === point.anchorId);
-          if (anchor && !anchor.neighbors.includes(cssSafe(name))) {
-            anchor.neighbors.push(cssSafe(name));
-          }
-        }
-      });
       state.universeNodes.forEach(node => {
-        if (!node.cover && universeMap[node.name]) {
-          node.cover = getSafeUniverseCover(node.name, getUniverseCover(universeMap[node.name]));
-        } else if (!node.cover) {
+        if (!node.cover) {
           node.cover = createPlaceholderCover(node.name);
         }
       });
-      saveUniverseNodes();
     }
 
     function renderMapView() {
       const universes = groupByUniverse();
       ensureUniverseNodes();
       const nodesMarkup = state.universeNodes.map(node => {
-        const videos = universes[node.name] || [];
+        const videos = VIDEOS.filter((video) => video.universoId === node.id);
         const floatDelay = ((Math.abs(hashCode(node.id)) % 24) / 10).toFixed(1);
         return `
           <button class="universe-node" data-node-id="${node.id}" data-open="${node.name}" style="left:${node.x - NODE_HALF_WIDTH}px; top:${node.y - NODE_HALF_HEIGHT}px; border-radius:${node.shape}; --float-delay:-${floatDelay}s;">
@@ -1322,19 +1341,28 @@
           const boundedX = Math.max(NODE_HALF_WIDTH, Math.min(Math.round(x), state.mapCanvas.width - NODE_HALF_WIDTH));
           const boundedY = Math.max(NODE_HALF_HEIGHT, Math.min(Math.round(y), state.mapCanvas.height - NODE_HALF_HEIGHT));
           const adjusted = resolveNodeCollision(boundedX, boundedY, state.universeNodes);
-          state.universeNodes.push({
-            id: cssSafe(`${name}-${Date.now()}`),
-            name,
-            cover,
-            x: adjusted.x,
-            y: adjusted.y,
-            neighbors: [],
-            shape: createNodeShape(hashCode(name))
-          });
-          syncMapCanvasSize();
-          saveUniverseNodes();
-          closePopup();
-          renderMapView();
+          try {
+            const universeId = await addUniverse({
+              nombre: name,
+              portada: cover,
+              posicionX: adjusted.x,
+              posicionY: adjusted.y
+            });
+            state.universeNodes.push({
+              id: universeId,
+              name,
+              cover,
+              x: adjusted.x,
+              y: adjusted.y,
+              neighbors: [],
+              shape: createNodeShape(hashCode(name))
+            });
+            syncMapCanvasSize();
+            closePopup();
+            renderMapView();
+          } catch (_) {
+            feedback.textContent = 'No se pudo guardar el universo en Firebase.';
+          }
         });
       };
 
@@ -1346,12 +1374,13 @@
         });
         nodeEl.addEventListener('click', (event) => {
           event.stopPropagation();
+          state.universeId = nodeEl.dataset.nodeId;
           state.universe = nodeEl.dataset.open;
           state.selectedVideoId = null;
           state.showAddForm = false;
           state.marathon = { active: false, queue: [], position: 0 };
           state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
-          changeView('universe');
+          loadUniverseVideosAndOpen();
         });
       });
 
@@ -1362,6 +1391,18 @@
       });
 
       window.addEventListener('resize', syncMapCanvasSize, { once: true });
+    }
+
+    async function loadUniverseVideosAndOpen() {
+      if (!state.universeId) return;
+      try {
+        const latestUniverseVideos = await getVideosByUniverse(state.universeId);
+        const videosFromOtherUniverses = VIDEOS.filter((video) => video.universoId !== state.universeId);
+        VIDEOS.splice(0, VIDEOS.length, ...videosFromOtherUniverses, ...latestUniverseVideos);
+      } catch (_) {
+        console.error('No se pudieron cargar videos del universo seleccionado.');
+      }
+      changeView('universe');
     }
 
     function renderInicioView() {
@@ -1406,7 +1447,7 @@
             ${latestTransmissions.slice(0, 6).map((video, index) => `
               <article class="card">
                 <h4>${video.titulo || `Transmisión #${index + 1}`}</h4>
-                <p class="muted">Universo: ${(Array.isArray(video.universo) ? video.universo[0] : video.universo) || 'Sin universo'}</p>
+                <p class="muted">Universo: ${state.universeNodes.find((node) => node.id === video.universoId)?.name || 'Sin universo'}</p>
                 <p class="muted">Personaje: ${video.personaje || 'Sin personaje'}</p>
               </article>
             `).join('')}
@@ -1422,7 +1463,7 @@
       const rarezas = ['Común', 'Raro', 'Épico', 'Legendario'];
       const filtered = getFilteredUniverseVideos();
       const selected = filtered.find(v => v.id === state.selectedVideoId) || filtered[0] || null;
-      const universeNode = state.universeNodes.find(node => node.name === state.universe);
+      const universeNode = state.universeNodes.find(node => node.id === state.universeId);
       const headerCover = getSafeUniverseCover(state.universe, universeNode?.cover || getUniverseCover(videos));
       viewUniverse.innerHTML = `
         <div class="actions">
@@ -1527,22 +1568,28 @@
           return;
         }
         if (feedback) feedback.textContent = 'Guardando...';
-        const metadata = await fetchYoutubeMetadata(normalizedUrl);
-        const newVideo = {
-          id: `video-${Date.now()}`,
-          universo: [state.universe],
-          personaje: String(formData.get('personaje') || '').trim() || 'Sin personaje',
-          actor_de_doblaje: String(formData.get('actor_de_doblaje') || '').trim() || 'Sin actor',
-          url_youtube: normalizedUrl,
-          thumbnail: metadata.thumbnail,
-          titulo: metadata.title,
-          rareza: String(formData.get('rareza') || 'Común')
-        };
-        VIDEOS.push(newVideo);
-        state.showAddForm = false;
-        state.selectedVideoId = newVideo.id;
-        renderMapView();
-        renderUniverseView();
+        try {
+          const metadata = await fetchYoutubeMetadata(normalizedUrl);
+          const videoId = await addVideo({
+            universoId: state.universeId,
+            personaje: String(formData.get('personaje') || '').trim() || 'Sin personaje',
+            actor: String(formData.get('actor_de_doblaje') || '').trim() || 'Sin actor',
+            url: normalizedUrl,
+            thumbnail: metadata.thumbnail,
+            rareza: String(formData.get('rareza') || 'Común'),
+            titulo: metadata.title
+          });
+          const latestUniverseVideos = await getVideosByUniverse(state.universeId);
+          const videosFromOtherUniverses = VIDEOS.filter((video) => video.universoId !== state.universeId);
+          VIDEOS.splice(0, VIDEOS.length, ...videosFromOtherUniverses, ...latestUniverseVideos);
+          state.showAddForm = false;
+          state.selectedVideoId = videoId;
+          if (feedback) feedback.textContent = 'Video guardado en Firebase.';
+          renderMapView();
+          renderUniverseView();
+        } catch (_) {
+          if (feedback) feedback.textContent = 'No se pudo guardar el video en Firebase.';
+        }
       });
 
       document.getElementById('clearFilters').onclick = () => {
@@ -1895,7 +1942,7 @@
     };
 
     navInicio.onclick = () => changeView('inicio');
-    navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
+    navUniverses.onclick = () => changeView(state.universeId ? 'universe' : 'map');
     navIndice.onclick = () => changeView('indice');
     navMaraton.onclick = () => changeView('maraton');
     navRarezas.onclick = () => changeView('rarezas');
@@ -1907,8 +1954,20 @@
     navStats.onclick = () => changeView('stats');
     navConfig.onclick = () => changeView('config');
 
-    state.universeNodes = loadUniverseNodesFromStorage();
-    changeView('map');
+    async function initializeFirestoreData() {
+      try {
+        state.universeNodes = await getUniverses();
+        const allVideos = await getAllVideos();
+        VIDEOS.splice(0, VIDEOS.length, ...allVideos);
+      } catch (error) {
+        console.error('No se pudieron cargar los datos iniciales de Firebase:', error);
+        state.universeNodes = [];
+        VIDEOS.splice(0, VIDEOS.length);
+      }
+      changeView('map');
+    }
+
+    initializeFirestoreData();
   </script>
 </body>
 </html>
