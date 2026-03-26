@@ -1168,6 +1168,57 @@
       window.addEventListener('resize', syncMapCanvasSize, { once: true });
     }
 
+    function renderInicioView() {
+      const universeMap = groupByUniverse();
+      const totalUniverses = Object.keys(universeMap).length;
+      const totalVideos = VIDEOS.length;
+      const totalCharacters = new Set(
+        VIDEOS.map(video => (video.personaje || '').trim()).filter(Boolean)
+      ).size;
+      const latestFromVideos = VIDEOS.slice(-6).reverse();
+      const mockLatest = [
+        { titulo: 'Conexión dimensional iniciada', universo: 'Multiverso base', personaje: 'Narrador central' },
+        { titulo: 'Primer contacto con sector alfa', universo: 'Sector Alfa', personaje: 'Comandante Nova' },
+        { titulo: 'Diagnóstico de señales en progreso', universo: 'Observatorio Éter', personaje: 'Analista Kira' }
+      ];
+      const latestTransmissions = latestFromVideos.length ? latestFromVideos : mockLatest;
+
+      viewInicio.innerHTML = `
+        <section class="panel">
+          <h2>Voces Universales</h2>
+          <p class="muted">Centro de control de exploración.</p>
+        </section>
+
+        <section class="grid">
+          <article class="card">
+            <h3 class="universe-name">🪐 Total universos</h3>
+            <p class="muted">${totalUniverses}</p>
+          </article>
+          <article class="card">
+            <h3 class="universe-name">🎬 Total videos</h3>
+            <p class="muted">${totalVideos}</p>
+          </article>
+          <article class="card">
+            <h3 class="universe-name">🎭 Personajes únicos</h3>
+            <p class="muted">${totalCharacters}</p>
+          </article>
+        </section>
+
+        <section class="panel">
+          <h3>Últimas transmisiones</h3>
+          <div class="video-grid">
+            ${latestTransmissions.slice(0, 6).map((video, index) => `
+              <article class="card">
+                <h4>${video.titulo || `Transmisión #${index + 1}`}</h4>
+                <p class="muted">Universo: ${(Array.isArray(video.universo) ? video.universo[0] : video.universo) || 'Sin universo'}</p>
+                <p class="muted">Personaje: ${video.personaje || 'Sin personaje'}</p>
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
     function renderUniverseView() {
       const videos = getUniverseVideos();
       const personajes = [...new Set(videos.map(v => v.personaje || 'Sin personaje'))];
@@ -1499,6 +1550,7 @@
       };
       activeNavByView[next]?.classList.add('active');
 
+      if (next === 'inicio') renderInicioView();
       if (next === 'map') renderMapView();
       if (next === 'universe') renderUniverseView();
       if (next === 'achievements') renderAchievementsView();
