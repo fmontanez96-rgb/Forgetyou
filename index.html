@@ -2397,6 +2397,27 @@
       border-bottom: 1px solid rgba(111, 180, 255, .28);
       background: rgba(10, 17, 36, .85);
     }
+    .character-gallery-card .character-gallery-media--avatar-fallback {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-bottom: 1px solid rgba(111, 180, 255, .28);
+      background: linear-gradient(180deg, #0b2b66 0%, #061a3f 58%, #030d24 100%);
+      overflow: hidden;
+      display: block;
+    }
+    .character-gallery-card .character-gallery-media--avatar-fallback::after {
+      content: '';
+      position: absolute;
+      width: 46%;
+      aspect-ratio: 1 / 1;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: #05070d;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, .65), 0 12px 24px rgba(0, 0, 0, .38);
+    }
     .character-gallery-card .indice-card-locked-avatar {
       width: 100%;
       height: auto;
@@ -5988,22 +6009,23 @@
       const floatDelay = options.floatDelay || `-${(Math.random() * 2.6).toFixed(2)}s`;
 
       const renderMedia = () => {
+        const customAvatarUrl = getCharacterLockedAvatarUrl(cardName);
         if (!locked) {
-          const mediaVideo = item?.coverVideo || null;
-          const mediaSrc = mediaVideo ? getVideoThumbnail(mediaVideo) : createPlaceholderCover(cardName);
-          return `<img class="character-gallery-media character-gallery-media--image" src="${mediaSrc}" alt="Portada de ${cardName}" loading="lazy">`;
+          if (customAvatarUrl) {
+            return `<img class="character-gallery-media character-gallery-media--image" src="${customAvatarUrl}" alt="Avatar de ${cardName}" loading="lazy">`;
+          }
+          return `<div class="character-gallery-media character-gallery-media--avatar-fallback" role="img" aria-label="Avatar por defecto de ${cardName}"></div>`;
         }
-        const customLockedAvatarUrl = getCharacterLockedAvatarUrl(cardName);
         return `
           <div
-            class="character-gallery-media profile-avatar--locked indice-card-locked-avatar ${customLockedAvatarUrl ? 'has-custom-image' : ''}"
+            class="character-gallery-media profile-avatar--locked indice-card-locked-avatar ${customAvatarUrl ? 'has-custom-image' : ''}"
             role="img"
             aria-label="Avatar bloqueado de ${cardName}"
-            ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
+            ${customAvatarUrl ? `style="background-image: url('${customAvatarUrl.replace(/'/g, '%27')}')"` : ''}
           >
             <span class="profile-avatar-lock-label">
               <span class="lock-icon">🔒</span>
-              ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
+              ${customAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
             </span>
           </div>
         `;
