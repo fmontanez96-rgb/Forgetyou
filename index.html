@@ -2051,7 +2051,8 @@
       margin-top: 0;
       font-size: clamp(.9rem, .78rem + .35vw, 1.02rem);
       min-block-size: 48px;
-      inline-size: min(100%, 560px);
+      inline-size: fit-content;
+      max-inline-size: min(100%, 560px);
       align-items: center;
       justify-content: flex-start;
       padding: 8px 14px;
@@ -2104,6 +2105,18 @@
       --badge-glow: rgba(123, 215, 255, .26);
       overflow: hidden;
       text-overflow: ellipsis;
+    }
+    .character-hero__badge--universe-link {
+      cursor: pointer;
+      transition: transform .14s ease, filter .14s ease, box-shadow .18s ease;
+    }
+    .character-hero__badge--universe-link:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+    .character-hero__badge--universe-link:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-glow), inset 0 1px 0 rgba(255, 255, 255, .26), inset 0 -2px 0 rgba(2, 8, 24, .56), 0 6px 14px rgba(1, 8, 22, .45), 0 0 18px var(--badge-glow);
     }
     .character-hero__badge--universe-red {
       --badge-glow: color-mix(in srgb, #ff5c74 62%, rgba(255, 132, 132, .34));
@@ -5993,7 +6006,7 @@
                   <span class="badge character-hero__badge ${rarityClass(rareza)}">🌟 ${rareza}</span>
                   ${universos.map((universe) => {
                     const universeLabel = String(universe || '').trim() || 'Ninguno';
-                    return `<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red"><span class="character-hero__universe-name">${escapeHtml(universeLabel)}</span></span>`;
+                    return `<button type="button" class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red character-hero__badge--universe-link" data-open-universe-profile="${escapeHtml(universeLabel)}" aria-label="Abrir perfil del universo ${escapeHtml(universeLabel)}"><span class="character-hero__universe-name">${escapeHtml(universeLabel)}</span></button>`;
                   }).join('') || '<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red"><span class="character-hero__universe-name">Ninguno</span></span>'}
                 </div>
               </div>
@@ -6203,6 +6216,16 @@
             state.actorFocus = actorName;
             state.actorDetailsExpanded = true;
             changeView('actores');
+          });
+        });
+        viewIndice.querySelectorAll('[data-open-universe-profile]').forEach((btn) => {
+          btn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const universeName = String(btn.dataset.openUniverseProfile || '').trim();
+            if (!universeName) return;
+            state.universe = universeName;
+            state.filters = { personaje: 'todos', actor: 'todos', rareza: 'todos' };
+            changeView('universe');
           });
         });
 
