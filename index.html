@@ -1199,37 +1199,18 @@
     }
     .collection-character-card {
       position: relative;
-      --rarity-color: rgba(111, 180, 255, .6);
-      border-color: color-mix(in srgb, var(--rarity-color) 78%, rgba(233, 245, 255, .5));
-      background:
-        radial-gradient(140% 90% at 14% 10%, color-mix(in srgb, var(--rarity-color) 24%, rgba(255, 255, 255, .16)) 0%, transparent 58%),
-        repeating-linear-gradient(150deg, rgba(255, 255, 255, .05) 0 2px, transparent 2px 8px),
-        linear-gradient(168deg, color-mix(in srgb, var(--rarity-color) 22%, rgba(18, 31, 62, .96)), rgba(6, 13, 30, .98));
-      box-shadow:
-        0 12px 24px rgba(2, 10, 30, .64),
-        0 0 0 1px color-mix(in srgb, var(--rarity-color) 36%, rgba(240, 249, 255, .2)),
-        0 0 22px color-mix(in srgb, var(--rarity-color) 28%, transparent);
     }
     .collection-character-card.locked {
       border-style: solid;
-      opacity: .9;
-      filter: saturate(.45) brightness(.72);
+      opacity: 1;
+      filter: none;
       border-color: color-mix(in srgb, var(--rarity-color, rgba(130, 186, 255, .7)) 78%, white);
       box-shadow:
-        0 10px 18px rgba(2, 10, 30, .72),
+        0 12px 26px rgba(2, 10, 30, .62),
         0 0 0 1px color-mix(in srgb, var(--rarity-color, rgba(130, 186, 255, .7)) 42%, transparent),
-        inset 0 0 0 1px rgba(208, 223, 255, .08);
+        0 0 28px color-mix(in srgb, var(--rarity-color, rgba(130, 186, 255, .7)) 26%, transparent);
       background:
         linear-gradient(160deg, color-mix(in srgb, var(--rarity-color, #7db5ff) 20%, rgba(10, 18, 36, .94)), rgba(7, 14, 29, .98));
-    }
-    .collection-character-card.locked:hover {
-      transform: none;
-      border-color: color-mix(in srgb, var(--rarity-color, rgba(130, 186, 255, .7)) 78%, white);
-      box-shadow:
-        0 10px 18px rgba(2, 10, 30, .72),
-        0 0 0 1px color-mix(in srgb, var(--rarity-color, rgba(130, 186, 255, .7)) 42%, transparent),
-        inset 0 0 0 1px rgba(208, 223, 255, .08);
-      filter: saturate(.45) brightness(.72);
     }
     .collection-character-card .locked-silhouette {
       width: 100%;
@@ -1262,61 +1243,16 @@
       text-overflow: initial;
     }
     .collection-character-card .meta.character-name {
-      font-size: 1.16rem;
-      font-weight: 900;
+      font-size: .98rem;
+      font-weight: 800;
       color: #e8f7ff;
       letter-spacing: .02em;
-      line-height: 1.1;
-      font-family: "Bangers", "Marker Felt", "Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
-      background:
-        repeating-linear-gradient(148deg, rgba(255, 255, 255, .28) 0 2px, rgba(255, 255, 255, .08) 2px 4px),
-        linear-gradient(180deg, #ffffff 0%, #d7f3ff 38%, #98e8ff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      -webkit-text-stroke: .5px rgba(8, 24, 48, .9);
-      text-shadow:
-        0 1px 0 rgba(255, 255, 255, .24),
-        0 2px 0 rgba(4, 14, 33, .8),
-        0 0 10px color-mix(in srgb, var(--rarity-color) 74%, rgba(230, 248, 255, .7));
     }
     .collection-character-card.unlocked {
       cursor: pointer;
-      box-shadow:
-        0 14px 26px rgba(2, 10, 30, .66),
-        0 0 0 1px color-mix(in srgb, var(--rarity-color) 48%, rgba(240, 249, 255, .32)),
-        0 0 28px color-mix(in srgb, var(--rarity-color) 36%, transparent);
     }
     .collection-character-card.unlocked:hover {
       transform: translateY(-4px) scale(1.02);
-      box-shadow:
-        0 16px 28px rgba(2, 10, 30, .74),
-        0 0 0 1px color-mix(in srgb, var(--rarity-color) 74%, rgba(245, 250, 255, .4)),
-        0 0 38px color-mix(in srgb, var(--rarity-color) 56%, transparent);
-    }
-    .collection-character-card .card-footer {
-      background:
-        linear-gradient(180deg, rgba(6, 14, 31, .82), rgba(4, 10, 23, .95)),
-        repeating-linear-gradient(0deg, rgba(255, 255, 255, .03) 0 1px, transparent 1px 4px);
-    }
-    .collection-character-card .card-footer .meta {
-      white-space: normal;
-      overflow: visible;
-      text-overflow: unset;
-      line-height: 1.2;
-    }
-    .collection-character-card.locked .profile-avatar--locked {
-      width: 100%;
-      height: 172px;
-      border-radius: 0;
-      border: 0;
-      box-shadow: none;
-    }
-    .collection-character-card.locked .profile-avatar--locked.has-custom-image::before {
-      background: linear-gradient(rgba(0, 0, 0, .75), rgba(0, 0, 0, .75));
-    }
-    .collection-character-card.locked .profile-avatar--locked .profile-avatar-lock-label {
-      font-size: 1.1rem;
     }
     .collection-character-card.is-newly-unlocked {
       animation: unlockPulse 1.15s ease;
@@ -2343,35 +2279,32 @@
     }
     .character-gallery-card {
       --rarity-glow: rgba(111, 180, 255, .4);
-      --rarity-core: color-mix(in srgb, var(--rarity-glow) 58%, #0a1834 42%);
       --float-delay: 0s;
-      border: 1.5px solid color-mix(in srgb, var(--rarity-glow) 80%, rgba(242, 249, 255, .36));
+      border: 1.5px solid color-mix(in srgb, var(--rarity-glow) 78%, white 22%);
       border-radius: 16px;
       overflow: hidden;
       background:
-        radial-gradient(110% 80% at 18% 14%, color-mix(in srgb, var(--rarity-glow) 30%, rgba(255, 255, 255, .1)) 0%, transparent 58%),
-        radial-gradient(130% 120% at 88% 80%, color-mix(in srgb, var(--rarity-core) 52%, rgba(5, 12, 28, .76)) 0%, rgba(4, 10, 23, .95) 62%),
-        repeating-linear-gradient(145deg, rgba(255, 255, 255, .06) 0 2px, rgba(255, 255, 255, 0) 2px 8px),
-        linear-gradient(170deg, color-mix(in srgb, var(--rarity-core) 74%, rgba(14, 28, 58, .96)), rgba(8, 13, 30, .98));
+        linear-gradient(150deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 46%),
+        linear-gradient(170deg, rgba(22, 37, 72, .96), rgba(12, 16, 36, .96));
       box-shadow:
-        0 14px 24px rgba(3, 8, 22, .74),
-        0 0 0 1px color-mix(in srgb, var(--rarity-glow) 36%, rgba(243, 249, 255, .4)),
+        0 10px 20px rgba(3, 8, 22, .68),
+        0 0 0 1px color-mix(in srgb, var(--rarity-glow) 36%, rgba(243, 249, 255, .52)),
         inset 0 1px 0 rgba(227, 244, 255, .22),
-        inset 0 -10px 20px rgba(3, 9, 26, .68),
-        0 12px 20px color-mix(in srgb, var(--rarity-glow) 26%, transparent),
-        0 0 20px color-mix(in srgb, var(--rarity-glow) 34%, transparent),
-        0 0 44px color-mix(in srgb, var(--rarity-glow) 24%, transparent);
+        inset 0 -8px 22px rgba(10, 19, 43, .55),
+        0 10px 20px color-mix(in srgb, var(--rarity-glow) 24%, transparent),
+        0 0 20px color-mix(in srgb, var(--rarity-glow) 26%, transparent),
+        0 0 34px color-mix(in srgb, var(--rarity-glow) 18%, transparent);
       cursor: pointer;
       text-align: left;
       padding: 0;
       width: 128px;
-      min-height: 204px;
+      min-height: 188px;
       display: flex;
       flex-direction: column;
       position: relative;
       transform-style: preserve-3d;
       transform: translateY(0) scale(1);
-      transition: transform .26s ease, box-shadow .3s ease, border-color .25s ease, filter .25s ease, opacity .25s ease;
+      transition: transform .26s ease, box-shadow .3s ease, border-color .25s ease, filter .25s ease;
       animation: cardFloat 5.2s ease-in-out infinite;
       animation-delay: var(--float-delay);
     }
@@ -2380,10 +2313,8 @@
       position: absolute;
       inset: 0;
       pointer-events: none;
-      background:
-        linear-gradient(130deg, rgba(255, 255, 255, .18), transparent 35%, transparent 74%, rgba(113, 217, 255, .16)),
-        repeating-linear-gradient(160deg, rgba(255, 255, 255, .05) 0 1px, transparent 1px 5px);
-      opacity: .88;
+      background: linear-gradient(130deg, rgba(255, 255, 255, .18), transparent 35%, transparent 74%, rgba(113, 217, 255, .12));
+      opacity: .9;
       mix-blend-mode: screen;
     }
     .character-gallery-card::after {
@@ -2396,7 +2327,7 @@
       pointer-events: none;
       filter: blur(.45px);
     }
-    .character-gallery-card[data-locked="false"]:hover {
+    .character-gallery-card:hover {
       border-color: color-mix(in srgb, var(--rarity-glow) 92%, white 8%);
       transform: translateY(-8px) scale(1.06);
       box-shadow:
@@ -2407,12 +2338,12 @@
         inset 0 1px 0 rgba(232, 249, 255, .26);
       filter: saturate(1.26) contrast(1.03);
     }
-    .character-gallery-card[data-locked="false"]:hover::after {
+    .character-gallery-card:hover::after {
       border-color: color-mix(in srgb, var(--rarity-glow) 84%, rgba(238, 248, 255, .82));
       opacity: .95;
       filter: blur(.2px);
     }
-    .character-gallery-card[data-locked="false"]:hover h3 {
+    .character-gallery-card:hover h3 {
       text-shadow:
         0 0 8px color-mix(in srgb, var(--rarity-glow) 42%, rgba(246, 250, 255, .55)),
         0 1px 1px rgba(5, 10, 18, .72);
@@ -2452,46 +2383,31 @@
       box-shadow: none;
     }
     .character-gallery-card .meta {
-      padding: 8px 8px 10px;
+      padding: 7px 8px 8px;
       display: grid;
       gap: 4px;
-      background:
-        linear-gradient(180deg, rgba(7, 15, 35, .16), rgba(5, 11, 24, .95) 45%),
-        repeating-linear-gradient(0deg, rgba(255, 255, 255, .04) 0 1px, rgba(255, 255, 255, 0) 1px 4px);
+      background: linear-gradient(180deg, rgba(7, 15, 35, .1), rgba(5, 11, 24, .88) 45%);
       border-top: 1px solid color-mix(in srgb, var(--rarity-glow) 42%, rgba(230, 241, 255, .22));
       position: relative;
       z-index: 1;
     }
     .character-gallery-card h3 {
       margin: 0;
-      padding: 1px 0 2px;
-      font-size: .98rem;
+      padding: 1px 0 3px;
+      font-size: 1.02rem;
       font-weight: 800;
-      line-height: 1.12;
-      color: #f7fbff;
-      border-bottom: 0;
-      font-family: "Bangers", "Marker Felt", "Comic Sans MS", "Trebuchet MS", cursive, sans-serif;
-      letter-spacing: .02em;
-      background:
-        repeating-linear-gradient(145deg, rgba(255, 255, 255, .34) 0 2px, rgba(255, 255, 255, .08) 2px 4px),
-        linear-gradient(180deg, #ffffff 0%, #d8f2ff 35%, #9ae5ff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      -webkit-text-stroke: .5px rgba(8, 23, 51, .82);
+      line-height: 1.16;
+      color: #f2f8ff;
+      border-bottom: 1px solid color-mix(in srgb, var(--rarity-glow) 46%, rgba(232, 242, 255, .22));
       text-shadow:
-        0 1px 0 rgba(255, 255, 255, .22),
-        0 2px 0 rgba(5, 14, 32, .72),
-        0 3px 0 rgba(3, 10, 22, .82),
-        0 0 10px color-mix(in srgb, var(--rarity-glow) 84%, rgba(242, 248, 255, .72)),
-        0 0 18px color-mix(in srgb, var(--rarity-glow) 62%, transparent);
+        0 1px 0 rgba(5, 10, 23, .72),
+        0 0 12px color-mix(in srgb, var(--rarity-glow) 78%, rgba(242, 248, 255, .72)),
+        0 0 22px color-mix(in srgb, var(--rarity-glow) 60%, transparent);
       display: -webkit-box;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
-      line-clamp: 3;
+      line-clamp: 2;
       overflow: hidden;
-      min-height: 3.35em;
-      word-break: break-word;
     }
     .character-gallery-card p {
       margin: 0;
@@ -2500,13 +2416,10 @@
       line-height: 1.15;
     }
     .character-gallery-card[data-locked="true"] {
-      --locked-glow: rgba(166, 190, 255, .16);
-      box-shadow:
-        0 8px 16px rgba(2, 6, 16, .72),
-        0 0 0 1px rgba(165, 182, 216, .26),
-        inset 0 0 0 1px rgba(205, 224, 255, .08);
-      filter: saturate(.5) brightness(.72) contrast(.9);
-      opacity: .88;
+      --locked-glow: rgba(166, 190, 255, .22);
+      background:
+        linear-gradient(160deg, rgba(82, 89, 111, .9), rgba(29, 33, 46, .96));
+      border-color: rgba(168, 186, 225, .45);
     }
     .character-gallery-card[data-locked="true"]::before {
       content: '';
@@ -2524,26 +2437,25 @@
       opacity: .9;
       animation: lockedNebulaShift 14s ease-in-out infinite alternate;
     }
-    .character-gallery-card[data-locked="true"] .character-gallery-media--image,
-    .character-gallery-card[data-locked="true"] .profile-avatar--locked.has-custom-image {
-      filter: grayscale(.95) brightness(.25) contrast(1.12) saturate(.45) drop-shadow(0 0 8px var(--locked-glow));
-      opacity: 1;
+    .character-gallery-card[data-locked="true"] .character-gallery-media--image {
+      filter: grayscale(1) brightness(.08) contrast(1.9) saturate(.7) drop-shadow(0 0 10px var(--locked-glow));
+      opacity: .9;
       border-bottom-color: rgba(171, 187, 210, .24);
     }
     .character-gallery-card[data-locked="true"] .meta::before {
       content: '🔒';
       position: absolute;
-      top: -162px;
-      right: 6px;
-      width: 24px;
-      height: 24px;
+      top: -168px;
+      right: 8px;
+      width: 20px;
+      height: 20px;
       border-radius: 999px;
       display: grid;
       place-items: center;
-      font-size: .95rem;
+      font-size: .72rem;
       background: rgba(12, 18, 34, .72);
       border: 1px solid rgba(189, 211, 255, .45);
-      box-shadow: 0 0 12px rgba(0, 0, 0, .45);
+      box-shadow: 0 0 12px rgba(156, 184, 255, .22);
       z-index: 2;
       backdrop-filter: blur(2px);
     }
@@ -3158,7 +3070,7 @@
       place-items: center;
     }
     .profile-avatar--locked.has-custom-image::before {
-      background: linear-gradient(rgba(0, 0, 0, .75), rgba(0, 0, 0, .75));
+      background: linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7));
       box-shadow: inset 0 0 34px rgba(0, 0, 0, .88), inset 0 0 0 1px rgba(210, 236, 255, .12);
     }
     .profile-avatar--locked::before {
@@ -5641,26 +5553,20 @@
               nextSnapshot[character.id] = Boolean(character.unlocked);
               const hadPreviousState = Object.prototype.hasOwnProperty.call(previousSnapshot, character.id);
               const newlyUnlocked = hadPreviousState && !previousSnapshot[character.id] && character.unlocked;
-              const rarity = character.rareza || (character.unlocked ? 'Común' : 'Bloqueado');
-              const rarityClassName = rarityClass(rarity);
-              const customLockedAvatarUrl = getCharacterLockedAvatarUrl(character.name);
               if (!character.unlocked) {
+                const rarity = character.rareza || 'Bloqueado';
+                const rarityClassName = rarityClass(rarity);
                 return `
                   <article class="collection-card collection-character-card locked ${rarityClassName}" style="--rarity-color:${rarityColorValue(rarity)};">
-                    <div
-                      class="profile-avatar--locked ${customLockedAvatarUrl ? 'has-custom-image' : ''}"
-                      role="img"
-                      aria-label="Avatar bloqueado de ${character.name}"
-                      ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
-                    >
-                      <span class="profile-avatar-lock-label">
-                        <span class="lock-icon">🔒</span>
-                      </span>
+                    <div class="locked-silhouette" aria-hidden="true">
+                      <div>👤</div>
+                      <div class="lock-icon">🔒 BLOQUEADO</div>
                     </div>
                     <div class="card-footer">
                       <p class="meta character-name">${character.name}</p>
                       <p class="meta"><small>Rareza:</small><span class="badge ${rarityClassName}">${rarity}</span></p>
                       <p class="meta"><small>Estado:</small>🔒 Bloqueado</p>
+                      <p class="meta"><small>Actor:</small>${character.actor || 'Sin actor'}</p>
                     </div>
                   </article>
                 `;
@@ -5669,15 +5575,15 @@
                 <article
                   class="collection-card collection-character-card unlocked ${newlyUnlocked ? 'is-newly-unlocked' : ''}"
                   data-character-id="${character.id}"
-                  style="--rarity-color:${rarityColorValue(rarity)};"
                 >
                   <div class="card-media">
                     <img class="video-thumb" src="${character.thumbnail || createPlaceholderCover(character.name)}" alt="Miniatura de ${character.name}" loading="lazy">
+                    <p class="card-title">${character.name}</p>
                   </div>
                   <div class="card-footer">
-                    <p class="meta character-name">${character.name}</p>
+                    <p class="meta"><small>Actor:</small>${character.actor || 'Sin actor'}</p>
                     <p class="meta"><small>Universos:</small>${character.universes.length ? character.universes.join(', ') : 'Sin universo'}</p>
-                    <span class="badge ${rarityClassName}">${rarity}</span>
+                    <span class="badge ${rarityClass(character.rareza || 'Común')}">${character.rareza || 'Común'}</span>
                   </div>
                 </article>
               `;
@@ -6381,6 +6287,7 @@
           >
             <span class="profile-avatar-lock-label">
               <span class="lock-icon">🔒</span>
+              ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
             </span>
           </div>
         `;
