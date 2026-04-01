@@ -2864,9 +2864,10 @@
       border: 1px dashed rgba(168, 189, 214, .55);
       box-shadow: 0 10px 22px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(0, 0, 0, .35);
       background:
+        radial-gradient(circle at 50% 50%, #05070d 0 26%, transparent 27%),
         radial-gradient(circle at 50% 24%, rgba(255, 255, 255, .08), transparent 42%),
-        linear-gradient(180deg, #4e5764 0%, #303844 54%, #1b222c 100%);
-      filter: brightness(.74);
+        linear-gradient(180deg, #0e2f67 0%, #081e45 55%, #04132e 100%);
+      filter: brightness(.9);
     }
     .profile-avatar--locked.has-custom-image {
       border: 1px solid rgba(144, 214, 255, .55);
@@ -2929,6 +2930,21 @@
       font-size: 1rem;
       padding: 10px 16px;
       box-shadow: 0 0 12px rgba(0, 0, 0, .45);
+    }
+    .profile-avatar--locked.has-custom-image::after {
+      display: none;
+    }
+    .profile-avatar--locked.has-custom-image .profile-avatar-lock-label {
+      border: 0;
+      background: rgba(4, 9, 16, .46);
+      padding: 6px 8px;
+      font-size: 1.25rem;
+      line-height: 1;
+      gap: 0;
+      box-shadow: 0 0 12px rgba(0, 0, 0, .48);
+    }
+    .profile-avatar--locked.has-custom-image .profile-avatar-lock-label .lock-icon {
+      font-size: 1em;
     }
     .mock-row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
     .mock-box {
@@ -5720,7 +5736,7 @@
               >
                 <span class="profile-avatar-lock-label">
                   <span class="lock-icon">🔒</span>
-                  <span class="lock-text">Bloqueado</span>
+                  ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
                 </span>
               </div>
             `
