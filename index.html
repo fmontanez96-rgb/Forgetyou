@@ -4970,28 +4970,14 @@
 
         <div class="universe-gallery-layout universe-view-animated">
           <section class="hud-panel">
-            <div class="video-grid">
-              ${groupedCharacterCards.map(item => `
-                <button
-                  type="button"
-                  class="character-gallery-card"
-                  data-open-character="${item.characterName}"
-                  data-rarity="${String(item.coverVideo?.rareza || 'Común').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"
-                  data-locked="false"
-                  style="--rarity-glow:${rarityColorValue(item.coverVideo?.rareza || 'Común')}; --float-delay:-${(Math.random() * 2.6).toFixed(2)}s;"
-                >
-                  <img
-                    class="character-gallery-media character-gallery-media--image"
-                    src="${item.coverVideo?.thumbnail || getUniverseCover(item.videos)}"
-                    alt="Portada de ${item.characterName}"
-                    loading="lazy"
-                  >
-                  <div class="meta">
-                    <h3>${item.characterName || 'Pendiente'}</h3>
-                  </div>
-                </button>
-              `).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
-            </div>
+            <section class="characters-gallery">
+              ${groupedCharacterCards.map(item => renderCharacterGalleryCard({
+                name: item.characterName,
+                coverVideo: item.coverVideo,
+                rareza: item.coverVideo?.rareza || 'Común',
+                unlocked: true
+              }, { locked: false })).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
+            </section>
           </section>
         </div>
         <aside id="filtersPanel" class="hud-panel filter-sidebar" aria-hidden="true">
@@ -5992,6 +5978,54 @@
       return true;
     }
 
+    function renderCharacterGalleryCard(item, options = {}) {
+      const cardName = String(item?.name || item?.characterName || '').trim();
+      if (!cardName) return '';
+      const locked = Boolean(options.locked ?? !item?.unlocked);
+      const rarityValue = String(item?.rareza || item?.coverVideo?.rareza || 'Común');
+      const rarityData = rarityValue.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const glowColor = rarityColorValue(rarityValue);
+      const floatDelay = options.floatDelay || `-${(Math.random() * 2.6).toFixed(2)}s`;
+
+      const renderMedia = () => {
+        if (!locked) {
+          const mediaVideo = item?.coverVideo || null;
+          const mediaSrc = mediaVideo ? getVideoThumbnail(mediaVideo) : createPlaceholderCover(cardName);
+          return `<img class="character-gallery-media character-gallery-media--image" src="${mediaSrc}" alt="Portada de ${cardName}" loading="lazy">`;
+        }
+        const customLockedAvatarUrl = getCharacterLockedAvatarUrl(cardName);
+        return `
+          <div
+            class="character-gallery-media profile-avatar--locked indice-card-locked-avatar ${customLockedAvatarUrl ? 'has-custom-image' : ''}"
+            role="img"
+            aria-label="Avatar bloqueado de ${cardName}"
+            ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
+          >
+            <span class="profile-avatar-lock-label">
+              <span class="lock-icon">🔒</span>
+              ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
+            </span>
+          </div>
+        `;
+      };
+
+      return `
+        <button
+          type="button"
+          class="character-gallery-card"
+          data-open-character="${cardName}"
+          data-rarity="${rarityData}"
+          data-locked="${locked ? 'true' : 'false'}"
+          style="--rarity-glow:${glowColor}; --float-delay:${floatDelay};"
+        >
+          ${renderMedia()}
+          <div class="meta">
+            <h3>${cardName}</h3>
+          </div>
+        </button>
+      `;
+    }
+
     function renderIndiceView() {
       clearIndicePreviewTimer();
       removeIndicePreviewPopover();
@@ -6338,26 +6372,6 @@
         acc.get(rarity).push(item);
         return acc;
       }, new Map());
-      const renderIndiceCardMedia = (item) => {
-        if (item.unlocked) {
-          const mediaSrc = item.coverVideo ? getVideoThumbnail(item.coverVideo) : createPlaceholderCover(item.name);
-          return `<img class="character-gallery-media character-gallery-media--image" src="${mediaSrc}" alt="Portada de ${item.name}" loading="lazy">`;
-        }
-        const customLockedAvatarUrl = getCharacterLockedAvatarUrl(item.name);
-        return `
-          <div
-            class="character-gallery-media profile-avatar--locked indice-card-locked-avatar ${customLockedAvatarUrl ? 'has-custom-image' : ''}"
-            role="img"
-            aria-label="Avatar bloqueado de ${item.name}"
-            ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
-          >
-            <span class="profile-avatar-lock-label">
-              <span class="lock-icon">🔒</span>
-              ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
-            </span>
-          </div>
-        `;
-      };
       const rarityRenderOrder = ['Legendario', 'Épico', 'Raro', 'Común', 'Bloqueado'];
       viewIndice.innerHTML = `
         <section class="mock-shell">
@@ -6411,21 +6425,7 @@
                 .filter((rarity) => groupedIndexItems.has(rarity))
                 .map((rarity) => `
                   <p class="indice-group-divider">${rarityGroupLabels[rarity] || rarity}</p>
-                  ${groupedIndexItems.get(rarity).map(item => `
-                    <button
-                      type="button"
-                      class="character-gallery-card"
-                      data-open-character="${item.name}"
-                      data-rarity="${String(item.rareza || 'Común').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"
-                      data-locked="${item.unlocked ? 'false' : 'true'}"
-                      style="--rarity-glow:${rarityColorValue(item.rareza || 'Común')}; --float-delay:-${(Math.random() * 2.6).toFixed(2)}s;"
-                    >
-                      ${renderIndiceCardMedia(item)}
-                      <div class="meta">
-                        <h3>${item.name}</h3>
-                      </div>
-                    </button>
-                  `).join('')}
+                  ${groupedIndexItems.get(rarity).map(item => renderCharacterGalleryCard(item, { locked: !item.unlocked })).join('')}
                 `).join('')
               : '<p class="muted">No hay personajes cargados.</p>'}
           </section>
