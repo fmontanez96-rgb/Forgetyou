@@ -2759,9 +2759,15 @@
         0 0 30px rgba(74, 184, 255, .32);
     }
     .character-actor-card.unlocked img {
-      aspect-ratio: 16 / 11;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 10;
       min-height: 120px;
-      filter: saturate(1.18) contrast(1.1) brightness(.98);
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(1.12) contrast(1.08) brightness(.99);
+      image-rendering: auto;
+      transform: translateZ(0);
     }
     .character-actor-card.unlocked h3 {
       font-size: 1rem;
@@ -3670,6 +3676,10 @@
     function getVideoThumbnail(video) {
       if (video?.thumbnail) return video.thumbnail;
       return getUniverseCover([video]);
+    }
+
+    function getActorCardThumbnail(video, actorName) {
+      return getVideoThumbnail(video) || createPlaceholderCover(actorName);
     }
 
     function getCharactersByActor(actorName) {
@@ -5788,9 +5798,10 @@
         
         const { unlockedByActor, blockedActors } = getCharacterActorsForIndice(focusedCharacter);
         const unlockedActors = [...unlockedByActor.entries()]
-          .map(([actorName, video]) => ({ actorName, video, locked: false }));
-        const lockedActors = blockedActors.map(actorName => ({ actorName, video: null, locked: true }));
+          .map(([actorName, video]) => ({ actorName, video, locked: false, isUnlocked: hasGreetingVideo(video) }));
+        const lockedActors = blockedActors.map(actorName => ({ actorName, video: null, locked: true, isUnlocked: false }));
         const actorCards = [...unlockedActors, ...lockedActors]
+          .map(item => ({ ...item, isUnlocked: !item.locked && hasGreetingVideo(item.video) }))
           .sort((a, b) => a.actorName.localeCompare(b.actorName, 'es', { sensitivity: 'base' }));
 
         const isCharacterLocked = realVideos.length === 0;
@@ -5878,7 +5889,7 @@
             <article class="profile-section">
               <h4 class="profile-section__title">🎙️ Actores de doblaje asignados (${actorCards.length})</h4>
               <section class="character-actors-grid">
-                ${actorCards.map(item => item.locked
+                ${actorCards.map(item => !item.isUnlocked
                   ? `
                     <article class="character-actor-card locked" aria-disabled="true">
                       <div class="locked-mic" role="img" aria-label="Actor bloqueado">🎙️</div>
@@ -5890,7 +5901,7 @@
                   `
                   : `
                     <article class="character-actor-card unlocked">
-                      <img src="${getVideoThumbnail(item.video)}" alt="Miniatura de ${item.actorName} como ${focusedCharacter}" loading="lazy">
+                      <img src="${getActorCardThumbnail(item.video, item.actorName)}" alt="Miniatura de ${item.actorName} como ${focusedCharacter}" loading="lazy" onerror="this.onerror=null;this.src='${createPlaceholderCover(item.actorName)}';this.dataset.fallback='true';">
                       <div class="meta">
                         <h3><button type="button" class="actor-name-btn" data-open-actor-profile="${item.actorName}" aria-label="Abrir perfil de ${item.actorName}">${item.actorName}</button> <button type="button" class="neon-btn add-greeting-btn actor-add-btn" data-add-greeting-actor="${item.actorName}" aria-label="Agregar otro video para ${item.actorName}">+</button></h3>
                         <p><button type="button" class="neon-btn" data-open-video="${item.video.id}">▶ Ver video</button></p>
