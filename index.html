@@ -1942,6 +1942,8 @@
       position: relative;
       margin-top: 0;
       font-size: clamp(.9rem, .78rem + .35vw, 1.02rem);
+      min-block-size: 48px;
+      align-items: center;
       padding: 8px 14px;
       border-radius: 999px;
       border: 1px solid var(--badge-edge);
@@ -2001,8 +2003,9 @@
       --badge-base-2: color-mix(in srgb, #8b1431 22%, rgba(26, 5, 13, .95));
       --badge-edge: color-mix(in srgb, #ffb2bf 54%, rgba(255, 207, 217, .5));
       display: inline-flex;
+      min-block-size: inherit;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .character-hero__universe-avatar {
       inline-size: 15px;
@@ -3041,6 +3044,7 @@
       }
       .character-hero__badge {
         font-size: .86rem;
+        min-block-size: 48px;
         padding: 7px 12px;
       }
       .character-hero__title {
