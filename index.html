@@ -2261,7 +2261,7 @@
     .character-gallery-card[data-rarity="legendario"] h3 {
       border-color: color-mix(in srgb, var(--rarity-glow) 46%, rgba(230, 241, 255, .22));
     }
-    .character-gallery-card img {
+    .character-gallery-card .character-gallery-media {
       width: 100%;
       aspect-ratio: 3 / 4;
       height: auto;
@@ -2269,6 +2269,17 @@
       display: block;
       border-bottom: 1px solid rgba(111, 180, 255, .28);
       background: rgba(10, 17, 36, .85);
+    }
+    .character-gallery-card .indice-card-locked-avatar {
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      border-radius: 12px 12px 0 0;
+      border-inline: 0;
+      border-top: 0;
+      border-bottom-style: solid;
+      border-bottom-color: rgba(111, 180, 255, .28);
+      box-shadow: none;
     }
     .character-gallery-card .meta {
       padding: 7px 8px 8px;
@@ -2325,7 +2336,7 @@
       opacity: .9;
       animation: lockedNebulaShift 14s ease-in-out infinite alternate;
     }
-    .character-gallery-card[data-locked="true"] img {
+    .character-gallery-card[data-locked="true"] .character-gallery-media--image {
       filter: grayscale(1) brightness(.08) contrast(1.9) saturate(.7) drop-shadow(0 0 10px var(--locked-glow));
       opacity: .9;
       border-bottom-color: rgba(171, 187, 210, .24);
@@ -2587,30 +2598,37 @@
       grid-template-columns: repeat(auto-fill, minmax(154px, 1fr));
       gap: 14px;
       align-items: start;
+      perspective: 920px;
     }
     .character-actor-card {
-      --card-border-top: rgba(176, 230, 255, .42);
-      --card-border-bottom: rgba(17, 36, 72, .85);
+      --card-border-top: rgba(174, 235, 255, .56);
+      --card-border-bottom: rgba(12, 30, 66, .92);
       border: 1px solid rgba(118, 194, 255, .46);
       border-radius: 14px;
       overflow: hidden;
       position: relative;
       isolation: isolate;
       background:
-        radial-gradient(circle at 18% 10%, rgba(114, 218, 255, .18), transparent 52%),
-        linear-gradient(160deg, rgba(19, 40, 73, .9), rgba(11, 22, 45, .96) 58%, rgba(6, 12, 28, .98));
+        linear-gradient(137deg, rgba(232, 248, 255, .16) 0 16%, rgba(232, 248, 255, 0) 29% 100%),
+        linear-gradient(118deg, rgba(116, 216, 255, .14) 0 24%, rgba(12, 30, 58, 0) 44%),
+        radial-gradient(circle at 15% 8%, rgba(108, 214, 255, .22), transparent 48%),
+        linear-gradient(164deg, rgba(20, 44, 82, .96) 0 34%, rgba(11, 27, 58, .98) 55%, rgba(6, 14, 34, .99));
       box-shadow:
-        inset 0 2px 0 rgba(212, 243, 255, .4),
-        inset 0 -2px 0 rgba(6, 18, 42, .9),
-        inset 2px 0 0 rgba(175, 225, 255, .18),
-        inset -2px 0 0 rgba(11, 29, 63, .62),
-        0 0 0 1px rgba(63, 142, 225, .36),
-        0 14px 30px rgba(3, 8, 22, .58),
-        0 0 28px rgba(57, 135, 214, .24);
+        inset 0 1px 0 rgba(234, 250, 255, .62),
+        inset 0 3px 8px rgba(169, 228, 255, .2),
+        inset 0 -10px 18px rgba(5, 14, 36, .84),
+        inset 3px 0 0 rgba(168, 223, 255, .2),
+        inset -3px 0 0 rgba(8, 24, 56, .72),
+        0 1px 0 rgba(194, 235, 255, .24),
+        0 0 0 1px rgba(72, 154, 230, .4),
+        0 18px 34px rgba(2, 8, 24, .65),
+        0 26px 48px rgba(1, 6, 18, .46),
+        0 0 22px rgba(64, 160, 236, .18);
       text-align: left;
       padding: 0;
       width: 100%;
       min-width: 0;
+      transform-style: preserve-3d;
       transition: transform .32s cubic-bezier(.22, .61, .36, 1), border-color .28s ease, box-shadow .32s ease, filter .28s ease;
     }
     .character-actor-card::before,
@@ -2623,25 +2641,25 @@
     }
     .character-actor-card::before {
       background:
-        radial-gradient(1px 1px at 15% 20%, rgba(232, 245, 255, .22), transparent 70%),
-        radial-gradient(1.2px 1.2px at 66% 40%, rgba(224, 239, 255, .16), transparent 75%),
-        radial-gradient(1px 1px at 82% 74%, rgba(198, 232, 255, .14), transparent 72%),
-        radial-gradient(130% 90% at 100% 0, rgba(120, 222, 255, .09), transparent 58%),
-        radial-gradient(circle at 23% 16%, rgba(244, 252, 255, .32) 0 5px, rgba(244, 252, 255, .06) 8px, transparent 18px),
+        radial-gradient(128% 92% at 100% 0, rgba(120, 222, 255, .11), transparent 56%),
+        linear-gradient(128deg, rgba(218, 247, 255, .28) 10%, rgba(218, 247, 255, 0) 24% 70%, rgba(100, 204, 255, .2) 86%, rgba(100, 204, 255, 0) 100%),
         repeating-linear-gradient(124deg,
-          rgba(228, 242, 255, .08) 0 2px,
-          rgba(116, 174, 235, .06) 2px 4px,
-          rgba(6, 20, 42, 0) 4px 8px);
+          rgba(224, 242, 255, .075) 0 2px,
+          rgba(102, 173, 240, .055) 2px 3px,
+          rgba(6, 20, 42, 0) 3px 8px);
       mix-blend-mode: screen;
-      opacity: .74;
+      opacity: .6;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, .52), rgba(0, 0, 0, .86) 22%, rgba(0, 0, 0, .95) 62%, rgba(0, 0, 0, .72));
+      -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, .52), rgba(0, 0, 0, .86) 22%, rgba(0, 0, 0, .95) 62%, rgba(0, 0, 0, .72));
     }
     .character-actor-card::after {
       inset: -2px;
       border-radius: inherit;
       box-shadow:
-        0 0 0 1px rgba(160, 232, 255, .26),
-        0 0 22px rgba(74, 177, 255, .24);
-      opacity: .84;
+        inset 0 1px 0 rgba(224, 247, 255, .38),
+        0 0 0 1px rgba(160, 232, 255, .24),
+        0 0 18px rgba(74, 177, 255, .2);
+      opacity: .76;
     }
     .character-actor-card > * {
       position: relative;
@@ -2716,18 +2734,29 @@
     }
     .character-actor-card.unlocked {
       cursor: pointer;
-      border-color: rgba(136, 229, 255, .46);
+      border-color: rgba(138, 228, 255, .54);
+      box-shadow:
+        inset 0 1px 0 rgba(234, 250, 255, .64),
+        inset 0 4px 10px rgba(188, 237, 255, .22),
+        inset 0 -12px 20px rgba(7, 20, 47, .84),
+        inset 3px 0 0 rgba(178, 231, 255, .22),
+        inset -3px 0 0 rgba(8, 25, 59, .72),
+        0 0 0 1px rgba(104, 196, 255, .42),
+        0 16px 28px rgba(1, 8, 24, .58),
+        0 0 26px rgba(69, 173, 255, .24);
     }
     .character-actor-card.unlocked:hover {
       border-color: rgba(155, 239, 255, .92);
-      transform: translateY(-5px) scale(1.045);
+      transform: perspective(980px) rotateX(4deg) translateY(-6px) scale(1.04);
       box-shadow:
-        inset 0 2px 0 rgba(232, 248, 255, .55),
-        inset 0 -2px 0 rgba(11, 31, 66, .86),
-        inset 2px 0 0 rgba(184, 229, 255, .2),
-        inset -2px 0 0 rgba(12, 34, 73, .65),
-        0 18px 36px rgba(2, 10, 28, .62),
-        0 0 28px rgba(71, 180, 255, .34);
+        inset 0 1px 0 rgba(236, 250, 255, .74),
+        inset 0 6px 14px rgba(188, 236, 255, .28),
+        inset 0 -14px 22px rgba(7, 20, 49, .86),
+        inset 3px 0 0 rgba(185, 233, 255, .24),
+        inset -3px 0 0 rgba(8, 24, 56, .76),
+        0 1px 0 rgba(209, 244, 255, .3),
+        0 24px 40px rgba(1, 7, 22, .68),
+        0 0 30px rgba(74, 184, 255, .32);
     }
     .character-actor-card.unlocked img {
       aspect-ratio: 16 / 11;
@@ -2744,16 +2773,35 @@
     }
     .character-actor-card.locked {
       border-style: dashed;
-      border-color: rgba(163, 185, 230, .3);
+      border-color: rgba(132, 166, 224, .34);
       background:
-        radial-gradient(circle at 22% 14%, rgba(139, 169, 227, .14), transparent 58%),
-        linear-gradient(165deg, rgba(20, 32, 58, .88), rgba(12, 20, 37, .96));
+        linear-gradient(140deg, rgba(190, 228, 255, .06) 0 15%, rgba(190, 228, 255, 0) 30%),
+        radial-gradient(circle at 22% 14%, rgba(126, 170, 245, .12), transparent 60%),
+        linear-gradient(165deg, rgba(18, 34, 64, .9), rgba(11, 22, 42, .97));
+      box-shadow:
+        inset 0 1px 0 rgba(195, 225, 255, .18),
+        inset 0 -10px 16px rgba(5, 14, 35, .72),
+        inset 2px 0 0 rgba(150, 197, 245, .12),
+        inset -2px 0 0 rgba(8, 22, 52, .66),
+        0 0 0 1px rgba(88, 136, 206, .3),
+        0 12px 22px rgba(2, 8, 22, .52);
       filter: grayscale(.42) brightness(.86);
     }
-    .character-actor-card.locked img {
-      filter: grayscale(.58) blur(1.8px) brightness(.38) saturate(.35);
-      opacity: .72;
-      transform: scale(1.02);
+    .character-actor-card .locked-mic {
+      aspect-ratio: 16 / 11;
+      min-height: 120px;
+      width: 100%;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      background: linear-gradient(160deg, rgba(8, 16, 34, .92), rgba(18, 29, 52, .9));
+      border: 1px solid rgba(144, 176, 230, .35);
+      box-shadow:
+        inset 0 1px 0 rgba(226, 242, 255, .14),
+        inset 0 -18px 28px rgba(3, 8, 20, .45),
+        0 0 18px rgba(124, 170, 255, .22);
+      text-shadow: 0 0 10px rgba(153, 208, 255, .38);
     }
     .character-hero__actions {
       display: grid;
@@ -2815,10 +2863,18 @@
       color: #dceaff;
       text-shadow: 0 1px 0 rgba(239, 249, 255, .18), 0 2px 5px rgba(6, 14, 32, .78);
     }
-    .character-actor-card.locked p {
-      color: #ffc2c2;
-      font-weight: 600;
-      font-size: .84rem;
+    .character-actor-card .locked-note {
+      color: #ff6c7b;
+      font-weight: 700;
+      font-size: .86rem;
+      letter-spacing: .02em;
+      text-shadow:
+        0 0 7px rgba(255, 61, 87, .55),
+        0 0 14px rgba(255, 61, 87, .28);
+      background: linear-gradient(92deg, #ff8ea1 0%, #ff465f 48%, #ff9aa9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .character-actor-card .actor-add-btn {
       width: 26px;
@@ -3096,11 +3152,22 @@
         opacity: .3;
       }
       .character-actors-grid {
+        grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
         gap: 10px;
         overflow: visible;
       }
+      .character-actor-card::before {
+        opacity: .45;
+        background:
+          radial-gradient(120% 90% at 100% 0, rgba(117, 220, 255, .08), transparent 56%),
+          linear-gradient(128deg, rgba(208, 241, 255, .2) 10%, rgba(208, 241, 255, 0) 28% 68%, rgba(98, 196, 255, .14) 84%, rgba(98, 196, 255, 0) 100%),
+          repeating-linear-gradient(124deg,
+            rgba(224, 242, 255, .045) 0 1px,
+            rgba(101, 171, 238, .04) 1px 2px,
+            rgba(6, 20, 42, 0) 2px 7px);
+      }
       .character-actor-card.unlocked:hover {
-        transform: translateY(-2px) scale(1.015);
+        transform: perspective(860px) rotateX(2deg) translateY(-2px) scale(1.015);
       }
     }
   </style>
@@ -5814,10 +5881,10 @@
                 ${actorCards.map(item => item.locked
                   ? `
                     <article class="character-actor-card locked" aria-disabled="true">
-                      <img src="${createPlaceholderCover(item.actorName)}" alt="Actor bloqueado: ${item.actorName}" loading="lazy">
+                      <div class="locked-mic" role="img" aria-label="Actor bloqueado">🎙️</div>
                       <div class="meta">
-                        <h3><button type="button" class="actor-name-btn" data-open-actor-profile="${item.actorName}" aria-label="Abrir perfil de ${item.actorName}">${item.actorName}</button> <button type="button" class="neon-btn icon-btn actor-add-btn" data-add-greeting-actor="${item.actorName}" aria-label="Agregar video para ${item.actorName}">+</button></h3>
-                        <p class="locked-note">🔒 Falta Saludo</p>
+                        <h3><button type="button" class="actor-name-btn" data-open-actor-profile="${item.actorName}" aria-label="Abrir perfil de ${item.actorName}">${item.actorName}</button> <button type="button" class="neon-btn icon-btn" data-add-greeting-actor="${item.actorName}" aria-label="Agregar video para ${item.actorName}">+</button></h3>
+                        <p class="locked-note">Bloqueado</p>
                       </div>
                     </article>
                   `
@@ -6045,6 +6112,26 @@
         acc.get(rarity).push(item);
         return acc;
       }, new Map());
+      const renderIndiceCardMedia = (item) => {
+        if (item.unlocked) {
+          const mediaSrc = item.coverVideo ? getVideoThumbnail(item.coverVideo) : createPlaceholderCover(item.name);
+          return `<img class="character-gallery-media character-gallery-media--image" src="${mediaSrc}" alt="Portada de ${item.name}" loading="lazy">`;
+        }
+        const customLockedAvatarUrl = getCharacterLockedAvatarUrl(item.name);
+        return `
+          <div
+            class="character-gallery-media profile-avatar--locked indice-card-locked-avatar ${customLockedAvatarUrl ? 'has-custom-image' : ''}"
+            role="img"
+            aria-label="Avatar bloqueado de ${item.name}"
+            ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
+          >
+            <span class="profile-avatar-lock-label">
+              <span class="lock-icon">🔒</span>
+              ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
+            </span>
+          </div>
+        `;
+      };
       const rarityRenderOrder = ['Legendario', 'Épico', 'Raro', 'Común', 'Bloqueado'];
       viewIndice.innerHTML = `
         <section class="mock-shell">
@@ -6107,7 +6194,7 @@
                       data-locked="${item.unlocked ? 'false' : 'true'}"
                       style="--rarity-glow:${rarityColorValue(item.rareza || 'Común')}; --float-delay:-${(Math.random() * 2.6).toFixed(2)}s;"
                     >
-                      <img src="${item.coverVideo ? getVideoThumbnail(item.coverVideo) : createPlaceholderCover(item.name)}" alt="Portada de ${item.name}" loading="lazy">
+                      ${renderIndiceCardMedia(item)}
                       <div class="meta">
                         <h3>${item.name}</h3>
                       </div>
