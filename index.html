@@ -2761,10 +2761,21 @@
         linear-gradient(165deg, rgba(20, 32, 58, .88), rgba(12, 20, 37, .96));
       filter: grayscale(.42) brightness(.86);
     }
-    .character-actor-card.locked img {
-      filter: grayscale(.58) blur(1.8px) brightness(.38) saturate(.35);
-      opacity: .72;
-      transform: scale(1.02);
+    .character-actor-card .locked-mic {
+      aspect-ratio: 16 / 11;
+      min-height: 120px;
+      width: 100%;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      background: linear-gradient(160deg, rgba(8, 16, 34, .92), rgba(18, 29, 52, .9));
+      border: 1px solid rgba(144, 176, 230, .35);
+      box-shadow:
+        inset 0 1px 0 rgba(226, 242, 255, .14),
+        inset 0 -18px 28px rgba(3, 8, 20, .45),
+        0 0 18px rgba(124, 170, 255, .22);
+      text-shadow: 0 0 10px rgba(153, 208, 255, .38);
     }
     .character-hero__actions {
       display: grid;
@@ -2826,10 +2837,18 @@
       color: #dceaff;
       text-shadow: 0 1px 0 rgba(239, 249, 255, .18), 0 2px 5px rgba(6, 14, 32, .78);
     }
-    .character-actor-card.locked p {
-      color: #ffc2c2;
-      font-weight: 600;
-      font-size: .84rem;
+    .character-actor-card .locked-note {
+      color: #ff6c7b;
+      font-weight: 700;
+      font-size: .86rem;
+      letter-spacing: .02em;
+      text-shadow:
+        0 0 7px rgba(255, 61, 87, .55),
+        0 0 14px rgba(255, 61, 87, .28);
+      background: linear-gradient(92deg, #ff8ea1 0%, #ff465f 48%, #ff9aa9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .character-actor-card .add-greeting-btn {
       width: 26px;
@@ -5824,10 +5843,10 @@
                 ${actorCards.map(item => item.locked
                   ? `
                     <article class="character-actor-card locked" aria-disabled="true">
-                      <img src="${createPlaceholderCover(item.actorName)}" alt="Actor bloqueado: ${item.actorName}" loading="lazy">
+                      <div class="locked-mic" role="img" aria-label="Actor bloqueado">🎙️</div>
                       <div class="meta">
                         <h3><button type="button" class="actor-name-btn" data-open-actor-profile="${item.actorName}" aria-label="Abrir perfil de ${item.actorName}">${item.actorName}</button> <button type="button" class="neon-btn icon-btn" data-add-greeting-actor="${item.actorName}" aria-label="Agregar video para ${item.actorName}">+</button></h3>
-                        <p class="locked-note">🔒 Falta Saludo</p>
+                        <p class="locked-note">Bloqueado</p>
                       </div>
                     </article>
                   `
