@@ -4972,14 +4972,24 @@
           <section class="hud-panel">
             <div class="video-grid">
               ${groupedCharacterCards.map(item => `
-                <article class="character-gallery-card collection-card" data-open-character="${item.characterName}" style="--float-delay:-${(Math.random() * 2.8).toFixed(2)}s;">
-                  <div class="card-media">
-                    <img class="video-thumb" src="${item.coverVideo?.thumbnail || getUniverseCover(item.videos)}" alt="Portada de ${item.characterName}" loading="lazy">
-                  </div>
-                  <div class="card-footer">
+                <button
+                  type="button"
+                  class="character-gallery-card"
+                  data-open-character="${item.characterName}"
+                  data-rarity="${String(item.coverVideo?.rareza || 'Común').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}"
+                  data-locked="false"
+                  style="--rarity-glow:${rarityColorValue(item.coverVideo?.rareza || 'Común')}; --float-delay:-${(Math.random() * 2.6).toFixed(2)}s;"
+                >
+                  <img
+                    class="character-gallery-media character-gallery-media--image"
+                    src="${item.coverVideo?.thumbnail || getUniverseCover(item.videos)}"
+                    alt="Portada de ${item.characterName}"
+                    loading="lazy"
+                  >
+                  <div class="meta">
                     <h3>${item.characterName || 'Pendiente'}</h3>
                   </div>
-                </article>
+                </button>
               `).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
             </div>
           </section>
