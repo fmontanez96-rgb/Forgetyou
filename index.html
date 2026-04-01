@@ -1943,7 +1943,9 @@
       margin-top: 0;
       font-size: clamp(.9rem, .78rem + .35vw, 1.02rem);
       min-block-size: 48px;
+      inline-size: min(100%, 560px);
       align-items: center;
+      justify-content: flex-start;
       padding: 8px 14px;
       border-radius: 999px;
       border: 1px solid var(--badge-edge);
@@ -1992,7 +1994,6 @@
     }
     .character-hero__badge--universes {
       --badge-glow: rgba(123, 215, 255, .26);
-      max-inline-size: min(100%, 560px);
       overflow: hidden;
       text-overflow: ellipsis;
     }
