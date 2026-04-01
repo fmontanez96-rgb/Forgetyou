@@ -1967,6 +1967,39 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .character-hero__badge--universe-red {
+      --badge-glow: color-mix(in srgb, #ff5c74 62%, rgba(255, 132, 132, .34));
+      --badge-top: color-mix(in srgb, #ff9dae 34%, rgba(255, 233, 238, .42));
+      --badge-base: color-mix(in srgb, #ff425f 25%, rgba(54, 8, 20, .92));
+      --badge-base-2: color-mix(in srgb, #8b1431 22%, rgba(26, 5, 13, .95));
+      --badge-edge: color-mix(in srgb, #ffb2bf 54%, rgba(255, 207, 217, .5));
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .character-hero__universe-avatar {
+      inline-size: 15px;
+      block-size: 15px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 237, 241, .72);
+      box-shadow: 0 0 8px rgba(255, 112, 136, .42);
+      flex: 0 0 auto;
+    }
+    .character-hero__universe-avatar--fallback {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .54rem;
+      font-weight: 700;
+      color: rgba(255, 239, 242, .9);
+      background: radial-gradient(circle at 28% 22%, rgba(255, 207, 216, .84), rgba(255, 104, 129, .6) 44%, rgba(121, 17, 43, .9) 100%);
+    }
+    .character-hero__universe-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .toon-btn {
       position: relative;
       border-radius: 12px;
@@ -3650,6 +3683,16 @@
     function getUniverseVideos() {
       const target = normalizeUniverseName(state.universe || '');
       return VIDEOS.filter(v => getVideoUniverses(v).some(name => normalizeUniverseName(name) === target));
+    }
+
+    function getUniverseCoverByName(universeName) {
+      const normalizedUniverse = normalizeUniverseName(universeName || '');
+      if (!normalizedUniverse) return '';
+      const nodeCover = state.universeNodes
+        .find(node => normalizeUniverseName(node.name) === normalizedUniverse)?.cover || '';
+      if (nodeCover) return nodeCover;
+      const universeData = groupByUniverse()[normalizedUniverse];
+      return getUniverseCover(universeData?.videos || []);
     }
 
     function getFilteredUniverseVideos() {
@@ -5567,7 +5610,14 @@
                 <h2 class="section-title detail-character character-hero__title">${focusedCharacter}</h2>
                 <div class="detail-meta character-hero__badges">
                   <span class="badge character-hero__badge ${rarityClass(rareza)}">🌟 ${rareza}</span>
-                  ${universos.map(universe => `<span class="badge character-hero__badge character-hero__badge--universes rare-comun">🪐 ${universe}</span>`).join('') || '<span class="badge character-hero__badge character-hero__badge--universes rare-comun">🪐 Ninguno</span>'}
+                  ${universos.map((universe) => {
+                    const universeLabel = String(universe || '').trim() || 'Ninguno';
+                    const universeCoverUrl = getUniverseCoverByName(universeLabel);
+                    const universeAvatar = universeCoverUrl
+                      ? `<img class="character-hero__universe-avatar" src="${escapeHtml(universeCoverUrl)}" alt="Avatar del universo ${escapeHtml(universeLabel)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'), { className: 'character-hero__universe-avatar character-hero__universe-avatar--fallback', textContent: '${escapeHtml(universeLabel.charAt(0).toUpperCase() || 'N')}' }))">`
+                      : `<span class="character-hero__universe-avatar character-hero__universe-avatar--fallback" aria-hidden="true">${escapeHtml(universeLabel.charAt(0).toUpperCase() || 'N')}</span>`;
+                    return `<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red">${universeAvatar}<span class="character-hero__universe-name">${escapeHtml(universeLabel)}</span></span>`;
+                  }).join('') || '<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red"><span class="character-hero__universe-avatar character-hero__universe-avatar--fallback" aria-hidden="true">N</span><span class="character-hero__universe-name">Ninguno</span></span>'}
                 </div>
               </div>
               <div class="character-hero__actions">
