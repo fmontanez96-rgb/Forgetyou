@@ -1896,7 +1896,34 @@
       gap: 12px;
     }
     .character-hero__title {
-      font-size: clamp(1.75rem, 1.5rem + 1vw, 2.2rem);
+      font-size: clamp(2.2rem, 1.65rem + 2.1vw, 3.4rem);
+      font-family: "Marker Felt", "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", cursive, sans-serif;
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: .02em;
+      background: linear-gradient(180deg, #fff3a8 0%, #ffe16b 32%, #ffad48 65%, #ff7a3d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: #ffe16b;
+      text-shadow:
+        /* borde suave / stroke simulado */
+        1px 0 0 rgba(22, 9, 3, .88),
+        -1px 0 0 rgba(22, 9, 3, .88),
+        0 1px 0 rgba(22, 9, 3, .88),
+        0 -1px 0 rgba(22, 9, 3, .88),
+        1px 1px 0 rgba(22, 9, 3, .78),
+        -1px 1px 0 rgba(22, 9, 3, .78),
+        1px -1px 0 rgba(22, 9, 3, .78),
+        -1px -1px 0 rgba(22, 9, 3, .78),
+        /* capas 3D cortas */
+        0 2px 0 rgba(69, 24, 7, .72),
+        0 3px 0 rgba(58, 18, 8, .68),
+        0 4px 0 rgba(42, 12, 8, .62),
+        0 6px 10px rgba(0, 0, 0, .45),
+        /* glow */
+        0 0 12px rgba(255, 171, 90, .45),
+        0 0 22px rgba(255, 123, 70, .34);
       margin-bottom: 0;
     }
     .character-hero__badges {
@@ -2950,6 +2977,19 @@
       .character-hero__badge {
         font-size: .86rem;
         padding: 7px 12px;
+      }
+      .character-hero__title {
+        font-size: clamp(1.85rem, 1.35rem + 2.5vw, 2.55rem);
+        letter-spacing: .015em;
+        text-shadow:
+          1px 0 0 rgba(22, 9, 3, .86),
+          -1px 0 0 rgba(22, 9, 3, .86),
+          0 1px 0 rgba(22, 9, 3, .86),
+          0 -1px 0 rgba(22, 9, 3, .86),
+          0 2px 0 rgba(69, 24, 7, .68),
+          0 3px 0 rgba(58, 18, 8, .62),
+          0 4px 8px rgba(0, 0, 0, .4),
+          0 0 10px rgba(255, 164, 88, .34);
       }
       .actors-shell::after {
         filter: blur(4px);
