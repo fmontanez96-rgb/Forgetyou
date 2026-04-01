@@ -3134,7 +3134,7 @@
       place-items: center;
     }
     .profile-avatar--locked.has-custom-image::before {
-      background: linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7));
+      background: linear-gradient(rgba(0, 0, 0, .75), rgba(0, 0, 0, .75));
       box-shadow: inset 0 0 34px rgba(0, 0, 0, .88), inset 0 0 0 1px rgba(210, 236, 255, .12);
     }
     .profile-avatar--locked::before {
@@ -4850,6 +4850,7 @@
       const groupedCharacterCards = groupedCharacters
         .map((record) => ({
           ...record,
+          unlocked: record.videos.some(video => hasGreetingVideo(video)),
           actorsList: [...record.actors].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }))
         }))
         .sort((a, b) => a.characterName.localeCompare(b.characterName, 'es', { sensitivity: 'base' }));
@@ -4996,8 +4997,8 @@
                 name: item.characterName,
                 coverVideo: item.coverVideo,
                 rareza: item.coverVideo?.rareza || 'Común',
-                unlocked: true
-              }, { locked: false })).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
+                unlocked: item.unlocked
+              }, { locked: !item.unlocked })).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
             </section>
           </section>
         </div>
@@ -6011,8 +6012,8 @@
       const renderMedia = () => {
         const customAvatarUrl = getCharacterLockedAvatarUrl(cardName);
         if (!locked) {
-          if (customAvatarUrl) {
-            return `<img class="character-gallery-media character-gallery-media--image" src="${customAvatarUrl}" alt="Avatar de ${cardName}" loading="lazy">`;
+          if (item?.coverVideo && hasGreetingVideo(item.coverVideo)) {
+            return `<img class="character-gallery-media character-gallery-media--image" src="${getVideoThumbnail(item.coverVideo)}" alt="Portada de YouTube de ${cardName}" loading="lazy">`;
           }
           return `<div class="character-gallery-media character-gallery-media--avatar-fallback" role="img" aria-label="Avatar por defecto de ${cardName}"></div>`;
         }
