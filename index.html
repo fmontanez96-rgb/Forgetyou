@@ -4943,8 +4943,7 @@
                     <img class="video-thumb" src="${item.coverVideo?.thumbnail || getUniverseCover(item.videos)}" alt="Portada de ${item.characterName}" loading="lazy">
                   </div>
                   <div class="card-footer">
-                    <p class="meta"><small>Personaje:</small>${item.characterName || 'Pendiente'}</p>
-                    <p class="meta"><small>Actores:</small>${item.actorsList.join(', ') || 'Sin actor'}</p>
+                    <h3>${item.characterName || 'Pendiente'}</h3>
                   </div>
                 </article>
               `).join('') || '<p class="muted">No hay resultados con estos filtros.</p>'}
