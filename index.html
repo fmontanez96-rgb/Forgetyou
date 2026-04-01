@@ -2686,18 +2686,32 @@
       box-shadow: inset 0 1px 0 rgba(235, 248, 255, .16);
     }
     .character-actor-card h3 {
+      --actor-name-fill-start: #eaf8ff;
+      --actor-name-fill-mid: #9be4ff;
+      --actor-name-fill-end: #66cfff;
+      --actor-name-shadow-top: rgba(255, 255, 255, .38);
+      --actor-name-shadow-core: rgba(9, 24, 50, .92);
+      --actor-name-shadow-glow: rgba(78, 207, 255, .44);
       margin: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
       font-family: "Bangers", "Luckiest Guy", "Comic Sans MS", "Chalkboard SE", cursive, sans-serif;
-      letter-spacing: .02em;
-      color: #9ed9ff;
+      font-size: 1.1rem;
+      font-weight: 780;
+      letter-spacing: .035em;
+      line-height: 1.08;
+      color: #ccf0ff;
+      background-image: linear-gradient(178deg, var(--actor-name-fill-start) 0%, var(--actor-name-fill-mid) 52%, var(--actor-name-fill-end) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
       text-shadow:
-        0 1px 0 rgba(255, 255, 255, .28),
-        0 2px 0 rgba(7, 22, 47, .8),
-        0 5px 10px rgba(0, 0, 0, .48);
+        0 1px 0 var(--actor-name-shadow-top),
+        0 2px 0 var(--actor-name-shadow-core),
+        0 6px 12px rgba(0, 0, 0, .36),
+        0 0 10px var(--actor-name-shadow-glow);
     }
     .character-actor-card .actor-name-btn {
       flex: 1;
@@ -2713,14 +2727,20 @@
       font: inherit;
       font-weight: inherit;
       letter-spacing: inherit;
+      text-transform: uppercase;
       text-shadow: inherit;
       cursor: pointer;
-      transition: color .2s ease, text-shadow .2s ease, background-color .2s ease;
+      overflow-wrap: anywhere;
+      transition: color .2s ease, text-shadow .22s ease, background-color .22s ease, box-shadow .22s ease;
     }
     .character-actor-card .actor-name-btn:hover {
-      color: #dff9ff;
-      text-shadow: 0 0 10px rgba(108, 239, 255, .55);
-      background: rgba(62, 161, 218, .2);
+      color: #f1fbff;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, .38),
+        0 2px 0 rgba(10, 23, 48, .9),
+        0 0 7px rgba(104, 235, 255, .4);
+      background: rgba(80, 179, 233, .16);
+      box-shadow: inset 0 0 0 1px rgba(179, 233, 255, .32);
     }
     .character-actor-card .actor-name-btn:focus-visible {
       outline: 2px solid rgba(160, 229, 255, .84);
@@ -2770,9 +2790,12 @@
       transform: translateZ(0);
     }
     .character-actor-card.unlocked h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #75dcff;
+      --actor-name-fill-start: #f8feff;
+      --actor-name-fill-mid: #b7f0ff;
+      --actor-name-fill-end: #79dcff;
+      --actor-name-shadow-top: rgba(255, 255, 255, .44);
+      --actor-name-shadow-core: rgba(5, 20, 48, .96);
+      --actor-name-shadow-glow: rgba(102, 227, 255, .54);
     }
     .character-actor-card.unlocked p {
       color: #9fbee3;
@@ -2863,11 +2886,12 @@
       gap: 8px;
     }
     .character-actor-card.locked h3 {
-      font-size: 1.08rem;
-      font-weight: 760;
-      letter-spacing: .02em;
-      color: #dceaff;
-      text-shadow: 0 1px 0 rgba(239, 249, 255, .18), 0 2px 5px rgba(6, 14, 32, .78);
+      --actor-name-fill-start: #d9e5f8;
+      --actor-name-fill-mid: #b4caea;
+      --actor-name-fill-end: #96afcf;
+      --actor-name-shadow-top: rgba(245, 251, 255, .24);
+      --actor-name-shadow-core: rgba(12, 22, 44, .9);
+      --actor-name-shadow-glow: rgba(152, 184, 225, .18);
     }
     .character-actor-card .locked-note {
       color: #ff6c7b;
