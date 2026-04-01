@@ -4737,6 +4737,10 @@
 
     function renderUniverseView() {
       const videos = getUniverseVideos();
+      const playableVideos = videos.filter((video) => hasGreetingVideo(video));
+      const playableCharactersCount = new Set(
+        playableVideos.map((video) => String(video.personaje || '').trim()).filter(Boolean)
+      ).size;
       const universeMap = groupByUniverse();
       const selectedUniverseKey = normalizeUniverseName(state.universe || '');
       const universeData = universeMap[selectedUniverseKey] || { totalCharacters: 0, unlockedCharacters: 0, completion: 0, state: 'incomplete' };
@@ -4813,8 +4817,8 @@
             <div class="universe-meta">
               <h2 class="section-title">${state.universe || 'Universo'}</h2>
               <div class="universe-stat-lines">
-                <p>Personajes: ${universeData.totalCharacters}</p>
-                <p>Videos: ${videos.length}</p>
+                <p>Personajes: ${playableCharactersCount}</p>
+                <p>Videos: ${playableVideos.length}</p>
               </div>
               <div class="collection-kpi" style="margin-top:10px;">
                 <div class="collection-progress" aria-hidden="true">
