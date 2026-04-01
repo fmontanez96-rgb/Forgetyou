@@ -1896,35 +1896,44 @@
       gap: 12px;
     }
     .character-hero__title {
-      font-size: clamp(2.2rem, 1.65rem + 2.1vw, 3.4rem);
+      font-size: clamp(2.45rem, 1.85rem + 2.2vw, 3.7rem);
       font-family: "Marker Felt", "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", cursive, sans-serif;
       font-weight: 900;
       line-height: 1.08;
-      letter-spacing: .02em;
-      background: linear-gradient(180deg, #fff3a8 0%, #ffe16b 32%, #ffad48 65%, #ff7a3d 100%);
+      letter-spacing: .03em;
+      color: #ffe8b2;
+      background:
+        repeating-linear-gradient(
+          115deg,
+          rgba(255, 255, 255, .26) 0 6px,
+          rgba(255, 255, 255, .08) 6px 12px,
+          rgba(255, 169, 74, .12) 12px 18px
+        ),
+        linear-gradient(180deg, #fff8d6 0%, #ffe58c 26%, #ffbf62 58%, #ff9444 100%);
+      background-size: 260% 100%, 100% 100%;
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      color: #ffe16b;
+      -webkit-text-stroke: 1.1px rgba(30, 12, 4, .78);
       text-shadow:
-        /* borde suave / stroke simulado */
-        1px 0 0 rgba(22, 9, 3, .88),
-        -1px 0 0 rgba(22, 9, 3, .88),
-        0 1px 0 rgba(22, 9, 3, .88),
-        0 -1px 0 rgba(22, 9, 3, .88),
-        1px 1px 0 rgba(22, 9, 3, .78),
-        -1px 1px 0 rgba(22, 9, 3, .78),
-        1px -1px 0 rgba(22, 9, 3, .78),
-        -1px -1px 0 rgba(22, 9, 3, .78),
-        /* capas 3D cortas */
-        0 2px 0 rgba(69, 24, 7, .72),
-        0 3px 0 rgba(58, 18, 8, .68),
-        0 4px 0 rgba(42, 12, 8, .62),
-        0 6px 10px rgba(0, 0, 0, .45),
-        /* glow */
-        0 0 12px rgba(255, 171, 90, .45),
-        0 0 22px rgba(255, 123, 70, .34);
+        0 1px 0 rgba(255, 244, 219, .52),
+        0 2px 0 rgba(183, 98, 28, .8),
+        0 4px 0 rgba(118, 53, 16, .82),
+        0 6px 0 rgba(79, 31, 10, .78),
+        0 9px 14px rgba(0, 0, 0, .45),
+        0 0 12px rgba(255, 207, 120, .5),
+        0 0 26px rgba(255, 145, 70, .42);
+      filter: drop-shadow(0 0 10px rgba(255, 186, 82, .36));
+      animation: characterNameShimmer 3.4s linear infinite, characterNamePulse 2.6s ease-in-out infinite;
       margin-bottom: 0;
+    }
+    @keyframes characterNameShimmer {
+      0% { background-position: 0% 50%, 0% 50%; }
+      100% { background-position: 200% 50%, 0% 50%; }
+    }
+    @keyframes characterNamePulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-1px) scale(1.015); }
     }
     .character-hero__badges {
       display: grid;
