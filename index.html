@@ -4057,6 +4057,15 @@
       return getUniverseCover(universeData?.videos || []);
     }
 
+
+    function getUniverseAvatarFallbackEmoji(universeName) {
+      const normalized = normalizeUniverseName(universeName || '');
+      if (!normalized || normalized === normalizeUniverseName('Sin universo') || normalized === normalizeUniverseName('Sin universos') || normalized === normalizeUniverseName('Ninguno')) {
+        return '🌌';
+      }
+      return '🪐';
+    }
+
     function getFilteredUniverseVideos() {
       return getUniverseVideos().filter(v => {
         const m1 = state.filters.personaje === 'todos' || (v.personaje || 'Sin personaje') === state.filters.personaje;
@@ -5981,13 +5990,14 @@
                 <div class="detail-meta character-hero__badges">
                   <span class="badge character-hero__badge ${rarityClass(rareza)}">🌟 ${rareza}</span>
                   ${universos.map((universe) => {
-                    const universeLabel = String(universe || '').trim() || 'Ninguno';
+                    const universeLabel = String(universe || '').trim() || 'Sin universos';
                     const universeCoverUrl = getUniverseCoverByName(universeLabel);
+                    const fallbackEmoji = getUniverseAvatarFallbackEmoji(universeLabel);
                     const universeAvatar = universeCoverUrl
-                      ? `<img class="character-hero__universe-avatar" src="${escapeHtml(universeCoverUrl)}" alt="Avatar del universo ${escapeHtml(universeLabel)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'), { className: 'character-hero__universe-avatar character-hero__universe-avatar--fallback', textContent: '${escapeHtml(universeLabel.charAt(0).toUpperCase() || 'N')}' }))">`
-                      : `<span class="character-hero__universe-avatar character-hero__universe-avatar--fallback" aria-hidden="true">${escapeHtml(universeLabel.charAt(0).toUpperCase() || 'N')}</span>`;
+                      ? `<img class="character-hero__universe-avatar" src="${escapeHtml(universeCoverUrl)}" alt="Avatar del universo ${escapeHtml(universeLabel)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'), { className: 'character-hero__universe-avatar character-hero__universe-avatar--fallback', textContent: '${escapeHtml(fallbackEmoji)}' }))">`
+                      : `<span class="character-hero__universe-avatar character-hero__universe-avatar--fallback" aria-hidden="true">${escapeHtml(fallbackEmoji)}</span>`;
                     return `<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red">${universeAvatar}<span class="character-hero__universe-name">${escapeHtml(universeLabel)}</span></span>`;
-                  }).join('') || '<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red"><span class="character-hero__universe-avatar character-hero__universe-avatar--fallback" aria-hidden="true">N</span><span class="character-hero__universe-name">Ninguno</span></span>'}
+                  }).join('') || '<span class="badge character-hero__badge character-hero__badge--universes character-hero__badge--universe-red"><span class="character-hero__universe-avatar character-hero__universe-avatar--fallback" aria-hidden="true">🌌</span><span class="character-hero__universe-name">Sin universos</span></span>'}
                 </div>
               </div>
               <div class="character-hero__actions">
