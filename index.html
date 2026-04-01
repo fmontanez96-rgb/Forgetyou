@@ -846,6 +846,56 @@
       align-items: center;
     }
 
+    .universe-meta {
+      display: grid;
+      gap: 8px;
+    }
+
+    .universe-meta .section-title {
+      margin: 0;
+      font-size: clamp(2rem, 1.65rem + 1.4vw, 3rem);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-weight: 900;
+      color: #ffe575;
+      background: linear-gradient(180deg, #fff4ad 0%, #ffd54f 42%, #ffbb33 72%, #f7921e 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow:
+        0 1px 0 #fff7cc,
+        0 2px 0 #f5a623,
+        0 4px 0 #d46a1d,
+        0 6px 10px rgba(0, 0, 0, .45),
+        0 0 24px rgba(255, 209, 102, .35);
+      transform: perspective(600px) rotateX(13deg);
+      transform-origin: center;
+      filter: drop-shadow(0 8px 12px rgba(30, 12, 0, .35));
+    }
+
+    .universe-stat-lines {
+      display: grid;
+      gap: 2px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      color: #ffe9b3;
+      text-shadow: 0 1px 0 rgba(255, 252, 230, .4), 0 3px 8px rgba(6, 10, 20, .55);
+    }
+
+    .universe-stat-lines p {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .progress-percent {
+      margin: 6px 0 0;
+      font-size: .95rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: var(--progress-color, #8db8ff);
+      text-shadow: 0 0 10px color-mix(in srgb, var(--progress-color, #8db8ff) 65%, transparent);
+    }
+
     .universe-hero img {
       width: 150px;
       height: 150px;
@@ -861,8 +911,10 @@
     .universe-header:hover .universe-hero img {
       transform: scale(1.05);
       border-color: #ffffff;
-      box-shadow: 0 0 35px rgba(0, 191, 255, 1), 
-                  inset 0 0 30px rgba(0, 191, 255, 0.8);
+      box-shadow:
+        0 0 10px color-mix(in srgb, var(--progress-color, #00bfff) 45%, white),
+        0 0 38px color-mix(in srgb, var(--progress-color, #00bfff) 75%, transparent),
+        inset 0 0 32px color-mix(in srgb, var(--progress-color, #00bfff) 55%, white);
     }
 
     .universe-controls {
@@ -870,6 +922,28 @@
       gap: 8px;
       align-content: start;
       justify-items: end;
+    }
+    .universe-controls .icon-only {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, .45);
+    }
+    .universe-controls .icon-only.edit {
+      color: #e8edf7;
+      border-color: rgba(209, 223, 246, .56);
+      background: linear-gradient(160deg, rgba(106, 116, 132, .9), rgba(79, 91, 111, .85));
+    }
+    .universe-controls .icon-only.delete {
+      color: #ffd8d8;
+      border-color: rgba(255, 116, 116, .6);
+      background: linear-gradient(160deg, rgba(171, 26, 26, .95), rgba(121, 12, 18, .92));
+      box-shadow: 0 0 0 1px rgba(255, 103, 103, .26), 0 0 16px rgba(255, 62, 62, .22);
     }
     .universe-edit-panel {
       margin-top: 12px;
@@ -1079,18 +1153,30 @@
       height: 14px;
       border-radius: 999px;
       border: 1px solid rgba(111, 180, 255, .45);
-      background: rgba(8, 19, 39, .78);
+      background:
+        repeating-linear-gradient(-45deg, rgba(255, 255, 255, .05) 0 10px, rgba(0, 0, 0, .06) 10px 20px),
+        rgba(8, 19, 39, .78);
       overflow: hidden;
-      box-shadow: inset 0 0 10px rgba(6, 13, 28, .8), 0 0 18px rgba(67, 160, 255, .2);
+      box-shadow: inset 0 0 10px rgba(6, 13, 28, .8), 0 0 14px rgba(255, 255, 255, .1), 0 0 18px rgba(67, 160, 255, .2);
     }
     .collection-progress-bar {
       height: 100%;
       width: var(--collection-progress, 0%);
-      background: linear-gradient(90deg, rgba(64, 129, 255, .8), rgba(92, 236, 255, .96), rgba(175, 114, 255, .82));
+      background: linear-gradient(90deg, color-mix(in srgb, var(--progress-color, #4b7dff) 65%, #ffffff), var(--progress-color, #4b7dff), color-mix(in srgb, var(--progress-color, #4b7dff) 75%, black));
       background-size: 220% 220%;
-      box-shadow: 0 0 20px rgba(43, 247, 255, .45), 0 0 14px rgba(151, 122, 255, .3);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .35),
+        0 0 22px color-mix(in srgb, var(--progress-color, #4b7dff) 66%, transparent);
       transition: width .35s ease;
       animation: pulseProgress 3.4s linear infinite;
+      position: relative;
+    }
+    .collection-progress-bar::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .38), rgba(255, 255, 255, 0));
+      mix-blend-mode: screen;
     }
     @keyframes pulseProgress {
       0% { background-position: 0% 50%; }
@@ -1209,6 +1295,19 @@
     }
 
     .video-card { cursor: pointer; }
+
+    #btn-toggle-video {
+      background: linear-gradient(160deg, #30adff, #1f5fda 52%, #153d96);
+      border-color: rgba(167, 224, 255, .8);
+      box-shadow: inset 0 1px 0 rgba(229, 247, 255, .45), 0 4px 0 rgba(8, 23, 64, .65), 0 10px 20px rgba(35, 93, 199, .35);
+      text-shadow: 0 2px 0 rgba(11, 28, 76, .7);
+    }
+    #btn-add-blocked-character {
+      background: linear-gradient(160deg, #a970ff, #7248d7 56%, #3f248e);
+      border-color: rgba(222, 192, 255, .82);
+      box-shadow: inset 0 1px 0 rgba(248, 236, 255, .42), 0 4px 0 rgba(35, 16, 77, .7), 0 10px 20px rgba(122, 88, 215, .36);
+      text-shadow: 0 2px 0 rgba(35, 19, 84, .75);
+    }
     .video-card .video-thumb {
       width: 100%;
       height: 150px;
@@ -3641,6 +3740,10 @@
       return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%2359d0ff'/><stop offset='100%' stop-color='%23a78bfa'/></linearGradient></defs><rect width='400' height='280' fill='%23111a34'/><rect x='14' y='14' width='372' height='252' rx='18' fill='url(%23g)' opacity='.4'/><text x='200' y='150' font-size='30' font-family='Arial, sans-serif' text-anchor='middle' fill='white'>${label}</text></svg>`;
     }
 
+    function createUniversePlaceholderCover() {
+      return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><defs><linearGradient id='space' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23050b17'/><stop offset='100%' stop-color='%23162543'/></linearGradient></defs><rect width='400' height='280' fill='url(%23space)'/><circle cx='72' cy='72' r='54' fill='%232bf7ff' opacity='.08'/><circle cx='318' cy='220' r='72' fill='%23a78bfa' opacity='.12'/><text x='200' y='160' font-size='98' font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif' text-anchor='middle'>%F0%9F%AA%90</text></svg>";
+    }
+
     function createNoUniversePlaceholderCover() {
       return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><defs><linearGradient id='space' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23050b17'/><stop offset='100%' stop-color='%23162543'/></linearGradient></defs><rect width='400' height='280' fill='url(%23space)'/><circle cx='306' cy='72' r='56' fill='%232bf7ff' opacity='.08'/><circle cx='84' cy='214' r='70' fill='%23a78bfa' opacity='.12'/><text x='200' y='160' font-size='96' font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif' text-anchor='middle'>%F0%9F%8C%8C</text></svg>";
     }
@@ -3649,7 +3752,15 @@
       if (normalizeUniverseName(name) === normalizeUniverseName('Sin universo')) {
         return cover || createNoUniversePlaceholderCover();
       }
-      return cover || createPlaceholderCover(name);
+      return cover || createUniversePlaceholderCover();
+    }
+
+    function getProgressVisual(completion = 0) {
+      const value = Number(completion) || 0;
+      if (value >= 100) return { color: '#31d665' };
+      if (value >= 66) return { color: '#2f82ff' };
+      if (value >= 25) return { color: '#ffcc33' };
+      return { color: '#ff4f4f' };
     }
 
     function validateCoverUrl(urlText) {
@@ -4665,37 +4776,41 @@
         .sort((a, b) => a.characterName.localeCompare(b.characterName, 'es', { sensitivity: 'base' }));
       const universeNode = state.universeNodes.find(node => normalizeUniverseName(node.name) === selectedUniverseKey);
       const headerCover = getSafeUniverseCover(state.universe, universeNode?.cover || getUniverseCover(videos));
+      const progressVisual = getProgressVisual(universeData.completion);
       const editFeedbackText = state.editUniverseFeedback?.text || '';
       const editFeedbackClass = state.editUniverseFeedback?.type === 'success' ? 'is-success' : '';
       viewUniverse.innerHTML = `
         <div class="actions universe-view-animated">
           <button id="backMap" class="neon-btn">← Volver al mapa</button>
         </div>
-        <section class="hud-panel universe-header universe-view-animated">
+        <section class="hud-panel universe-header universe-view-animated" style="--progress-color:${progressVisual.color};">
           <div class="universe-hero">
             <img src="${headerCover}" alt="Portada de ${state.universe}">
-            <div>
+            <div class="universe-meta">
               <h2 class="section-title">${state.universe || 'Universo'}</h2>
-              <p class="section-subtitle">${videos.length} videos en total · ${universeData.unlockedCharacters}/${universeData.totalCharacters} personajes desbloqueados.</p>
-              <span class="completion-badge completion-badge--${universeData.state}">
-                ${universeData.state === 'complete' ? 'Completo' : universeData.state === 'advanced' ? 'Avanzado' : 'Incompleto'} · ${universeData.completion}%
-              </span>
+              <div class="universe-stat-lines">
+                <p>Personajes: ${universeData.totalCharacters}</p>
+                <p>Videos: ${videos.length}</p>
+              </div>
               <div class="collection-kpi" style="margin-top:10px;">
                 <div class="collection-progress" aria-hidden="true">
                   <div class="collection-progress-bar" style="--collection-progress:${universeData.completion}%; width:${universeData.completion}%;"></div>
                 </div>
+                <p class="progress-percent">${universeData.completion}%</p>
               </div>
             </div>
           </div>
           <div class="universe-controls">
             <button
               id="toggleEditUniverseForm"
-              class="neon-btn neon-action"
+              class="neon-btn neon-action icon-only edit"
               aria-expanded="${state.showEditUniverseForm ? 'true' : 'false'}"
+              title="${state.showEditUniverseForm ? 'Cerrar edición' : 'Editar universo'}"
+              aria-label="${state.showEditUniverseForm ? 'Cerrar edición' : 'Editar universo'}"
             >
-              ${state.showEditUniverseForm ? 'Cerrar edición' : 'Editar universo'}
+              ✏️
             </button>
-            <button id="deleteUniverse" class="neon-btn neon-action">Eliminar universo</button>
+            <button id="deleteUniverse" class="neon-btn neon-action icon-only delete" title="Eliminar universo" aria-label="Eliminar universo">🗑️</button>
             <button
               id="btn-toggle-video"
               class="neon-btn neon-btn--primary neon-action"
