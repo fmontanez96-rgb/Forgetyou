@@ -2261,7 +2261,7 @@
     .character-gallery-card[data-rarity="legendario"] h3 {
       border-color: color-mix(in srgb, var(--rarity-glow) 46%, rgba(230, 241, 255, .22));
     }
-    .character-gallery-card img {
+    .character-gallery-card .character-gallery-media {
       width: 100%;
       aspect-ratio: 3 / 4;
       height: auto;
@@ -2269,6 +2269,17 @@
       display: block;
       border-bottom: 1px solid rgba(111, 180, 255, .28);
       background: rgba(10, 17, 36, .85);
+    }
+    .character-gallery-card .indice-card-locked-avatar {
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      border-radius: 12px 12px 0 0;
+      border-inline: 0;
+      border-top: 0;
+      border-bottom-style: solid;
+      border-bottom-color: rgba(111, 180, 255, .28);
+      box-shadow: none;
     }
     .character-gallery-card .meta {
       padding: 7px 8px 8px;
@@ -2325,7 +2336,7 @@
       opacity: .9;
       animation: lockedNebulaShift 14s ease-in-out infinite alternate;
     }
-    .character-gallery-card[data-locked="true"] img {
+    .character-gallery-card[data-locked="true"] .character-gallery-media--image {
       filter: grayscale(1) brightness(.08) contrast(1.9) saturate(.7) drop-shadow(0 0 10px var(--locked-glow));
       opacity: .9;
       border-bottom-color: rgba(171, 187, 210, .24);
@@ -6044,6 +6055,26 @@
         acc.get(rarity).push(item);
         return acc;
       }, new Map());
+      const renderIndiceCardMedia = (item) => {
+        if (item.unlocked) {
+          const mediaSrc = item.coverVideo ? getVideoThumbnail(item.coverVideo) : createPlaceholderCover(item.name);
+          return `<img class="character-gallery-media character-gallery-media--image" src="${mediaSrc}" alt="Portada de ${item.name}" loading="lazy">`;
+        }
+        const customLockedAvatarUrl = getCharacterLockedAvatarUrl(item.name);
+        return `
+          <div
+            class="character-gallery-media profile-avatar--locked indice-card-locked-avatar ${customLockedAvatarUrl ? 'has-custom-image' : ''}"
+            role="img"
+            aria-label="Avatar bloqueado de ${item.name}"
+            ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
+          >
+            <span class="profile-avatar-lock-label">
+              <span class="lock-icon">🔒</span>
+              ${customLockedAvatarUrl ? '' : '<span class="lock-text">Bloqueado</span>'}
+            </span>
+          </div>
+        `;
+      };
       const rarityRenderOrder = ['Legendario', 'Épico', 'Raro', 'Común', 'Bloqueado'];
       viewIndice.innerHTML = `
         <section class="mock-shell">
@@ -6106,7 +6137,7 @@
                       data-locked="${item.unlocked ? 'false' : 'true'}"
                       style="--rarity-glow:${rarityColorValue(item.rareza || 'Común')}; --float-delay:-${(Math.random() * 2.6).toFixed(2)}s;"
                     >
-                      <img src="${item.coverVideo ? getVideoThumbnail(item.coverVideo) : createPlaceholderCover(item.name)}" alt="Portada de ${item.name}" loading="lazy">
+                      ${renderIndiceCardMedia(item)}
                       <div class="meta">
                         <h3>${item.name}</h3>
                       </div>
