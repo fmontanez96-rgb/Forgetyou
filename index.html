@@ -2799,13 +2799,14 @@
       border-radius: 20px;
       overflow: hidden;
       display: grid;
-      place-items: end center;
+      place-items: center;
       padding: 14px;
       border: 1px dashed rgba(168, 189, 214, .55);
-      box-shadow: 0 10px 22px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .12);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(0, 0, 0, .35);
       background:
-        radial-gradient(circle at 50% 24%, rgba(255, 255, 255, .14), transparent 44%),
-        linear-gradient(180deg, #596271 0%, #3a424e 55%, #262d38 100%);
+        radial-gradient(circle at 50% 24%, rgba(255, 255, 255, .08), transparent 42%),
+        linear-gradient(180deg, #4e5764 0%, #303844 54%, #1b222c 100%);
+      filter: brightness(.74);
     }
     .profile-avatar--locked.has-custom-image {
       border: 1px solid rgba(144, 214, 255, .55);
@@ -2813,16 +2814,19 @@
       background-position: center;
       background-repeat: no-repeat;
       padding: 0;
-      place-items: stretch;
+      place-items: center;
     }
-    .profile-avatar--locked.has-custom-image::before {
+    .profile-avatar--locked::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(3, 9, 20, .58);
-      box-shadow: inset 0 0 0 1px rgba(210, 236, 255, .2);
+      background:
+        radial-gradient(circle at 50% 24%, rgba(255, 255, 255, .14), transparent 44%),
+        radial-gradient(circle at 50% 50%, transparent 36%, rgba(0, 0, 0, .56) 100%);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, .75), inset 0 0 0 1px rgba(210, 236, 255, .15);
+      pointer-events: none;
     }
-    .profile-avatar--locked::before {
+    .profile-avatar--locked::after {
       content: '';
       position: absolute;
       left: 50%;
@@ -2833,25 +2837,38 @@
       background: #090c12;
       border-radius: 44% 44% 12% 12% / 52% 52% 9% 9%;
       box-shadow: 0 -16px 0 -7px #090c12, 0 16px 24px rgba(0, 0, 0, .38);
+      pointer-events: none;
     }
     .profile-avatar--locked .profile-avatar-lock-label {
       position: relative;
       z-index: 1;
-      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      gap: 3px;
+      border-radius: 14px;
       border: 1px solid rgba(211, 226, 244, .42);
-      background: rgba(10, 14, 22, .68);
+      background: rgba(8, 12, 20, .74);
       color: #f2f6fb;
       font-size: .78rem;
       letter-spacing: .08em;
       text-transform: uppercase;
-      padding: 5px 10px;
+      padding: 8px 12px;
       backdrop-filter: blur(2px);
+      text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05), 0 8px 12px rgba(0, 0, 0, .42);
+    }
+    .profile-avatar--locked .profile-avatar-lock-label .lock-icon {
+      font-size: 1.2em;
+      line-height: 1;
+    }
+    .profile-avatar--locked .profile-avatar-lock-label .lock-text {
+      line-height: 1;
     }
     .profile-avatar--locked.has-custom-image .profile-avatar-lock-label {
       margin: auto;
       font-size: 1rem;
-      padding: 8px 14px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, .4);
+      padding: 10px 16px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, .45);
     }
     .mock-row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
     .mock-box {
@@ -5633,7 +5650,10 @@
                 aria-label="Avatar de ${focusedCharacter} en estado bloqueado, sin videos reproducibles disponibles"
                 ${customLockedAvatarUrl ? `style="background-image: url('${customLockedAvatarUrl.replace(/'/g, '%27')}')"` : ''}
               >
-                <span class="profile-avatar-lock-label">🔒 Bloqueado</span>
+                <span class="profile-avatar-lock-label">
+                  <span class="lock-icon">🔒</span>
+                  <span class="lock-text">Bloqueado</span>
+                </span>
               </div>
             `
           : `<img src="${profileImage}" class="profile-avatar" alt="Avatar de ${focusedCharacter}" loading="lazy">`;
