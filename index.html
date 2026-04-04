@@ -6672,6 +6672,35 @@
     }
 
     function renderActoresView() {
+      const ensureBlockedPlaceholderForActorCharacter = (actorName, characterName) => {
+        const cleanActorName = String(actorName || '').trim();
+        const cleanCharacterName = String(characterName || '').trim();
+        if (!cleanActorName || !cleanCharacterName) return;
+        const normalizedCharacterName = normalizeName(cleanCharacterName);
+        const canonicalCharacterName = VIDEOS.find((video) => normalizeName(video.personaje || '') === normalizedCharacterName)?.personaje || cleanCharacterName;
+
+        const alreadyRegisteredBlockedVideo = VIDEOS.some((video) => (
+          normalizeName(video.actor_de_doblaje || '') === normalizeName(cleanActorName)
+          && normalizeName(video.personaje || '') === normalizedCharacterName
+          && !hasGreetingVideo(video)
+        ));
+        if (alreadyRegisteredBlockedVideo) return;
+
+        const existingCharacterEntries = VIDEOS.filter((video) => normalizeName(video.personaje || '') === normalizedCharacterName);
+        const inheritedUniverses = [...new Set(existingCharacterEntries.flatMap(item => getVideoUniverses(item)).filter(Boolean))];
+        const inheritedRarity = rarezasPermitidas(existingCharacterEntries.find(item => item.rareza)?.rareza || 'Común');
+        VIDEOS.push({
+          id: `video-bloqueado-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          titulo: `Registro bloqueado de ${canonicalCharacterName}`,
+          universo: inheritedUniverses.length ? inheritedUniverses : [SPECIAL_UNASSIGNED_UNIVERSE],
+          personaje: canonicalCharacterName,
+          actor_de_doblaje: cleanActorName,
+          url_youtube: '',
+          rareza: inheritedRarity,
+          thumbnail: createPlaceholderCover(canonicalCharacterName)
+        });
+      };
+
       const actorNameByNormalized = new Map();
       const registerActorName = (rawName) => {
         const cleanName = String(rawName || '').trim();
@@ -6846,7 +6875,8 @@
           saveCollectionModel(); // Guardamos el modelo para que Firebase lo sincronice
         }
 
-        chars.forEach(char => {
+        chars.forEach((char) => {
+          ensureBlockedPlaceholderForActorCharacter(actorName, char);
           blockCharacterForActor(actorName, char);
         });
 
@@ -7004,19 +7034,7 @@
         ));
 
         if (!alreadyRegisteredBlockedVideo) {
-          const existingCharacterEntries = VIDEOS.filter((video) => normalizeName(video.personaje || '') === normalizedCharacterName);
-          const inheritedUniverses = [...new Set(existingCharacterEntries.flatMap(item => getVideoUniverses(item)).filter(Boolean))];
-          const inheritedRarity = existingCharacterEntries.find(item => item.rareza)?.rareza || 'Común';
-          VIDEOS.push({
-            id: `video-bloqueado-${Date.now()}`,
-            titulo: `Registro bloqueado de ${canonicalCharacterName}`,
-            universo: inheritedUniverses.length ? inheritedUniverses : [SPECIAL_UNASSIGNED_UNIVERSE],
-            personaje: canonicalCharacterName,
-            actor_de_doblaje: actor,
-            url_youtube: '',
-            rareza: inheritedRarity,
-            thumbnail: createPlaceholderCover(canonicalCharacterName)
-          });
+          ensureBlockedPlaceholderForActorCharacter(actor, canonicalCharacterName);
         }
 
         const current = state.blockedCharactersByActor[actor] || [];
