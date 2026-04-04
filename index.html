@@ -1417,17 +1417,46 @@
     }
     .actor-detail-actions {
       margin-top: 0;
-      justify-content: center;
+      justify-content: flex-end;
       align-items: center;
       width: 100%;
       row-gap: 10px;
     }
+    .actor-icon-btn {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      min-height: 38px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+    .actor-icon-btn--edit {
+      color: #ffb8c6;
+      border-color: rgba(255, 152, 173, .8);
+    }
+    .actor-icon-btn--edit:hover,
+    .actor-icon-btn--edit:focus-visible {
+      border-color: #ff5a7e;
+      box-shadow: 0 0 0 1px rgba(255, 90, 126, .48), 0 0 18px rgba(255, 90, 126, .42);
+      filter: brightness(1.05);
+    }
+    .actor-icon-btn--danger {
+      color: #ffc8c8;
+      border-color: rgba(255, 174, 174, .82);
+    }
+    .actor-icon-btn--danger:hover,
+    .actor-icon-btn--danger:focus-visible {
+      border-color: #ff8f8f;
+      box-shadow: 0 0 0 1px rgba(255, 143, 143, .42), 0 0 16px rgba(255, 143, 143, .28);
+      filter: brightness(1.03);
+    }
     @media (max-width: 720px) {
       .actor-detail-actions {
-        justify-content: stretch;
-      }
-      .actor-detail-actions .neon-btn {
-        flex: 1 1 100%;
+        justify-content: flex-end;
       }
     }
     .actor-character-list {
@@ -6841,8 +6870,8 @@
                 <div class="actor-detail-header">
                   <h3 class="actor-detail-title">${actor}</h3>
                   <div class="actions actor-detail-actions">
-                  <button id="editActorBtn" class="neon-btn">✏️ Editar Actor</button>
-                  <button id="deleteActorBtn" class="neon-btn" style="color: #ffb6b6; border-color: #ffb6b6;">🗑️ Eliminar</button>
+                  <button id="editActorBtn" class="neon-btn actor-icon-btn actor-icon-btn--edit" aria-label="Editar actor" title="Editar actor">❌</button>
+                  <button id="deleteActorBtn" class="neon-btn actor-icon-btn actor-icon-btn--danger" aria-label="Eliminar actor" title="Eliminar actor">🗑️</button>
                   </div>
                 </div>
                 <p class="muted">Personajes: ${actorCharacters.length} · Videos: ${actorVideos.length}</p>
