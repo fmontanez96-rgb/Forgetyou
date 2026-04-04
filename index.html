@@ -3551,27 +3551,6 @@
               <span class="sidebar-hint">Guía estelar</span>
             </span>
           </button>
-          <button id="navMaraton" class="sidebar-item">
-            <span class="sidebar-item-icon" aria-hidden="true">🎬</span>
-            <span class="sidebar-item-text">
-              <span class="sidebar-label">4. Maratón</span>
-              <span class="sidebar-hint">Modo continuo</span>
-            </span>
-          </button>
-          <button id="navRarezas" class="sidebar-item">
-            <span class="sidebar-item-icon" aria-hidden="true">💎</span>
-            <span class="sidebar-item-text">
-              <span class="sidebar-label">5. Rarezas</span>
-              <span class="sidebar-hint">Colección por nivel</span>
-            </span>
-          </button>
-          <button id="navStats" class="sidebar-item">
-            <span class="sidebar-item-icon" aria-hidden="true">📊</span>
-            <span class="sidebar-item-text">
-              <span class="sidebar-label">6. Stats</span>
-              <span class="sidebar-hint">Métricas globales</span>
-            </span>
-          </button>
         </nav>
       </aside>
 
@@ -3669,9 +3648,6 @@
     const navUniverses = document.getElementById('navUniverses');
     const navIndice = document.getElementById('navIndice');
     const navActores = document.getElementById('navActores');
-    const navMaraton = document.getElementById('navMaraton');
-    const navRarezas = document.getElementById('navRarezas');
-    const navStats = document.getElementById('navStats');
     const viewInicio = document.getElementById('viewInicio');
     const viewMap = document.getElementById('viewMap');
     const viewUniverse = document.getElementById('viewUniverse');
@@ -7420,10 +7396,7 @@
         universe: navUniverses,
         characterProfile: navIndice,
         indice: navIndice,
-        actores: navActores,
-        maraton: navMaraton,
-        rarezas: navRarezas,
-        stats: navStats
+        actores: navActores
       };
       activeNavByView[next]?.classList.add('active');
 
@@ -7454,9 +7427,6 @@
     navUniverses.onclick = () => changeView(state.universe ? 'universe' : 'map');
     navIndice.onclick = () => changeView('indice');
     navActores.onclick = () => changeView('actores');
-    navMaraton.onclick = () => changeView('maraton');
-    navRarezas.onclick = () => changeView('rarezas');
-    navStats.onclick = () => changeView('stats');
 
     state.universeNodes = loadUniverseNodesFromStorage();
     loadVideosFromStorage();
