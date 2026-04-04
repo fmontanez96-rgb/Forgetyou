@@ -6521,10 +6521,19 @@
     }
 
     function renderActoresView() {
-      const actors = (collectionModel.actors.length
-        ? collectionModel.actors.map(item => item.name)
-        : [...new Set(VIDEOS.map(v => v.actor_de_doblaje).filter(Boolean))]
-      ).sort();
+      const actorNameByNormalized = new Map();
+      const registerActorName = (rawName) => {
+        const cleanName = String(rawName || '').trim();
+        if (!cleanName) return;
+        const normalizedName = normalizeName(cleanName);
+        if (!normalizedName || normalizedName === normalizeName('Sin actor')) return;
+        if (!actorNameByNormalized.has(normalizedName)) {
+          actorNameByNormalized.set(normalizedName, cleanName);
+        }
+      };
+      collectionModel.actors.forEach((item) => registerActorName(item?.name));
+      VIDEOS.forEach((video) => registerActorName(video?.actor_de_doblaje));
+      const actors = [...actorNameByNormalized.values()].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
       if (state.actorFocus && !actors.includes(state.actorFocus)) {
         state.actorFocus = null;
         state.actorDetailsExpanded = false;
