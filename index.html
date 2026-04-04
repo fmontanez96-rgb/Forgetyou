@@ -1409,11 +1409,44 @@
       letter-spacing: .03em;
       line-height: 1.05;
       text-align: center;
-      color: #f4fbff;
+      color: #ffe97a;
       text-shadow:
-        0 0 8px rgba(120, 236, 255, .62),
-        0 0 18px rgba(141, 116, 255, .5),
-        0 0 30px rgba(255, 91, 214, .36);
+        0 1px 0 rgba(255, 159, 47, .76),
+        0 3px 0 rgba(84, 46, 18, .92),
+        0 0 16px rgba(255, 229, 90, .34);
+    }
+    .actor-detail-name {
+      display: inline-block;
+      background: linear-gradient(180deg, #ffe97a 0%, #ffd23f 52%, #ff9f2f 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: .8px rgba(52, 26, 9, .9);
+      text-shadow:
+        0 1px 0 rgba(255, 170, 54, .82),
+        0 4px 0 rgba(72, 36, 13, .95),
+        0 0 12px rgba(255, 235, 120, .45);
+      filter: brightness(1.03) contrast(1.04);
+      transform-origin: center;
+      animation: toonPulse 2.6s ease-in-out infinite;
+    }
+    @keyframes toonPulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: brightness(1.03) contrast(1.04);
+        text-shadow:
+          0 1px 0 rgba(255, 170, 54, .8),
+          0 4px 0 rgba(72, 36, 13, .94),
+          0 0 12px rgba(255, 235, 120, .42);
+      }
+      50% {
+        transform: scale(1.03);
+        filter: brightness(1.08) contrast(1.06);
+        text-shadow:
+          0 1px 0 rgba(255, 176, 64, .9),
+          0 4px 0 rgba(77, 40, 16, .98),
+          0 0 15px rgba(255, 236, 110, .52);
+      }
     }
     .actor-detail-actions {
       margin-top: 0;
@@ -1495,6 +1528,37 @@
     .actor-detail-title::before {
       content: '🎭';
       font-size: 1rem;
+      display: inline-block;
+      transform-origin: center;
+      animation: actorIconBob 2.2s ease-in-out infinite;
+      filter: drop-shadow(0 1px 0 rgba(96, 56, 21, .82)) drop-shadow(0 0 7px rgba(255, 224, 109, .4));
+    }
+    @keyframes actorIconBob {
+      0%, 100% {
+        transform: translateY(0) rotate(-2deg) scale(1);
+      }
+      50% {
+        transform: translateY(-2px) rotate(2deg) scale(1.07);
+      }
+    }
+    @media (max-width: 720px) {
+      .actor-detail-title {
+        text-shadow:
+          0 1px 0 rgba(255, 159, 47, .6),
+          0 2px 0 rgba(84, 46, 18, .82),
+          0 0 10px rgba(255, 229, 90, .22);
+      }
+      .actor-detail-name {
+        -webkit-text-stroke: .6px rgba(52, 26, 9, .85);
+        text-shadow:
+          0 1px 0 rgba(255, 170, 54, .72),
+          0 2px 0 rgba(72, 36, 13, .88),
+          0 0 9px rgba(255, 235, 120, .3);
+        animation-duration: 2.9s;
+      }
+      .actor-detail-title::before {
+        filter: drop-shadow(0 1px 0 rgba(96, 56, 21, .7)) drop-shadow(0 0 5px rgba(255, 224, 109, .3));
+      }
     }
     .actor-action-btn::after {
       content: ' ✨';
@@ -6839,7 +6903,7 @@
             <article class="mock-box actor-detail-grid" style="margin-top: 16px;">
               <div>
                 <div class="actor-detail-header">
-                  <h3 class="actor-detail-title">${actor}</h3>
+                  <h3 class="actor-detail-title"><span class="actor-detail-name">${actor}</span></h3>
                   <div class="actions actor-detail-actions">
                   <button id="editActorBtn" class="neon-btn">✏️ Editar Actor</button>
                   <button id="deleteActorBtn" class="neon-btn" style="color: #ffb6b6; border-color: #ffb6b6;">🗑️ Eliminar</button>
