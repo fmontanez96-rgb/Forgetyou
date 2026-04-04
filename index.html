@@ -6618,19 +6618,12 @@
                 <ul class="actor-character-list">
                   ${actorCharacterCards.map((item) => `
                     <li class="actor-character-item">
-                      <article class="collection-card collection-character-card actor-character-card ${item.unlocked ? 'unlocked' : 'locked'} ${item.rarityClassName}" style="--rarity-color:${rarityColorValue(item.rarity)};">
-                        ${item.unlocked && item.video ? `
-                          <button type="button" class="actor-character-video card-media" data-open-video="${item.video.id}">
-                            <img class="video-thumb" src="${getVideoThumbnail(item.video)}" alt="Miniatura de ${item.characterName}">
-                            <p class="card-title">▶ Ver saludo</p>
-                          </button>
-                        ` : '<div class="actor-character-thumb-empty">🔒 Sin saludo disponible</div>'}
-                        <div class="card-footer">
-                          <button type="button" class="character-link actor-character-link meta character-name" data-open-character="${item.characterName}">${item.characterName}</button>
-                          <span class="badge actor-character-status ${item.rarityClassName}">${item.rarity}</span>
-                          ${item.unlocked ? '' : '<span class="badge actor-character-status rare-bloqueado">Bloqueado</span>'}
-                        </div>
-                      </article>
+                      ${renderCharacterGalleryCard({
+                        name: item.characterName,
+                        coverVideo: item.video || null,
+                        rareza: item.rarity,
+                        unlocked: item.unlocked
+                      }, { locked: !item.unlocked })}
                     </li>
                   `).join('') || '<li class="actor-character-item"><p class="muted">Sin personajes registrados.</p></li>'}
                 </ul>
