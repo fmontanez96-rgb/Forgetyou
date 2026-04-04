@@ -3814,11 +3814,19 @@
       return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'><defs><linearGradient id='space' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23050b17'/><stop offset='100%' stop-color='%23162543'/></linearGradient></defs><rect width='400' height='280' fill='url(%23space)'/><circle cx='306' cy='72' r='56' fill='%232bf7ff' opacity='.08'/><circle cx='84' cy='214' r='70' fill='%23a78bfa' opacity='.12'/><text x='200' y='160' font-size='96' font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif' text-anchor='middle'>%F0%9F%8C%8C</text></svg>";
     }
 
+    function isLegacyGeneratedUniverseCover(cover) {
+      const rawCover = String(cover || '').trim();
+      if (!rawCover.startsWith('data:image/svg+xml;utf8,')) return false;
+      return rawCover.includes("id='g'") && rawCover.includes("font-size='30'");
+    }
+
     function getSafeUniverseCover(name, cover) {
+      const normalizedCover = String(cover || '').trim();
+      const effectiveCover = isLegacyGeneratedUniverseCover(normalizedCover) ? '' : normalizedCover;
       if (normalizeUniverseName(name) === normalizeUniverseName('Sin universo')) {
-        return cover || createNoUniversePlaceholderCover();
+        return effectiveCover || createNoUniversePlaceholderCover();
       }
-      return cover || createUniversePlaceholderCover();
+      return effectiveCover || createUniversePlaceholderCover();
     }
 
     function getProgressVisual(completion = 0) {
@@ -4556,7 +4564,7 @@
 
           const file = formData.get('portadaArchivo');
           const urlInput = String(formData.get('portadaUrl') || '');
-          let cover = createPlaceholderCover(name);
+          let cover = '';
           try {
             if (coverMode === 'file' && file instanceof File && file.size > 0) {
               if (!file.type.startsWith('image/')) throw new Error('El archivo seleccionado no es una imagen.');
@@ -5096,7 +5104,7 @@
         }
         const file = formData.get('portadaArchivo');
         const rawCoverUrl = String(formData.get('portadaUrl') || '');
-        let nextCover = universeNode?.cover || createPlaceholderCover(cleanName);
+        let nextCover = universeNode?.cover || '';
         try {
           if (editCoverMode === 'file' && file instanceof File && file.size > 0) {
             if (!file.type.startsWith('image/')) throw new Error('El archivo seleccionado no es una imagen.');
@@ -5116,7 +5124,7 @@
         });
         if (universeNode) {
           universeNode.name = cleanName;
-          universeNode.cover = nextCover || createPlaceholderCover(cleanName);
+          universeNode.cover = nextCover || '';
         }
         state.universe = cleanName;
         state.editUniverseFeedback = { type: 'success', text: 'Universo actualizado correctamente.' };
